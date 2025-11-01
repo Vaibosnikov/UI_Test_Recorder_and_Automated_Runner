@@ -15,6 +15,6 @@ gantt
     section Phase 3B
     Setup & Implementation Iteration 2        :p3b, 2025-11-24, 2025-12-07
     section Phase 4A
-    Testing & Validation                      :p4a, 2025-11-24, 2025-12-14
+    Testing & Validation                      :p4a, 2025-12-08, 2025-12-14
     section Phase 4B
     Final Submission                          :milestone, p4b, 2025-12-14, 2025-12-20

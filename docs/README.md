@@ -1,17 +1,17 @@
-# 🧩 TestCraft – UI Test Recorder & Automated Runner
+#  TestCraft – UI Test Recorder & Automated Runner
 
 > **TestCraft** is an open-source, browser-based automation framework that lets testers and developers record user interactions, convert them into runnable Playwright scripts, and visualize test execution insights via an integrated dashboard.
 
 ---
 
-## 📘 Overview
+##  Overview
 
 TestCraft bridges the gap between **manual testing** and **automation** by offering a **record-and-replay** workflow for browser-based UI testing.  
 It empowers non-engineers and QA teams to automate without deep coding skills, providing a modern interface to record interactions, generate Playwright specs, execute them, and analyze the results with visual reports and trends.
 
 ---
 
-## 🧱 Key Features
+## Key Features
 
 - 🎥 **Browser Recorder:** Capture clicks, text inputs, and navigations in real-time.  
 - 🧩 **Script Generation:** Export clean, runnable Playwright test specs with assertions.  
@@ -31,3 +31,11 @@ It empowers non-engineers and QA teams to automate without deep coding skills, p
 | **Vaishnavi Tiwari** | Automation Engineer | Develops the browser recorder logic using Manifest V3 and JavaScript. Converts recorded actions into runnable Playwright TypeScript test scripts. Implements assertion libraries, maintains test script standards, and collaborates with the DevOps engineer to ensure test automation integration in CI/CD pipelines. |
 | **Saiyada Anshra Afzal** | DevOps Engineer | Sets up GitHub Actions pipelines for continuous testing, reporting, and deployment. Manages the development and production environments, configures automated triggers for test execution, and ensures consistent integration between the recorder, runner, and dashboard modules. |
 | **Meruga Jashwanth Chopra** | QA Analyst | Designs manual and automated test cases to validate the core functionalities of the recorder and dashboard. Executes regression and visual comparison testing using Pixelmatch. Maintains the baseline test data and verifies the accuracy of reports, ensuring end-to-end reliability before final delivery. |
+
+
+###  Orientation Deck
+The **TestCraft Orientation Deck** provides an overview of **expectations, deliverables, and phases of this project**. 
+
+YOUR_LINK_HERE
+    <img src="https://wilpbitspilaniacin0-my.sharepoint.com/:b:/g/personal/202317b2743_wilp_bits-pilani_ac_in/EYLILUFSGIZOjNglRTtWkSIBQYuM8OGgu_WJSub8v_pvqw?e=hZLv8h
+</a>

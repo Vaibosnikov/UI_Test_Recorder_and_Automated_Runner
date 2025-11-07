@@ -33,9 +33,8 @@ It empowers non-engineers and QA teams to automate without deep coding skills, p
 | **Meruga Jashwanth Chopra** | QA Analyst | Designs manual and automated test cases to validate the core functionalities of the recorder and dashboard. Executes regression and visual comparison testing using Pixelmatch. Maintains the baseline test data and verifies the accuracy of reports, ensuring end-to-end reliability before final delivery. |
 
 
-###  Orientation Deck
-The **TestCraft Orientation Deck** provides an overview of **expectations, deliverables, and phases of this project**. 
+### 📄 Orientation Deck
+The **TestCraft Orientation Deck** provides an overview of **expectations, deliverables, and phases of this project**.
 
-YOUR_LINK_HERE
-    <img src="https://wilpbitspilaniacin0-my.sharepoint.com/:b:/g/personal/202317b2743_wilp_bits-pilani_ac_in/EYLILUFSGIZOjNglRTtWkSIBQYuM8OGgu_WJSub8v_pvqw?e=hZLv8h
-</a>
+!View Deck
+https://wilpbitspilaniacin0-my.sharepoint.com/:b:/g/personal/202317b2743_wilp_bits-pilani_ac_in/EYLILUFSGIZOjNglRTtWkSIBQYuM8OGgu_WJSub8v_pvqw?e=YPo2sV

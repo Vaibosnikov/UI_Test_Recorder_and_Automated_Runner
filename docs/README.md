@@ -36,5 +36,4 @@ It empowers non-engineers and QA teams to automate without deep coding skills, p
 ### 📄 Orientation Deck
 The **TestCraft Orientation Deck** provides an overview of **expectations, deliverables, and phases of this project**.
 
-!View Deck
-https://wilpbitspilaniacin0-my.sharepoint.com/:b:/g/personal/202317b2743_wilp_bits-pilani_ac_in/EYLILUFSGIZOjNglRTtWkSIBQYuM8OGgu_WJSub8v_pvqw?e=YPo2sV
+[Link_here](https://wilpbitspilaniacin0-my.sharepoint.com/:b:/g/personal/202317b2743_wilp_bits-pilani_ac_in/EYLILUFSGIZOjNglRTtWkSIBQYuM8OGgu_WJSub8v_pvqw?e=YPo2sV)

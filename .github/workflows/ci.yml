@@ -34,10 +34,11 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test --config=playwright/playwright.config.ts
 
-      # Step 6: Upload Playwright HTML Report
       - name: Upload Playwright HTML Report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-html-report
-          path: playwright-report
+        name: playwright-html-report
+        path: playwright-report/
+        if-no-files-found: ignore
 

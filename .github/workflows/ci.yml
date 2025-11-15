@@ -1,0 +1,38 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Run Playwright tests
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      # Step 5: Upload test results
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-results
+          path: test-results/

@@ -34,9 +34,10 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test --config=playwright/playwright.config.ts
 
-      # Step 6: Upload test results
-      - name: Upload Test Results
+      # Step 6: Upload Playwright HTML Report
+      - name: Upload Playwright HTML Report
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-results
-          path: test-results/
+          name: playwright-html-report
+          path: playwright-report
+

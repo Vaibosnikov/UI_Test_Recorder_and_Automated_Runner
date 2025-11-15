@@ -26,11 +26,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Run Playwright tests
-      - name: Run Playwright tests
-        run: npx playwright test
+      # Step 4: Install Playwright browsers (important!)
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
 
-      # Step 5: Upload test results
+      # Step 5: Run Playwright tests with config
+      - name: Run Playwright tests
+        run: npx playwright test --config=playwright/playwright.config.ts
+
+      # Step 6: Upload test results
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:

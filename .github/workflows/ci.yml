@@ -3,8 +3,7 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - main
-      - feature/*
+      - '**'
   pull_request:
 
 jobs:
@@ -22,25 +21,36 @@ jobs:
         with:
           node-version: '18'
 
-      # Step 3: Install dependencies
+      # Step 3: Cache Node modules
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Step 4: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Install Playwright browsers (important!)
+      # Step 5: Install Playwright browsers
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+       
 
-      # Step 5: Run Playwright tests with config
+      # Step 6: Run Playwright tests
       - name: Run Playwright tests
         run: npx playwright test --config=playwright/playwright.config.ts
 
+      # Step 7: Upload Playwright HTML Report
       - name: Upload Playwright HTML Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-        name: playwright-html-report
-        path: playwright-report/
-        if-no-files-found: ignore
+          name: playwright-html-report
+          path: playwright-report/
+          if-no-files-found: ignore
 
+      # Step 8: Debug files
       - name: Debug: List files
         run: ls -R

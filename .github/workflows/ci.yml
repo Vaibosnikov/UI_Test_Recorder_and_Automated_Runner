@@ -51,7 +51,3 @@ jobs:
           name: playwright-html-report
           path: playwright-report/
           if-no-files-found: ignore
-
-      # Step 8: Debug files
-      - name: Debug: List files
-        run: ls -R

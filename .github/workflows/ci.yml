@@ -53,5 +53,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-html-report
-          path: playwright-report/
+          path: playwright/playwright-report/
           if-no-files-found: ignore

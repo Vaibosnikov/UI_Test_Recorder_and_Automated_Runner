@@ -43,6 +43,11 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test --config=playwright/playwright.config.ts
 
+        
+      # Debug step to confirm report folder exists
+      - name: Debug: List files
+        run: ls -R
+
       # Step 7: Upload Playwright HTML Report
       - name: Upload Playwright HTML Report
         if: always()

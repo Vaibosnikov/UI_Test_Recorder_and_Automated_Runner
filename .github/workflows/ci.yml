@@ -42,3 +42,5 @@ jobs:
         path: playwright-report/
         if-no-files-found: ignore
 
+- name: Debug: List files
+  run: ls -R

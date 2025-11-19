@@ -1,0 +1,10 @@
+{
+  "suite_id": "regression-001",
+  "name": "Nightly Regression Suite #1",
+  "description": "Core smoke and regression tests to run nightly",
+  "tests": [
+    "../canonical/login_valid.json",
+    "../canonical/login_invalid_password.json",
+    "../canonical/checkout_flow.json"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "SAMPLE-001",
+  "name": "Sample Test - Simple navigation",
+  "project_id": 1,
+  "steps": [
+    { "order": 1, "action": "navigate", "selector": "https://example.com" },
+    { "order": 2, "action": "assert", "selector": "body", "value": "visible" }
+  ]
+}

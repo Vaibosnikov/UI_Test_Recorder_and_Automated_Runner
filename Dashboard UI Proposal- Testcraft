@@ -1,0 +1,113 @@
+# Dashboard UI Proposal — TestCraft
+
+Purpose
+- Provide a clear, approachable, and powerful dashboard that makes test results actionable for both technical and non-technical users.
+- Emphasize quick understanding (summary), deep investigation (run details & diffs), and repeatability (re-run / export / CI templates).
+- Unique angle: "Narrative Timeline" + visual diff-first view that non-technical users can read like a status report.
+
+Design principles
+- Clarity first: minimal jargon, plain labels, clear CTA hierarchy.
+- Progressive disclosure: show simple summary for non-technical users; allow drilling into technical artifacts for engineers.
+- Accessibility by default: keyboard-first, ARIA roles, captions, and screen-reader backups for charts.
+- Reusable components: Storybook-ready, with props and accessibility notes.
+- Mobile-first considerations for quick checks on phones; full details on desktop.
+
+Overall layout (desktop)
+- Top: Global Navbar (brand, quick run, search, user)
+- Left: Collapsible Sidebar (Overview, Runs, Scripts, Visual Diffs, Settings)
+- Main:
+  - Hero area: Page title + small filter bar (date range, status, project selector).
+  - Summary strip: 4–6 Summary Cards (Total Runs, Passed, Failed, Avg Duration, Flaky Rate, Last Run)
+  - Middle split:
+    - Left (2/3): Narrative Timeline / Trend chart area (interactive chart showing run timeline)
+    - Right (1/3): Quick Recent Runs list (compact table) + Actions (Run script, Import JSON, Export)
+  - Bottom:
+    - Tabbed area: Runs Table (full), Visual Diff viewer (image diff + slider), Failure Heatmap / Top flaky tests
+- Right-most (slide-over): Run detail panel (when user clicks a run) with logs, screenshots, stack trace, replay controls.
+
+Mobile layout
+- Collapsed nav (hamburger)
+- Stacked: Hero → Summary cards (horizontal scroll) → Recent runs list → Charts (simplified) → Tap to open full run detail.
+
+Unique, distinguishing UX features
+- Narrative Timeline: a horizontal scrollable timeline that reads like a timeline of events; clicking a run expands an inline summary.
+- Visual Diff-first preview: the runs list shows a small thumbnail diff for runs with visual changes; clicking opens a full diff slider with before/after and metric (pixel diff %).
+- Replay slider: in run detail, a small control plays recorded steps in sequence in an embedded iframe (or simulated playback) so PMs can "watch" the test.
+- Non-technical "Guided View": toggled UI that replaces technical labels with plain language and shows suggested next steps (e.g., "Re-run this test", "Accept baseline", "Share report").
+- Failure Hotspots: a heatmap highlighting pages/components with most failures to help prioritization.
+- Smart Filters: natural-language quick filters (e.g., "last 7d failed") and saved filter presets.
+
+Primary components (with props & brief notes)
+- Navbar
+  - Props: title, onQuickRun, onSearch
+  - Notes: search accessible, quick-run prominent CTA, user avatar menu.
+
+- Sidebar
+  - Props: items[], selected
+  - Notes: collapsible, keyboard navigable, icons + labels.
+
+- FilterBar
+  - Props: onFilterChange, presets
+  - Notes: date range, status selector, project selector, saved presets.
+
+- SummaryCard
+  - Props: title, value, delta?, icon?, variant?: 'default'|'success'|'danger'
+  - Notes: role="region" aria-label, focusable for keyboard reading.
+
+- TimelineChart (composed)
+  - Props: seriesData, onSelectRun
+  - Notes: accessible summary text + data table backup; tooltip accessible via keyboard.
+
+- ResultsChart
+  - Props: series, type: 'bar'|'line'|'area', onPointClick
+  - Notes: caption + table backup.
+
+- RunsTable
+  - Props: rows: Run[], onOpenRun, onReRun, pagination
+  - Notes: semantic table, scope headers, keyboard row selection, per-row actions.
+
+- RunCard (compact UI for list)
+  - Props: run: Run
+  - Notes: thumbnail diff, status badge, quick actions.
+
+- RunDetailPanel
+  - Props: runId, onClose
+  - Sections: Overview, Steps (with timestamps), Screenshots gallery, Visual diffs, Logs, Re-run button.
+  - Notes: role="dialog", focus trap, aria-modal="true".
+
+- VisualDiffViewer
+  - Props: beforeUrl, afterUrl, diffData (pixel %), onAcceptBaseline
+  - Notes: slider, keyboard controls, show pixel diff % and highlighted regions.
+
+- ReplayControls
+  - Props: steps[], play(), pause(), stepForward(), stepBack(), speed
+  - Notes: accessible control set and progress indicator.
+
+- Toast / Notifications
+  - Props: message, type, actions (e.g., view run)
+  - Notes: role="status" for announcements.
+
+State & data model (examples)
+- Run
+  {
+    id: "run_001",
+    name: "Smoke Test",
+    status: "passed" | "failed" | "flaky",
+    startedAt: "2025-11-19T14:23:00Z",
+    durationMs: 12400,
+    summary: { passed: 12, failed: 0, skipped: 0 },
+    screenshots: [{name, url, timestamp}],
+    diffs: [{beforeUrl, afterUrl, pixelDiff, heatmapUrl}],
+    steps: [{index, action: "click", selector, value, timestamp}],
+    artifacts: [{type, url}],
+    tags: ["smoke","release-1.2"]
+  }
+
+- API endpoints (UI contract)
+  - GET /api/test-runs?limit=20&status=all&from=&to=
+  - GET /api/test-runs/{id}
+  - POST /api/run/{id}/replay
+  - POST /api/run (trigger run)
+  - GET /api/run/{id}/diff (returns pixel diff data & images)
+
+Accessibility

@@ -1,0 +1,15 @@
+{
+  "id": "AC-LOGIN-001",
+  "name": "Login - Valid Credentials",
+  "description": "Valid login should succeed and redirect to dashboard",
+  "project_id": 1,
+  "tags": ["smoke","auth"],
+  "priority": "P1",
+  "steps": [
+    { "order": 1, "action": "navigate", "selector": "https://example.com/login" },
+    { "order": 2, "action": "input", "selector": "#email", "value": "user@example.com" },
+    { "order": 3, "action": "input", "selector": "#password", "value": "correct_password" },
+    { "order": 4, "action": "click", "selector": "button[type='submit']" },
+    { "order": 5, "action": "assert", "selector": ".dashboard-welcome", "value": "visible" }
+  ]
+}

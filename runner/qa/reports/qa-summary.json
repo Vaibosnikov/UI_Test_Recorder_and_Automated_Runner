@@ -1,0 +1,15 @@
+{
+  "testSchema": {
+    "validCount": 0,
+    "invalidCount": 0
+  },
+  "runResult": {
+    "validCount": 0,
+    "invalidCount": 0
+  },
+  "acceptanceCriteria": {
+    "covered": 1,
+    "missing": 1
+  },
+  "timestamp": "2025-11-19T17:22:04.469Z"
+}

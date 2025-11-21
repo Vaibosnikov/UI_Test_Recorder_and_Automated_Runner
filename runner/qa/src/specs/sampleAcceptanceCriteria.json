@@ -1,0 +1,12 @@
+[
+  {
+    "id": "AC-LOGIN-001",
+    "description": "Valid login succeeds",
+    "required": true
+  },
+  {
+    "id": "AC-LOGIN-002",
+    "description": "Invalid password shows error",
+    "required": true
+  }
+]

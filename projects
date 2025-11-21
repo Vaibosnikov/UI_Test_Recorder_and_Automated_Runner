@@ -1,0 +1,10 @@
+code.
+npm init -y
+npm install -D @playwright/test
+npx playwright install
+code.
+cd path/to/TestCraft
+mkdir recorder generator "playwright-runner" dashboard samples .github
+mkdir .github/workflows
+runner
+cd playwright-runner

@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "id": "run-login-valid-001",
+      "test_id": "AC-LOGIN-001",
+      "status": "passed",
+      "environment": "local",
+      "branch": "dev",
+      "duration_ms": 1350,
+      "started_at": "2025-11-19T10:00:00.000Z"
+    },
+    {
+      "id": "run-login-invalid-001",
+      "test_id": "AC-LOGIN-002",
+      "status": "failed",
+      "environment": "local",
+      "branch": "dev",
+      "duration_ms": 1100,
+      "started_at": "2025-11-19T10:05:00.000Z"
+    }
+  ]
+}

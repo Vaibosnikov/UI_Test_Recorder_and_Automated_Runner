@@ -1,10 +1,8 @@
 // recorder.test.js
-// Validates that the content script correctly captures click and input events
-// and stores them in chrome.storage.local
+// Validates that the Chrome extension captures click and input events and stores them in chrome.storage.local
 
 describe('Recorder Extension', () => {
   beforeAll(() => {
-    // Mock chrome.storage.local
     global.chrome = {
       storage: {
         local: {

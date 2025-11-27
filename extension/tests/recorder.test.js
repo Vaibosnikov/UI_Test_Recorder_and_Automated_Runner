@@ -1,38 +1,32 @@
-// recorder.test.js
-// Validates that the Chrome extension captures click and input events and stores them in chrome.storage.local
+import { expect } from "chai";
 
-describe('Recorder Extension', () => {
-  beforeAll(() => {
-    global.chrome = {
-      storage: {
-        local: {
-          data: {},
-          set(obj, cb) {
-            this.data = { ...this.data, ...obj };
-            cb && cb();
-          },
-          get(keys, cb) {
-            cb(this.data);
-          }
-        }
-      }
-    };
+// Mock Chrome APIs
+global.chrome = {
+  runtime: { sendMessage: () => {} },
+  tabs: { sendMessage: () => {} }
+};
+
+describe("Recorder Extension", () => {
+  it("should initialize background script without errors", () => {
+    const bg = require("../src/background.js");
+    expect(bg).to.exist;
   });
 
-  test('captures click event', () => {
-    const event = { type: 'click', target: '#btn', timestamp: Date.now() };
-    chrome.storage.local.set({ events: [event] });
-    chrome.storage.local.get(['events'], (data) => {
-      expect(data.events[0].type).toBe('click');
-      expect(data.events[0].target).toBe('#btn');
-    });
+  it("should capture click events and serialize correctly", () => {
+    const { serializeEvent } = require("../src/capture.js");
+    const mockEvent = { type: "click", target: { id: "btn1" } };
+    const result = serializeEvent(mockEvent);
+    expect(result).to.include({ type: "click" });
+    expect(result.targetId).to.equal("btn1");
   });
 
-  test('captures input event', () => {
-    const event = { type: 'input', target: '#name', value: 'Vaishnavi' };
-    chrome.storage.local.set({ events: [event] });
-    chrome.storage.local.get(['events'], (data) => {
-      expect(data.events[0].value).toBe('Vaishnavi');
-    });
+  it("should handle multiple events in sequence", () => {
+    const { serializeEvents } = require("../src/capture.js");
+    const events = [
+      { type: "click", target: { id: "btn1" } },
+      { type: "input", target: { id: "txt1" }, value: "hello" }
+    ];
+    const result = serializeEvents(events);
+    expect(result).to.have.length(2);
   });
 });

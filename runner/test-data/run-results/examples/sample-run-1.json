@@ -1,0 +1,12 @@
+{
+  "id": "sample-run-1",
+  "test_id": "SAMPLE-001",
+  "status": "passed",
+  "environment": "local",
+  "branch": "feature/demo",
+  "commit_hash": "demo-000",
+  "duration_ms": 500,
+  "started_at": "2025-11-19T11:00:00.000Z",
+  "finished_at": "2025-11-19T11:00:00.500Z",
+  "artifacts": []
+}

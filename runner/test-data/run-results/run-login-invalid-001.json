@@ -1,0 +1,15 @@
+{
+  "id": "run-login-invalid-001",
+  "test_id": "AC-LOGIN-002",
+  "status": "failed",
+  "environment": "local",
+  "branch": "dev",
+  "commit_hash": "demo-def456",
+  "duration_ms": 1100,
+  "started_at": "2025-11-19T10:05:00.000Z",
+  "finished_at": "2025-11-19T10:05:01.100Z",
+  "artifacts": [
+    { "type": "screenshot", "path": "/artifacts/screenshots/login_invalid_1.png" },
+    { "type": "html-report", "path": "/artifacts/reports/login_invalid_1.html" }
+  ]
+}

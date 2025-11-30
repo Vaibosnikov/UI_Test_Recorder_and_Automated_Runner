@@ -1,0 +1,17 @@
+{
+  "id": "AC-CHECKOUT-001",
+  "name": "Checkout Flow - Add to Cart and Complete Purchase",
+  "description": "End-to-end checkout flow from product selection to order confirmation",
+  "project_id": 2,
+  "tags": ["e2e","checkout"],
+  "priority": "P1",
+  "steps": [
+    { "order": 1, "action": "navigate", "selector": "https://example.com/products" },
+    { "order": 2, "action": "click", "selector": ".product-item:first-child .add-to-cart" },
+    { "order": 3, "action": "click", "selector": ".cart .checkout" },
+    { "order": 4, "action": "input", "selector": "#address", "value": "221B Baker Street" },
+    { "order": 5, "action": "input", "selector": "#card", "value": "4111111111111111" },
+    { "order": 6, "action": "click", "selector": "button.complete-order" },
+    { "order": 7, "action": "assert", "selector": ".order-confirmation", "value": "visible" }
+  ]
+}

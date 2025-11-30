@@ -1,21 +1,27 @@
-{
+﻿{
   "name": "testcraft-playwright-runner",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
   "type": "module",
+  "description": "Playwright runner for TestCraft - feature/playwright-integration",
+  "main": "scripts/run-suite.js",
   "scripts": {
-    "test:suite": "npx playwright test",
-    "test:single": "node ./scripts/run-single-test.js",
-    "run:collect": "node ./scripts/collect-artifacts.js",
-    "run:upload": "node ./scripts/upload-results.js",
-    "run:suite": "node ./scripts/run-suite.js"
-  },
-  "dependencies": {
-    "axios": "^1.4.0",
-    "form-data": "^4.0.0"
+    "install-browsers": "npx playwright install --with-deps",
+    "test": "npx playwright test",
+    "run-suite": "node scripts/run-suite.js",
+    "run-single": "node scripts/run-single-test.js",
+    "health": "node integration/health-check.js",
+    "fetch-tests": "node integration/test-fetcher.js",
+    "collect": "node scripts/collect-artifacts.js",
+    "upload": "node integration/upload-results.js",
+    "validate": ".\\validate-runner.ps1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.38.0",
-    "typescript": "^5.4.2"
-  }
+    "@playwright/test": "^1.40.0",
+    "pngjs": "^6.0.0",
+    "pixelmatch": "^5.3.0",
+    "node-fetch": "^3.3.1",
+    "form-data": "^4.0.0",
+    "fs-extra": "^11.1.1"
+  },
+  "dependencies": {}
 }

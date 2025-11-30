@@ -1,22 +1,39 @@
-#!/usr/bin/env node
-/**
- * run-suite.js
- * simple wrapper that runs `npx playwright test` and exits with code
+﻿/**
+ * scripts/run-suite.js
+ * Orchestrates test fetch (if any), Playwright run, and artifact collection.
  */
-import { spawn } from 'child_process';
+
+import { spawnSync } from 'child_process';
 import path from 'path';
+import fs from 'fs';
 
-const cwd = path.resolve(process.cwd(), 'runner', 'playwright');
+const ROOT = process.cwd();
+const RESULTS = path.join(ROOT, 'results');
 
-console.log('Starting Playwright suite from', cwd);
+function runPlaywright() {
+  console.log('Running Playwright tests...');
+  const r = spawnSync('npx', ['playwright', 'test', '--project=Chromium', '--reporter=json,html'], { stdio: 'inherit', shell: true });
+  return r.status;
+}
 
-const child = spawn('npx', ['playwright', 'test', '--reporter=list'], {
-  cwd,
-  stdio: 'inherit',
-  shell: true
-});
+function collectArtifacts() {
+  console.log('Collecting artifacts...');
+  if (!fs.existsSync(RESULTS)) fs.mkdirSync(RESULTS, { recursive: true });
+  // Playwright writes to results/ by config; leave as-is
+  console.log('Artifacts are located at', RESULTS);
+}
 
-child.on('exit', (code) => {
-  console.log('Playwright process exited with code', code);
-  process.exit(code);
-});
+function fetchTests() {
+  try {
+    spawnSync('node', ['integration/test-fetcher.js'], { stdio: 'inherit', shell: true });
+  } catch (err) {
+    console.warn('test-fetcher step failed (continuing):', err.message);
+  }
+}
+
+(function main() {
+  fetchTests();
+  const code = runPlaywright();
+  collectArtifacts();
+  process.exit(code === 0 ? 0 : 1);
+})();

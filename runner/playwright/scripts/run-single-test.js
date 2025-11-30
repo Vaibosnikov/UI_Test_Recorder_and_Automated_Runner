@@ -1,31 +1,20 @@
-#!/usr/bin/env node
-/**
- * run-single-test.js --name <testFileName>
- * Example: node run-single-test.js --name login_flow.spec.ts
+﻿/**
+ * scripts/run-single-test.js
+ * Runs a single spec file. Usage:
+ *   node scripts/run-single-test.js path/to/spec
  */
-import { spawn } from 'child_process';
+
+import { spawnSync } from 'child_process';
 import path from 'path';
 
-const argv = process.argv.slice(2);
-const nameIdx = argv.indexOf('--name');
-const testName = nameIdx >= 0 ? argv[nameIdx + 1] : null;
-
-if (!testName) {
-  console.error('Usage: node run-single-test.js --name <spec-file-name>');
+const spec = process.argv[2];
+if (!spec) {
+  console.error('Usage: node scripts/run-single-test.js <spec-path>');
   process.exit(2);
 }
 
-const cwd = path.resolve(process.cwd(), 'runner', 'playwright');
+const resolved = path.resolve(spec);
+console.log('Running single spec:', resolved);
 
-console.log('Running single test:', testName);
-
-const child = spawn('npx', ['playwright', 'test', testName, '--reporter=list'], {
-  cwd,
-  stdio: 'inherit',
-  shell: true
-});
-
-child.on('exit', (code) => {
-  console.log('Playwright single test exit code', code);
-  process.exit(code);
-});
+const r = spawnSync('npx', ['playwright', 'test', resolved, '--project=Chromium', '--reporter=html'], { stdio: 'inherit', shell: true });
+process.exit(r.status === 0 ? 0 : 1);

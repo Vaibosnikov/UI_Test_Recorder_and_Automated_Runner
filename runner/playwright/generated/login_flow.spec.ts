@@ -1,16 +1,32 @@
+﻿/**
+ * generated/login_flow.spec.ts
+ * Sample generated test (simulates recorder output). Uses visual util.
+ */
+
 import { test, expect } from '@playwright/test';
+import { compareWithBaseline } from '../utils/visual.js';
 
-const UI = process.env.UI_BASE_URL || 'http://localhost:5173';
+test('Generated Login Flow', async ({ page }, testInfo) => {
+  await page.goto(process.env.BASE_URL || 'http://localhost:3000');
 
-test('generated: login flow (sample)', async ({ page }) => {
-  await page.goto(UI);
-  // sample steps - replace selectors with real ones if needed
-  // these lines are placeholders to demonstrate generated code
-  // await page.fill('input[name="username"]', 'demo');
-  // await page.fill('input[name="password"]', 'demo');
-  // await page.click('button[type="submit"]');
-  // await expect(page.locator('text=Welcome')).toHaveCount(1);
+  // Simple recorded steps (example)
+  await page.click('text=Login');
+  await page.fill('#username', 'testuser');
+  await page.fill('#password', 'password');
+  await page.click('text=Sign in');
 
-  // if UI is mock, at least check dashboard loads
-  await expect(page.locator('text=TestCraft Dashboard')).toHaveCount(1);
+  // Assert landing
+  await expect(page.locator('text=Welcome')).toBeVisible();
+
+  // Visual regression check
+  const screenshot = await page.screenshot({ fullPage: false });
+  const { mismatched, isNewBaseline, diffPath, score } = await compareWithBaseline({ testName: testInfo.title.replace(/\\s+/g, '_'), buffer: screenshot });
+
+  if (isNewBaseline) {
+    console.log('New baseline created for', testInfo.title);
+  } else if (mismatched) {
+    console.log('Visual mismatch:', { score, diffPath });
+  }
+
+  expect(mismatched, Visual diff score ).toBe(false);
 });

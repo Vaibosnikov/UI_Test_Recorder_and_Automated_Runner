@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SummaryCard from "../components/SummaryCard";
-import RunsTable from "../components/RunsTable";
+import LatestRunsTable from "../components/LatestRunsTable";
 import DashboardFilters from "../components/filters/DashboardFilters";
 import TestPipelineFunnel from "../components/funnels/TestPipelineFunnel";
 import VisualDiffViewer from "../components/visual/VisualDiffViewer";
@@ -21,40 +21,34 @@ export default function DashboardPage() {
   const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
-    // Use mock data if available, otherwise fallback sample
-    setRuns(
-      mock.data && mock.data.length
-        ? mock.data.map((r, i) => ({
-            id: r.id || i + 1,
-            testId: r.test_id || `T0${i + 1}`,
-            status: r.status || "passed",
-            branch: r.branch || "main",
-            duration: r.duration_ms || Math.floor(Math.random() * 500) + 100,
-            startedAt: r.started_at || new Date().toISOString(),
-            environment: r.environment || "local",
-          }))
-        : [
-            { id: 1, testId: "T01", status: "passed", branch: "main", duration: 120, startedAt: "2025-12-06 12:00", environment: "local" },
-            { id: 2, testId: "T02", status: "failed", branch: "dev", duration: 450, startedAt: "2025-12-06 12:05", environment: "staging" },
-            { id: 3, testId: "T03", status: "passed", branch: "feature", duration: 300, startedAt: "2025-12-06 12:10", environment: "prod" },
-          ]
-    );
+    if (mock.data && mock.data.length) {
+      const mappedRuns = mock.data.map((r, i) => ({
+        id: r.id || i + 1,
+        testId: r.test_id || `T0${i + 1}`,
+        status: r.status || "passed",
+        branch: r.branch || "main",
+        duration: r.duration_ms || Math.floor(Math.random() * 500) + 100,
+        startedAt: r.started_at || new Date().toISOString(),
+        environment: r.environment || "local",
+      }));
+      setRuns(mappedRuns);
+    } else {
+      setRuns([
+        { id: 1, testId: "T01", status: "passed", branch: "main", duration: 120, startedAt: new Date().toISOString(), environment: "local" },
+        { id: 2, testId: "T02", status: "failed", branch: "dev", duration: 450, startedAt: new Date().toISOString(), environment: "staging" },
+        { id: 3, testId: "T03", status: "passed", branch: "feature", duration: 300, startedAt: new Date().toISOString(), environment: "prod" },
+      ]);
+    }
     setLoading(false);
   }, []);
 
-  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
+  const toggleTheme = () => setTheme(prev => (prev === "dark" ? "light" : "dark"));
 
-  const containerClasses = theme === "dark" 
-    ? "bg-slate-900 text-white" 
-    : "bg-white text-black";
-
-  const sectionClasses = theme === "dark"
-    ? "bg-slate-800 border-slate-700"
-    : "bg-gray-100 border-gray-300";
+  const containerClasses = theme === "dark" ? "bg-slate-900 text-white" : "bg-white text-black";
+  const sectionClasses = theme === "dark" ? "bg-slate-800 border-slate-700" : "bg-gray-100 border-gray-300";
 
   return (
     <div className={`${containerClasses} p-6 min-h-screen space-y-8 transition-colors duration-300`}>
-
       {/* THEME TOGGLE */}
       <div className="flex justify-end mb-4">
         <button
@@ -67,16 +61,15 @@ export default function DashboardPage() {
 
       {/* TOP KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        <SummaryCard title="Total Tests" value={runs.length} />
-        <SummaryCard title="Total Runs" value={runs.length} />
-        <SummaryCard title="Passing" value={runs.filter(r => r.status === "passed").length} />
-        <SummaryCard 
+        <SummaryCard title="Total Tests" value={runs.length} theme={theme} />
+        <SummaryCard title="Total Runs" value={runs.length} theme={theme} />
+        <SummaryCard title="Passing" value={runs.filter(r => r.status === "passed").length} theme={theme} />
+        <SummaryCard
           title="Average Duration"
-          value={
-            runs.length
-              ? Math.round(runs.reduce((acc, r) => acc + r.duration, 0) / runs.length) + " ms"
-              : "--"
-          }
+          value={runs.length
+            ? Math.round(runs.reduce((acc, r) => acc + r.duration, 0) / runs.length) + " ms"
+            : "--"}
+          theme={theme}
         />
       </div>
 
@@ -85,8 +78,7 @@ export default function DashboardPage() {
 
       {/* RECENT RUNS TABLE */}
       <section className={`${sectionClasses} p-5 rounded-lg border`}>
-        <h2 className="text-xl font-semibold mb-4">Recent Test Runs</h2>
-        {loading ? <div>Loading...</div> : <RunsTable runs={runs} theme={theme} />}
+        {loading ? <div>Loading...</div> : <LatestRunsTable data={runs} theme={theme} />}
       </section>
 
       {/* MAIN CHARTS */}

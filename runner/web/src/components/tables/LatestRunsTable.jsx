@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function LatestRunsTable({ data, theme = "dark" }) {
+export default function LatestRunsTable({ data = [], theme = "dark" }) {
   const isDark = theme === "dark";
 
   const bgClass = isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300";
@@ -8,30 +8,41 @@ export default function LatestRunsTable({ data, theme = "dark" }) {
   const bodyText = isDark ? "text-gray-300" : "text-gray-800";
   const borderColor = isDark ? "border-gray-700" : "border-gray-200";
 
+  if (!data.length) {
+    return (
+      <div className={`p-4 rounded-lg border ${bgClass}`}>
+        <h2 className={`${isDark ? "text-white" : "text-gray-800"} text-lg font-semibold mb-3`}>
+          Recent Test Runs
+        </h2>
+        <p className={bodyText}>No runs available</p>
+      </div>
+    );
+  }
+
   return (
-    <div className={`p-4 rounded-lg border ${bgClass}`}>
+    <div className={`p-4 rounded-lg border ${bgClass} overflow-x-auto`}>
       <h2 className={`${isDark ? "text-white" : "text-gray-800"} text-lg font-semibold mb-3`}>
         Recent Test Runs
       </h2>
 
-      <table className="w-full text-left">
-        <thead className={`${headerText} text-sm`}>
+      <table className="w-full text-left border-collapse">
+        <thead className={`${headerText} text-sm sticky top-0 bg-opacity-90`}>
           <tr>
-            <th>ID</th>
-            <th>Test ID</th>
-            <th>Status</th>
-            <th>Branch</th>
-            <th>Duration</th>
-            <th>Started At</th>
+            <th className="p-2">ID</th>
+            <th className="p-2">Test ID</th>
+            <th className="p-2">Status</th>
+            <th className="p-2">Branch</th>
+            <th className="p-2">Duration</th>
+            <th className="p-2">Started At</th>
           </tr>
         </thead>
 
         <tbody className={bodyText}>
           {data.map((run) => (
             <tr key={run.id} className={`border-t ${borderColor}`}>
-              <td>{run.id}</td>
-              <td>{run.testId}</td>
-              <td>
+              <td className="p-2">{run.id}</td>
+              <td className="p-2">{run.testId}</td>
+              <td className="p-2">
                 <span
                   className={`px-2 py-1 rounded text-xs ${
                     run.status === "passed"
@@ -50,9 +61,9 @@ export default function LatestRunsTable({ data, theme = "dark" }) {
                   {run.status}
                 </span>
               </td>
-              <td>{run.branch}</td>
-              <td>{run.duration} ms</td>
-              <td>{run.startedAt}</td>
+              <td className="p-2">{run.branch}</td>
+              <td className="p-2">{run.duration} ms</td>
+              <td className="p-2">{new Date(run.startedAt).toLocaleString()}</td>
             </tr>
           ))}
         </tbody>

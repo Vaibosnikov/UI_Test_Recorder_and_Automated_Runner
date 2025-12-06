@@ -1,43 +1,139 @@
-import React, { useState, useEffect } from "react";
-import mock from "../mock/samplerun.json"; // adjust path as needed
-
-export default function SampleRun() {
-  const [runs, setRuns] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Load and map mock data when the component mounts
-  useEffect(() => {
-    const rawData = mock.data && mock.data.length ? mock.data : [];
-    const mappedRuns = rawData.map(r => ({
-      id: r.id,
-      testId: r.test_id,
-      status: r.status,
-      environment: r.environment,
-      branch: r.branch,
-      duration: r.duration_ms,
-      startedAt: r.started_at,
-    }));
-    setRuns(mappedRuns);
-    setLoading(false);
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-
-  return (
-    <div className="p-4 bg-gray-100 rounded-lg">
-      <h2 className="text-lg font-semibold mb-3">Sample Runs</h2>
-      <ul>
-        {runs.map(run => (
-          <li key={run.id} className="mb-2 p-2 bg-white rounded shadow-sm">
-            <div><strong>Test ID:</strong> {run.testId}</div>
-            <div><strong>Status:</strong> {run.status}</div>
-            <div><strong>Branch:</strong> {run.branch}</div>
-            <div><strong>Environment:</strong> {run.environment}</div>
-            <div><strong>Duration:</strong> {run.duration} ms</div>
-            <div><strong>Started At:</strong> {new Date(run.startedAt).toLocaleString()}</div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+{
+  "data": [
+    {
+      "id": "run-001",
+      "test_id": "AC-LOGIN-001",
+      "status": "passed",
+      "environment": "local",
+      "branch": "main",
+      "duration_ms": 1350,
+      "started_at": "2025-12-01T10:00:00.000Z"
+    },
+    {
+      "id": "run-002",
+      "test_id": "AC-LOGIN-002",
+      "status": "failed",
+      "environment": "staging",
+      "branch": "dev",
+      "duration_ms": 2100,
+      "started_at": "2025-12-01T10:10:00.000Z"
+    },
+    {
+      "id": "run-003",
+      "test_id": "AC-SIGNUP-001",
+      "status": "passed",
+      "environment": "prod",
+      "branch": "feature/signup",
+      "duration_ms": 980,
+      "started_at": "2025-12-01T10:20:00.000Z"
+    },
+    {
+      "id": "run-004",
+      "test_id": "AC-PROFILE-001",
+      "status": "skipped",
+      "environment": "local",
+      "branch": "main",
+      "duration_ms": 0,
+      "started_at": "2025-12-01T10:30:00.000Z"
+    },
+    {
+      "id": "run-005",
+      "test_id": "AC-LOGOUT-001",
+      "status": "passed",
+      "environment": "staging",
+      "branch": "dev",
+      "duration_ms": 540,
+      "started_at": "2025-12-01T10:40:00.000Z"
+    },
+    {
+      "id": "run-006",
+      "test_id": "AC-DASHBOARD-001",
+      "status": "failed",
+      "environment": "prod",
+      "branch": "feature/dashboard",
+      "duration_ms": 1850,
+      "started_at": "2025-12-01T10:50:00.000Z"
+    },
+    {
+      "id": "run-007",
+      "test_id": "AC-SEARCH-001",
+      "status": "passed",
+      "environment": "local",
+      "branch": "main",
+      "duration_ms": 1120,
+      "started_at": "2025-12-01T11:00:00.000Z"
+    },
+    {
+      "id": "run-008",
+      "test_id": "AC-FILTER-001",
+      "status": "passed",
+      "environment": "staging",
+      "branch": "dev",
+      "duration_ms": 980,
+      "started_at": "2025-12-01T11:10:00.000Z"
+    },
+    {
+      "id": "run-009",
+      "test_id": "AC-CART-001",
+      "status": "failed",
+      "environment": "prod",
+      "branch": "feature/cart",
+      "duration_ms": 2300,
+      "started_at": "2025-12-01T11:20:00.000Z"
+    },
+    {
+      "id": "run-010",
+      "test_id": "AC-CHECKOUT-001",
+      "status": "passed",
+      "environment": "local",
+      "branch": "main",
+      "duration_ms": 1500,
+      "started_at": "2025-12-01T11:30:00.000Z"
+    },
+    {
+      "id": "run-011",
+      "test_id": "AC-LOGIN-003",
+      "status": "passed",
+      "environment": "staging",
+      "branch": "dev",
+      "duration_ms": 1200,
+      "started_at": "2025-12-01T11:40:00.000Z"
+    },
+    {
+      "id": "run-012",
+      "test_id": "AC-SIGNUP-002",
+      "status": "failed",
+      "environment": "prod",
+      "branch": "feature/signup",
+      "duration_ms": 2100,
+      "started_at": "2025-12-01T11:50:00.000Z"
+    },
+    {
+      "id": "run-013",
+      "test_id": "AC-PROFILE-002",
+      "status": "passed",
+      "environment": "local",
+      "branch": "main",
+      "duration_ms": 800,
+      "started_at": "2025-12-01T12:00:00.000Z"
+    },
+    {
+      "id": "run-014",
+      "test_id": "AC-LOGOUT-002",
+      "status": "skipped",
+      "environment": "staging",
+      "branch": "dev",
+      "duration_ms": 0,
+      "started_at": "2025-12-01T12:10:00.000Z"
+    },
+    {
+      "id": "run-015",
+      "test_id": "AC-DASHBOARD-002",
+      "status": "passed",
+      "environment": "prod",
+      "branch": "feature/dashboard",
+      "duration_ms": 1300,
+      "started_at": "2025-12-01T12:20:00.000Z"
+    }
+  ]
 }

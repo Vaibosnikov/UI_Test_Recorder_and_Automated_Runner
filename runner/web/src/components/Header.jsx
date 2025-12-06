@@ -1,8 +1,7 @@
 import React from "react";
 
-export default function Header({ theme = "dark" }) {
+export default function Header({ theme = "dark", title = "TestCraft Dashboard" }) {
   const isDark = theme === "dark";
-
   const bgClass = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-300";
 
   return (
@@ -11,7 +10,7 @@ export default function Header({ theme = "dark" }) {
         {/* Navbar title or logo */}
         <div className="flex items-center gap-3">
           <span className="title-pop gradient-text hover:scale-105 transform-gpu transition-transform duration-300 font-extrabold text-2xl md:text-3xl">
-            TestCraft
+            {title}
           </span>
         </div>
 

@@ -1,4 +1,3 @@
-// src/pages/DashboardPage.jsx
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import SummaryCard from "../components/SummaryCard";
@@ -36,10 +35,9 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const { theme, toggle } = useTheme();
 
-  // Load / map mock data
   useEffect(() => {
     let mappedRuns = [];
-    if (mock.data && mock.data.length) {
+    if (mock.data?.length) {
       mappedRuns = mock.data.map((r, i) => ({
         id: r.id || i + 1,
         testId: r.test_id || `T0${i + 1}`,
@@ -70,9 +68,11 @@ export default function DashboardPage() {
 
   return (
     <>
-      <Header theme={theme} />
+      {/* Single Header with custom title */}
+      <Header theme={theme} title="TestCraft Dashboard" />
 
       <div className={containerClasses}>
+        {/* Theme toggle */}
         <div className="flex justify-end mb-4">
           <button
             onClick={toggle}

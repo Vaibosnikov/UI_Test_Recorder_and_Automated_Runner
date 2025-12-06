@@ -1,0 +1,11 @@
+﻿{
+  "name": "testcraft-script-generator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Script generator for TestCraft – converts recorded flows into Playwright specs.",
+  "type": "module",
+  "scripts": {
+    "generate:sample": "node src/cli/generate-from-json.js --input samples/login-flow.json --output ../playwright/generated/login_flow.generated.spec.ts --baseUrl http://localhost:5000"
+  },
+  "dependencies": {}
+}

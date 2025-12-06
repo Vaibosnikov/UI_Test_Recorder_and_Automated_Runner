@@ -1,4 +1,6 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
 /* Basic styling for TestCraft dashboard */
 
 * {
@@ -122,11 +124,18 @@ body {
   color: #f97316;
   margin-top: 8px;
 =======
+>>>>>>> dev
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+<<<<<<< HEAD
+/* small custom tweaks */
+body {
+  background-color: #0b1220;
+=======
 body {
   background-color: #0b1220;
 >>>>>>> f836e58a1da0bdfdfc4271e740d87ea28a0a59c5
+>>>>>>> dev
 }

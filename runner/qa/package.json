@@ -1,0 +1,13 @@
+{
+  "name": "testcraft-qa-validation",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "validate": "node src/index.js"
+  },
+  "dependencies": {
+    "ajv": "^8.12.0",
+    "chalk": "^5.3.0",
+    "yaml": "^2.3.4"
+  }
+}

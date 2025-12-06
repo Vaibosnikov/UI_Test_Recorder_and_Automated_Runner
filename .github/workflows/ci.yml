@@ -73,6 +73,18 @@ jobs:
           (cd runner/web && npm run dev > ../ui-server.log 2>&1) &
           npx --yes wait-on "http-get://127.0.0.1:5173"
 
+          
+      - name: Diagnose Vite server
+        if: always()
+        run: |
+          echo "Netstat for ports:"
+          ss -lntp | (grep -E ':5173|:5000' || true)
+          echo "Probe Vite root:"
+          curl -i "http://127.0.0.1:5173/" || true
+          echo "Tail last 200 lines of UI log:"
+          tail -n 200 ui-server.log || true
+
+
       # Option B: Production-like (build + preview)
       # Uncomment these two steps and comment the dev step above if you prefer preview
       # - name: Build frontend (Vite)
@@ -134,7 +146,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: playwright/test-results
+          path: test-results
           if-no-files-found: ignore
           retention-days: 7
 

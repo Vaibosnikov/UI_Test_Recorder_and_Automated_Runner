@@ -4,13 +4,13 @@ import RunsTable from "../components/RunsTable";
 
 import mock from "../mock/sampleRuns.json";
 
-// New components you will add
+// New components
 import DashboardFilters from "../components/filters/DashboardFilters";
 import TestPipelineFunnel from "../components/funnels/TestPipelineFunnel";
 import VisualDiffViewer from "../components/visual/VisualDiffViewer";
 import FlakyTestsHeatmap from "../components/charts/FlakyTestsHeatmap";
 
-// Your existing charts
+// Existing charts
 import {
   RunStatusChart,
   RunTrendChart,
@@ -28,7 +28,9 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="p-6 bg-slate-900 min-h-screen text-white space-y-8">
+    <div className="p-6 min-h-screen space-y-8 
+                    bg-white text-black 
+                    dark:bg-slate-900 dark:text-white">
 
       {/* ------------------ TOP KPIs ------------------ */}
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -54,7 +56,9 @@ export default function DashboardPage() {
       <DashboardFilters />
 
       {/* ------------------ RECENT RUNS TABLE ------------------ */}
-      <section className="bg-slate-800 p-5 rounded-lg border border-slate-700">
+      <section className="p-5 rounded-lg border 
+                          bg-gray-100 border-gray-300
+                          dark:bg-slate-800 dark:border-slate-700">
         <h2 className="text-xl font-semibold mb-4">Recent Test Runs</h2>
         {loading ? <div>Loading...</div> : <RunsTable runs={runs} />}
       </section>

@@ -11,44 +11,47 @@ const mockFlakyData = [
 export default function FlakyTestsHeatmap({ theme = "dark" }) {
   const isDark = theme === "dark";
 
+  // Container and table background dynamically follow theme
+  const containerClasses = `p-4 rounded-lg border transition-colors duration-300 ${
+    isDark ? "bg-slate-800 border-slate-700 text-white" : "bg-white border-gray-300 text-gray-900"
+  }`;
+
+  const headerTextClass = isDark ? "text-white" : "text-gray-900";
+  const tableHeaderText = isDark ? "text-gray-300" : "text-gray-700";
+  const tableBodyText = isDark ? "text-white" : "text-gray-900";
+
   return (
-    <div
-      className={`p-4 rounded-lg border transition-colors duration-300 ${
-        isDark ? "bg-slate-800 border-slate-700" : "bg-gray-100 border-gray-300"
-      }`}
-    >
-      <h3 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-gray-800"}`}>
+    <div className={containerClasses}>
+      <h3 className={`text-sm font-semibold mb-2 transition-colors duration-300 ${headerTextClass}`}>
         Flaky Tests Heatmap
       </h3>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-center border-collapse">
-          <thead>
+        <table className={`w-full text-center border-collapse transition-colors duration-300`}>
+          <thead className={`sticky top-0 ${isDark ? "bg-slate-800" : "bg-gray-100"} border-b border-gray-300`}>
             <tr>
-              <th className={`p-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Test</th>
+              <th className={`p-2 transition-colors duration-300 ${tableHeaderText}`}>Test</th>
               {[...Array(5)].map((_, i) => (
-                <th key={i} className={`p-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+                <th key={i} className={`p-2 transition-colors duration-300 ${tableHeaderText}`}>
                   Run {i + 1}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody className={tableBodyText}>
             {mockFlakyData.map((row) => (
               <tr key={row.test}>
-                <td className={`p-2 font-medium ${isDark ? "text-white" : "text-gray-800"}`}>
-                  {row.test}
-                </td>
+                <td className={`p-2 font-medium transition-colors duration-300`}>{row.test}</td>
                 {row.runs.map((pass, i) => (
                   <td
                     key={i}
-                    className={`p-2 rounded ${
+                    className={`p-2 rounded font-bold text-center transition-colors duration-300 ${
                       pass
                         ? isDark
-                          ? "bg-green-700"
+                          ? "bg-green-700 text-green-100"
                           : "bg-green-200 text-green-800"
                         : isDark
-                        ? "bg-red-700"
+                        ? "bg-red-700 text-red-100"
                         : "bg-red-200 text-red-800"
                     }`}
                   >

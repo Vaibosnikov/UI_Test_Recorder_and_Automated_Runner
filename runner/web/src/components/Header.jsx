@@ -6,15 +6,11 @@ export default function Header({ theme = "dark", title = "TestCraft Dashboard" }
 
   return (
     <header className={`${bgClass} px-4 py-3 border-b transition-colors duration-300 !mt-0`}>
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Navbar title or logo */}
-        <div className="flex items-center gap-3">
-          <span className="title-pop gradient-text hover:scale-105 transform-gpu transition-transform duration-300 font-extrabold text-2xl md:text-3xl">
-            {title}
-          </span>
-        </div>
-
-        {/* Optional: add navbar actions / buttons here */}
+      <div className="max-w-7xl mx-auto w-full flex justify-center">
+        {/* Navbar title centered */}
+        <span className="title-pop gradient-text hover:scale-105 transform-gpu transition-transform duration-300 font-extrabold text-2xl md:text-3xl">
+          {title}
+        </span>
       </div>
     </header>
   );

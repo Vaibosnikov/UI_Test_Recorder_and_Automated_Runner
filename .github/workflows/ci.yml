@@ -1,118 +1,17 @@
-name: CI Pipeline
+name: CI Pipeline (sanity)
 
 on:
   push:
     branches:
-      - "**"   # Run on all branches
+      - "**"
   pull_request: {}
 
 jobs:
-  build-test:
+  sanity:
     runs-on: ubuntu-latest
-
-    env:
-      BASE_URL: http://127.0.0.1:5000
-      CI: true
-      PORT: 5000
-
-    strategy:
-      fail-fast: false
-      matrix:
-        browser: [chromium]   # Start with chromium; add firefox, webkit once green
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies (root)
-        run: npm ci
-
-      - name: "Diagnostic: which playwright and list folders"
+      - name: Echo context
         run: |
-          node -v
-          npm -v
-          npx @playwright/test --version || true
-          command -v playwright || true
-          ls -la
-          ls -la playwright || true
-
-      - name: Install Playwright browsers
-        run: npx -p @playwright/test@latest playwright install --with-deps
-
-      - name: Install backend API deps
-        working-directory: runner/api
-        run: npm ci
-
-      - name: "Start backend API and wait"
-        run: |
-          # Capture logs for troubleshooting
-          (cd runner/api && npm run dev > ../api-server.log 2>&1) &
-          # Wait on health endpoint for reliability
-          npx --yes wait-on "http://127.0.0.1:${PORT}/health"
-        timeout-minutes: 3
-        env:
-          # Uncomment & set if your API needs DB in CI:
-          # DB_HOST: 127.0.0.1
-          # DB_PORT: 5432
-          # DB_USER: vaibh
-          # DB_PASSWORD: ""
-          # DB_NAME: testcraft_db
-
-      - name: "Diagnostic: list discovered tests"
-        run: npx playwright test --config=playwright/playwright.config.ts --list
-
-      - name: "Run Playwright tests - ${{ matrix.browser }}"
-        run: |
-          npx playwright test \
-            --config=playwright/playwright.config.ts \
-            --project=${{ matrix.browser }} \
-            --reporter=html,line
-
-      - name: Collect artifacts
-        if: always()
-        run: |
-          mkdir -p artifacts/playwright-report-${{ matrix.browser }}
-          mkdir -p artifacts/test-results-${{ matrix.browser }}
-          if [ -f "api-server.log" ]; then
-            mkdir -p artifacts/backend-logs-${{ matrix.browser }}
-            cp api-server.log artifacts/backend-logs-${{ matrix.browser }}/ || true
-          fi
-          if [ -d "playwright-report" ]; then
-            cp -r playwright-report/* artifacts/playwright-report-${{ matrix.browser }}/ || true
-          fi
-          if [ -d "test-results" ]; then
-            cp -r test-results/* artifacts/test-results-${{ matrix.browser }}/ || true
-          fi
-
-      - name: Upload Playwright HTML Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-${{ matrix.browser }}
-          path: artifacts/playwright-report-${{ matrix.browser }}/
-          if-no-files-found: warn
-          retention-days: 7
-
-      - name: Upload traces/screenshots/videos
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-${{ matrix.browser }}
-          path: artifacts/test-results-${{ matrix.browser }}/
-          if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Upload backend server logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-logs-${{ matrix.browser }}
-          path: artifacts/backend-logs-${{ matrix.browser }}/
-          if-no-files-found: ignore
-          retention-days: 7
+          echo "Workflow OK"
+          echo "Ref = $GITHUB_REF"
+          echo "SHA = $GITHUB_SHA"

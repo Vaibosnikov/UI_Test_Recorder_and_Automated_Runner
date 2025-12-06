@@ -14,6 +14,10 @@ jobs:
       BASE_URL: http://127.0.0.1:5000
       CI: true
       PORT: 5000
+      # Optional backend hints—uncomment if useful in your server:
+      # HOST: 127.0.0.1
+      # NODE_ENV: test
+      # DISABLE_DB: true
 
     steps:
       - name: Checkout code
@@ -28,11 +32,11 @@ jobs:
       - name: Install root deps
         run: npm ci
 
-      - name: "Diagnostic: versions and folders"
+      - name: Diagnostic: versions and folders
         run: |
           node -v
           npm -v
-          npx @playwright/test --version || true
+          npx -p @playwright/test@latest playwright --version || true
           command -v playwright || true
           ls -la
           ls -la playwright || true
@@ -44,18 +48,21 @@ jobs:
         working-directory: runner/api
         run: npm ci
 
-      - name: "Start backend API and wait (/health)"
+      - name: Start backend API and wait (/health)
+        timeout-minutes: 5
         run: |
           (cd runner/api && npm run dev > ../api-server.log 2>&1) &
-          npx --yes wait-on "http://127.0.0.1:${PORT}/health"
-        timeout-minutes: 3
+          # Use http-get scheme for reliable endpoint polling:
+          npx --yes wait-on "http-get://127.0.0.1:${PORT}/health"
+          # Sanity probe:
+          curl -i "http://127.0.0.1:${PORT}/health" || (echo '---- backend log ----'; tail -n 200 api-server.log; exit 1)
 
-      - name: "List discovered tests"
-        run: npx playwright test --config=playwright/playwright.config.ts --list
+      - name: List discovered tests
+        run: npx -p @playwright/test@latest playwright test --config=playwright/playwright.config.ts --list
 
-      - name: "Run Playwright tests (Chromium)"
+      - name: Run Playwright tests (Chromium)
         run: |
-          npx playwright test \
+          npx -p @playwright/test@latest playwright test \
             --config=playwright/playwright.config.ts \
             --project=chromium \
             --reporter=html,line
@@ -86,3 +93,8 @@ jobs:
           path: api-server.log
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Stop backend (cleanup)
+        if: always()
+        run: |
+          pkill -f "runner/api" || true

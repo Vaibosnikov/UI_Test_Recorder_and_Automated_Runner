@@ -1,5 +1,6 @@
 // src/pages/DashboardPage.jsx
 import React, { useEffect, useState } from "react";
+import Header from "../components/Header";
 import SummaryCard from "../components/SummaryCard";
 import LatestRunsTable from "../components/tables/LatestRunsTable";
 import DashboardFilters from "../components/filters/DashboardFilters";
@@ -55,84 +56,90 @@ export default function DashboardPage() {
     setLoading(false);
   }, []);
 
-  const containerClasses = `p-6 min-h-screen space-y-8 transition-colors duration-300 ${theme === "dark" ? "bg-slate-900 text-white" : "bg-white text-black"}`;
+  // Removed min-h-screen to avoid forcing a large viewport-height container
+  const containerClasses = `p-6 min-h-0 space-y-8 transition-colors duration-300 ${theme === "dark" ? "bg-slate-900 text-white" : "bg-white text-black"}`;
 
   const sectionClasses = `p-5 rounded-lg border transition-colors duration-300 ${theme === "dark" ? "bg-slate-800 border-slate-700" : "bg-gray-100 border-gray-300"}`;
 
   return (
-    <div className={containerClasses}>
-      {/* THEME TOGGLE */}
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={toggle}
-          className={`px-4 py-2 border rounded focus:outline-none focus:ring transition ${
-            theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-200"
-          }`}
-        >
-          {theme === "dark" ? "Switch to Light" : "Switch to Dark"}
-        </button>
+    <>
+      {/* Header (title + animated TestCraft) */}
+      <Header theme={theme} />
+
+      <div className={containerClasses}>
+        {/* THEME TOGGLE (kept here, or move into Header if preferred) */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={toggle}
+            className={`px-4 py-2 border rounded focus:outline-none focus:ring transition ${
+              theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-200"
+            }`}
+          >
+            {theme === "dark" ? "Switch to Light" : "Switch to Dark"}
+          </button>
+        </div>
+
+        {/* TOP KPIs */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <SummaryCard title="Total Tests" value={runs.length} theme={theme} />
+          <SummaryCard title="Total Runs" value={runs.length} theme={theme} />
+          <SummaryCard title="Passing" value={runs.filter(r => r.status === "passed").length} theme={theme} />
+          <SummaryCard
+            title="Average Duration"
+            value={runs.length
+              ? `${Math.round(runs.reduce((acc, r) => acc + r.duration, 0) / runs.length)} ms`
+              : "--"}
+            theme={theme}
+          />
+        </div>
+
+        {/* FILTER BAR */}
+        <DashboardFilters theme={theme} />
+
+        {/* RECENT RUNS TABLE */}
+        <section className={sectionClasses}>
+          {loading ? (
+            <div className="h-56 flex items-center justify-center text-gray-500 dark:text-slate-500">Loading...</div>
+          ) : (
+            <LatestRunsTable data={runs} theme={theme} />
+          )}
+        </section>
+
+        {/* MAIN CHARTS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <ChartCard>
+            <RunStatusChart runs={runs} />
+          </ChartCard>
+          <ChartCard>
+            <RunTrendChart runs={runs} />
+          </ChartCard>
+        </div>
+
+        {/* SECONDARY CHARTS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <ChartCard>
+            <RunDurationChart runs={runs} />
+          </ChartCard>
+          <ChartCard>
+            <EnvironmentChart runs={runs} />
+          </ChartCard>
+        </div>
+
+        {/* FUNNEL + HEATMAP */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <ChartCard>
+            <TestPipelineFunnel />
+          </ChartCard>
+          <ChartCard>
+            <FlakyTestsHeatmap />
+          </ChartCard>
+        </div>
+
+        {/* VISUAL REGRESSION */}
+        <ChartCard>
+          <VisualDiffViewer />
+        </ChartCard>
       </div>
-
-      {/* TOP KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        <SummaryCard title="Total Tests" value={runs.length} theme={theme} />
-        <SummaryCard title="Total Runs" value={runs.length} theme={theme} />
-        <SummaryCard title="Passing" value={runs.filter(r => r.status === "passed").length} theme={theme} />
-        <SummaryCard
-          title="Average Duration"
-          value={runs.length
-            ? `${Math.round(runs.reduce((acc, r) => acc + r.duration, 0) / runs.length)} ms`
-            : "--"}
-          theme={theme}
-        />
-      </div>
-
-      {/* FILTER BAR */}
-      <DashboardFilters theme={theme} />
-
-      {/* RECENT RUNS TABLE */}
-      <section className={sectionClasses}>
-        {loading ? (
-          <div className="h-56 flex items-center justify-center text-gray-500 dark:text-slate-500">Loading...</div>
-        ) : (
-          <LatestRunsTable data={runs} theme={theme} />
-        )}
-      </section>
-
-      {/* MAIN CHARTS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ChartCard>
-          <RunStatusChart runs={runs} />
-        </ChartCard>
-        <ChartCard>
-          <RunTrendChart runs={runs} />
-        </ChartCard>
-      </div>
-
-      {/* SECONDARY CHARTS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ChartCard>
-          <RunDurationChart runs={runs} />
-        </ChartCard>
-        <ChartCard>
-          <EnvironmentChart runs={runs} />
-        </ChartCard>
-      </div>
-
-      {/* FUNNEL + HEATMAP */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ChartCard>
-          <TestPipelineFunnel />
-        </ChartCard>
-        <ChartCard>
-          <FlakyTestsHeatmap />
-        </ChartCard>
-      </div>
-
-      {/* VISUAL REGRESSION */}
-      <ChartCard>
-        <VisualDiffViewer />
-      </ChartCard>
-    </div>
+    </>
   );
 }

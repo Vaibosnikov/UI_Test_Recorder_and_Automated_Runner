@@ -6,7 +6,11 @@ export default function Header() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">TestCraft Dashboard</h1>
+<<<<<<< HEAD
           <p className="text-sm text-slate-400">UI components & styling (feature/dashboard-ui)</p>
+=======
+          <p className="text-sm text-slate-400">UI components & styling (feature/visualizations)</p>
+>>>>>>> dev
         </div>
         <div className="text-sm text-slate-300">Vaibhav / Dakshita</div>
       </div>

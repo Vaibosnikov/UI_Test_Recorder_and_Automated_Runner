@@ -1,0 +1,8 @@
+{
+  "generated_at": "2025-11-19T20:00:26.501Z",
+  "tests": [
+    "..\\canonical\\checkout_flow.json",
+    "..\\canonical\\login_invalid_password.json",
+    "..\\canonical\\login_valid.json"
+  ]
+}

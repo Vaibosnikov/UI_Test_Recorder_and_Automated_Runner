@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SummaryCard from "../components/SummaryCard";
-import LatestRunsTable from "../components/LatestRunsTable";
+import LatestRunsTable from "../components/tables/LatestRunsTable"; // ✅ Corrected path
 import DashboardFilters from "../components/filters/DashboardFilters";
 import TestPipelineFunnel from "../components/funnels/TestPipelineFunnel";
 import VisualDiffViewer from "../components/visual/VisualDiffViewer";
@@ -19,7 +19,7 @@ import { useTheme } from "../components/ThemeProvider.jsx";
 export default function DashboardPage() {
   const [runs, setRuns] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { theme, toggle } = useTheme(); // ✅ use global theme
+  const { theme, toggle } = useTheme(); // ✅ global theme from provider
 
   useEffect(() => {
     if (mock.data && mock.data.length) {

@@ -15,11 +15,23 @@ import EnvironmentChart from "../visualizations/EnvironmentChart";
 import mock from "../mock/sampleRuns.json";
 import { useTheme } from "../components/ThemeProvider";
 
+// Reusable chart container
+function ChartCard({ children }) {
+  const { theme } = useTheme();
+  const bgClass = theme === "dark" ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-gray-100 border-gray-300 text-gray-900";
+  return (
+    <div className={`p-4 rounded border transition-colors duration-300 ${bgClass}`}>
+      {children}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const [runs, setRuns] = useState([]);
   const [loading, setLoading] = useState(true);
   const { theme, toggle } = useTheme();
 
+  // Load / map mock data
   useEffect(() => {
     let mappedRuns = [];
     if (mock.data && mock.data.length) {
@@ -43,17 +55,17 @@ export default function DashboardPage() {
     setLoading(false);
   }, []);
 
-  const containerClasses = theme === "dark" ? "bg-slate-900 text-white" : "bg-white text-black";
-  const sectionClasses = theme === "dark" ? "bg-slate-800 border-slate-700" : "bg-gray-100 border-gray-300";
+  const containerClasses = `p-6 min-h-screen space-y-8 transition-colors duration-300 ${theme === "dark" ? "bg-slate-900 text-white" : "bg-white text-black"}`;
+
+  const sectionClasses = `p-5 rounded-lg border transition-colors duration-300 ${theme === "dark" ? "bg-slate-800 border-slate-700" : "bg-gray-100 border-gray-300"}`;
 
   return (
-    <div className={`${containerClasses} p-6 min-h-screen space-y-8 transition-colors duration-300`}>
-
+    <div className={containerClasses}>
       {/* THEME TOGGLE */}
       <div className="flex justify-end mb-4">
         <button
           onClick={toggle}
-          className={`px-4 py-2 border rounded transition ${
+          className={`px-4 py-2 border rounded focus:outline-none focus:ring transition ${
             theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-200"
           }`}
         >
@@ -79,30 +91,48 @@ export default function DashboardPage() {
       <DashboardFilters theme={theme} />
 
       {/* RECENT RUNS TABLE */}
-      <section className={`${sectionClasses} p-5 rounded-lg border`}>
-        {loading ? <div>Loading...</div> : <LatestRunsTable data={runs} theme={theme} />}
+      <section className={sectionClasses}>
+        {loading ? (
+          <div className="h-56 flex items-center justify-center text-gray-500 dark:text-slate-500">Loading...</div>
+        ) : (
+          <LatestRunsTable data={runs} theme={theme} />
+        )}
       </section>
 
       {/* MAIN CHARTS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <RunStatusChart runs={runs} />
-        <RunTrendChart runs={runs} />
+        <ChartCard>
+          <RunStatusChart runs={runs} />
+        </ChartCard>
+        <ChartCard>
+          <RunTrendChart runs={runs} />
+        </ChartCard>
       </div>
 
       {/* SECONDARY CHARTS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <RunDurationChart runs={runs} />
-        <EnvironmentChart runs={runs} />
+        <ChartCard>
+          <RunDurationChart runs={runs} />
+        </ChartCard>
+        <ChartCard>
+          <EnvironmentChart runs={runs} />
+        </ChartCard>
       </div>
 
       {/* FUNNEL + HEATMAP */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <TestPipelineFunnel />
-        <FlakyTestsHeatmap />
+        <ChartCard>
+          <TestPipelineFunnel />
+        </ChartCard>
+        <ChartCard>
+          <FlakyTestsHeatmap />
+        </ChartCard>
       </div>
 
       {/* VISUAL REGRESSION */}
-      <VisualDiffViewer />
+      <ChartCard>
+        <VisualDiffViewer />
+      </ChartCard>
     </div>
   );
 }

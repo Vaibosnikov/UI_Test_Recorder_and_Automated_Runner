@@ -9,10 +9,17 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+
+    # Hoist common env to the job level
+    env:
+      BASE_URL: http://127.0.0.1:5000
+      CI: true
+      PORT: 5000
+
     strategy:
       fail-fast: false
       matrix:
-        browser: [chromium]   # 🔧 Start with chromium for faster iteration; add firefox, webkit once green
+        browser: [chromium]   # Start with chromium; add firefox, webkit once green
 
     steps:
       # Step 1: Checkout code
@@ -31,7 +38,7 @@ jobs:
         run: npm ci
 
       # Optional diagnostics
-      - name: "Diagnostic: which playwright & list folders"
+      - name: Diagnostic: which playwright & list folders
         run: |
           node -v
           npm -v
@@ -52,33 +59,31 @@ jobs:
       # Step 6: Start backend API on port 5000 & wait until reachable (IPv4)
       - name: Start backend API & wait
         run: |
-          export PORT=${PORT:-5000}
-          (cd runner/api && npm run dev) &
-          npx --yes wait-on http://127.0.0.1:$PORT
+          # Capture logs for troubleshooting
+          (cd runner/api && npm run dev > ../api-server.log 2>&1) &
+          # Prefer a health endpoint if available:
+          # npx --yes wait-on "http://127.0.0.1:${PORT}/health"
+          npx --yes wait-on "http://127.0.0.1:${PORT}"
+        timeout-minutes: 3
         env:
-          PORT: 5000
           # Uncomment & set if your API needs DB in CI:
           # DB_HOST: 127.0.0.1
           # DB_PORT: 5432
           # DB_USER: vaibh
           # DB_PASSWORD: ""
           # DB_NAME: testcraft_db
-          CI: true
 
       # Step 7: Show which tests will run (discovery)
-      - name: "Diagnostic: list discovered tests"
+      - name: Diagnostic: list discovered tests
         run: npx playwright test --config=playwright/playwright.config.ts --list
 
       # Step 8: Run Playwright tests (per-browser)
-      - name: "Run Playwright tests - ${{ matrix.browser }}"
+      - name: Run Playwright tests - ${{ matrix.browser }}
         run: |
           npx playwright test \
             --config=playwright/playwright.config.ts \
             --project=${{ matrix.browser }} \
             --reporter=html,line
-        env:
-          BASE_URL: http://127.0.0.1:5000
-          CI: true
 
       # Step 9: Collect artifacts into per-browser folders
       - name: Collect artifacts
@@ -86,6 +91,11 @@ jobs:
         run: |
           mkdir -p artifacts/playwright-report-${{ matrix.browser }}
           mkdir -p artifacts/test-results-${{ matrix.browser }}
+          # Backend logs (helpful if server fails)
+          if [ -f "api-server.log" ]; then
+            mkdir -p artifacts/backend-logs-${{ matrix.browser }}
+            cp api-server.log artifacts/backend-logs-${{ matrix.browser }}/ || true
+          fi
           if [ -d "playwright-report" ]; then
             cp -r playwright-report/* artifacts/playwright-report-${{ matrix.browser }}/ || true
           fi
@@ -104,7 +114,7 @@ jobs:
           retention-days: 7
 
       # Step 11: Upload traces/screenshots/videos
-      - name: "Upload traces/screenshots/videos"
+      - name: Upload traces/screenshots/videos
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -113,5 +123,12 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  # (Optional) If you still want Pages publishing, we can wire a single 'site' artifact
-  # produced in this job and download it in a publish job. For now, focus on green tests.
+      # Step 12: Upload backend logs (optional but very useful)
+      - name: Upload backend server logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-logs-${{ matrix.browser }}
+          path: artifacts/backend-logs-${{ matrix.browser }}/
+          if-no-files-found: ignore
+          retention-days: 7

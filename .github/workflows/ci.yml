@@ -9,10 +9,13 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+
     env:
-      BASE_URL: http://127.0.0.1:5000
       CI: true
+      # Backend API port
       PORT: 5000
+      # Point Playwright to the FRONTEND UI (Vite) at 5173
+      BASE_URL: http://127.0.0.1:5173
 
     steps:
       - name: Checkout code
@@ -39,6 +42,9 @@ jobs:
       - name: Install Playwright browsers
         run: ./node_modules/.bin/playwright install --with-deps
 
+      # ------------------------
+      # Backend API (port 5000)
+      # ------------------------
       - name: Install backend API deps
         working-directory: runner/api
         run: npm ci
@@ -47,9 +53,48 @@ jobs:
         timeout-minutes: 5
         run: |
           (cd runner/api && npm run dev > ../api-server.log 2>&1) &
+          # Prefer health endpoint; if not available yet, fall back to port
           npx --yes wait-on "http-get://127.0.0.1:${PORT}/health" || npx --yes wait-on "http://127.0.0.1:${PORT}"
+          # Probe but do not fail here
           curl -sS "http://127.0.0.1:${PORT}/health" || true
 
+      # ------------------------
+      # Frontend UI (Vite, port 5173)
+      # ------------------------
+      - name: Install frontend deps
+        working-directory: runner/web
+        run: npm ci
+
+      # Choose ONE of the following:
+      # Option A: Vite dev server (fast, fine for CI)
+      - name: Start frontend (Vite dev) and wait
+        timeout-minutes: 5
+        run: |
+          (cd runner/web && npm run dev > ../ui-server.log 2>&1) &
+          npx --yes wait-on "http-get://127.0.0.1:5173"
+
+      # Option B: Production-like (build + preview)
+      # Uncomment these two steps and comment the dev step above if you prefer preview
+      # - name: Build frontend (Vite)
+      #   working-directory: runner/web
+      #   run: npm run build
+      #
+      # - name: Preview frontend (Vite) and wait
+      #   timeout-minutes: 5
+      #   run: |
+      #     (cd runner/web && npx vite preview --port 5173 > ../ui-server.log 2>&1) &
+      #     npx --yes wait-on "http-get://127.0.0.1:5173"
+
+      - name: Probe UI routes
+        run: |
+          echo "GET /"
+          curl -i "http://127.0.0.1:5173/" || true
+          echo "GET /dashboard"
+          curl -i "http://127.0.0.1:5173/dashboard" || true
+
+      # ------------------------
+      # Playwright test run
+      # ------------------------
       - name: List discovered tests
         run: ./node_modules/.bin/playwright test --config=playwright/playwright.config.ts --list
 
@@ -60,6 +105,10 @@ jobs:
             --project=chromium \
             --reporter=html,line
 
+      # ------------------------
+      # Artifacts
+      # ------------------------
+      # Detect where Playwright put the report (repo root vs under playwright/)
       - name: Locate HTML report directory
         if: always()
         run: |
@@ -89,15 +138,19 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Upload backend server logs
+      - name: Upload server logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: backend-logs
-          path: api-server.log
+          name: server-logs
+          path: |
+            api-server.log
+            ui-server.log
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Stop backend
+      - name: Stop servers
         if: always()
-        run: pkill -f "runner/api" || true
+        run: |
+          pkill -f "runner/api" || true
+          pkill -f "runner/web" || true

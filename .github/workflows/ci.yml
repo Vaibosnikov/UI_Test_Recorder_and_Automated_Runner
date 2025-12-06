@@ -10,7 +10,6 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
 
-    # Hoist common env to the job level
     env:
       BASE_URL: http://127.0.0.1:5000
       CI: true
@@ -61,9 +60,8 @@ jobs:
         run: |
           # Capture logs for troubleshooting
           (cd runner/api && npm run dev > ../api-server.log 2>&1) &
-          # Prefer a health endpoint if available:
-          # npx --yes wait-on "http://127.0.0.1:${PORT}/health"
-          npx --yes wait-on "http://127.0.0.1:${PORT}"
+          # Wait on health endpoint for reliability
+          npx --yes wait-on "http://127.0.0.1:${PORT}/health"
         timeout-minutes: 3
         env:
           # Uncomment & set if your API needs DB in CI:

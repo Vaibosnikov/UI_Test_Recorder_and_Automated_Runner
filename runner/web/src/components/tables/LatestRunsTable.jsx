@@ -9,6 +9,9 @@ const testNameMap = {
   // Add more mappings as needed
 };
 
+// Helper function to format duration
+const formatDuration = (ms) => (ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`);
+
 export default function LatestRunsTable({ data = [], theme = "dark" }) {
   const isDark = theme === "dark";
 
@@ -38,10 +41,8 @@ export default function LatestRunsTable({ data = [], theme = "dark" }) {
       <table className="w-full text-left border-collapse">
         <thead className={`${headerText} text-sm sticky top-0 ${headerBg} border-b ${borderColor} transition-colors duration-300`}>
           <tr>
-            <th className="p-2">ID</th>
             <th className="p-2">Feature / Application</th>
             <th className="p-2">Status</th>
-            <th className="p-2">Branch</th>
             <th className="p-2">Duration</th>
             <th className="p-2">Started At</th>
           </tr>
@@ -50,10 +51,9 @@ export default function LatestRunsTable({ data = [], theme = "dark" }) {
         <tbody className={`transition-colors duration-300 ${bodyText}`}>
           {data.map((run) => (
             <tr key={run.id} className={`border-t ${borderColor}`}>
-              <td className="p-2">{run.id}</td>
               <td className="p-2">
                 <a
-                  href={`/app/${run.testId}`} // Replace with actual link if needed
+                  href={`/app/${run.testId}`} // Replace with actual link
                   className="text-blue-600 hover:underline"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -77,11 +77,10 @@ export default function LatestRunsTable({ data = [], theme = "dark" }) {
                       : "bg-yellow-200 text-yellow-800"
                   }`}
                 >
-                  {run.status}
+                  {run.status === "passed" ? "Passed ✅" : run.status === "failed" ? "Failed ❌" : run.status}
                 </span>
               </td>
-              <td className="p-2">{run.branch}</td>
-              <td className="p-2">{run.duration} ms</td>
+              <td className="p-2">{formatDuration(run.duration)}</td>
               <td className="p-2">{new Date(run.startedAt).toLocaleString()}</td>
             </tr>
           ))}

@@ -10,9 +10,10 @@ export default function TestPipelineFunnel({ theme = "dark" }) {
       : "bg-white border-gray-300 text-gray-900"
   }`;
 
-  const stepClasses = (isDarkBg, lightBg, width) =>
+  // Step styling function
+  const stepClasses = (darkBg, lightBg, width) =>
     `p-2 rounded font-medium transition-all duration-300 ${width} ${
-      isDark ? isDarkBg + " text-white" : lightBg + " text-gray-900"
+      isDark ? `${darkBg} text-white` : `${lightBg} text-gray-900`
     }`;
 
   return (
@@ -26,47 +27,16 @@ export default function TestPipelineFunnel({ theme = "dark" }) {
       </h2>
 
       <div className="space-y-3">
-        {/* Step 1 */}
-        <div
-          className={stepClasses(
-            "bg-blue-700",
-            "bg-blue-200",
-            "w-full"
-          )}
-        >
+        <div className={stepClasses("bg-blue-700", "bg-blue-200", "w-full")}>
           Recorded
         </div>
-
-        {/* Step 2 */}
-        <div
-          className={stepClasses(
-            "bg-purple-700",
-            "bg-purple-200",
-            "w-4/5"
-          )}
-        >
+        <div className={stepClasses("bg-purple-700", "bg-purple-200", "w-4/5")}>
           Script Generated
         </div>
-
-        {/* Step 3 */}
-        <div
-          className={stepClasses(
-            "bg-indigo-700",
-            "bg-indigo-200",
-            "w-3/5"
-          )}
-        >
+        <div className={stepClasses("bg-indigo-700", "bg-indigo-200", "w-3/5")}>
           Execution Triggered
         </div>
-
-        {/* Step 4 */}
-        <div
-          className={stepClasses(
-            "bg-green-700",
-            "bg-green-200",
-            "w-2/5"
-          )}
-        >
+        <div className={stepClasses("bg-green-700", "bg-green-200", "w-2/5")}>
           Passed
         </div>
       </div>

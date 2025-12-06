@@ -31,4 +31,12 @@ export default function DashboardFilters({ theme = "dark" }) {
       </select>
 
       {/* Status Filter */}
-      <select className={selectClas
+      <select className={selectClasses}>
+        <option>Status: All</option>
+        <option>Passed</option>
+        <option>Failed</option>
+        <option>Skipped</option>
+      </select>
+    </div>
+  );
+}

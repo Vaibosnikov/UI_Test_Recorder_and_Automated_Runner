@@ -1,27 +1,26 @@
-// src/App.jsx
 import React from "react";
-import ThemeToggle from "./components/ThemeToggle";
-import { ThemeProvider } from "./components/ThemeProvider";   // ✅ IMPORTANT
+import { ThemeProvider } from "./components/ThemeProvider";
+import Header from "./components/Header";
+import Sidebar from "./components/Sidebar";
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
   return (
-    <ThemeProvider>   {/* ✅ WRAP EVERYTHING */}
-      <div className="min-h-screen bg-white text-black transition-colors duration-300 dark:bg-gray-900 dark:text-white">
+    <ThemeProvider>
+      <div className="flex min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors duration-300">
         
-        {/* Top Right Toggle */}
-        <div className="p-4 flex justify-end">
-          <ThemeToggle />
-        </div>
+        {/* Sidebar */}
+        <Sidebar />
 
-        {/* Dashboard content */}
-        <div className="px-6">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
+        {/* Main content */}
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <Header />
 
-          {/* <TopStats /> */}
-          {/* <RecentRuns /> */}
-          {/* <RunFunnel /> */}
-          {/* <TrendChart /> */}
-          {/* <CohortHeatmap /> */}
+          {/* Dashboard */}
+          <main className="flex-1 overflow-auto p-6">
+            <DashboardPage />
+          </main>
         </div>
       </div>
     </ThemeProvider>

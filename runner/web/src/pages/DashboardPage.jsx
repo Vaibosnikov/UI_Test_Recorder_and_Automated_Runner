@@ -14,11 +14,12 @@ import {
 } from "../visualizations";
 
 import mock from "../mock/sampleRuns.json";
+import { useTheme } from "../components/ThemeProvider.jsx";
 
 export default function DashboardPage() {
   const [runs, setRuns] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [theme, setTheme] = useState("dark");
+  const { theme, toggle } = useTheme(); // ✅ use global theme
 
   useEffect(() => {
     if (mock.data && mock.data.length) {
@@ -42,17 +43,16 @@ export default function DashboardPage() {
     setLoading(false);
   }, []);
 
-  const toggleTheme = () => setTheme(prev => (prev === "dark" ? "light" : "dark"));
-
   const containerClasses = theme === "dark" ? "bg-slate-900 text-white" : "bg-white text-black";
   const sectionClasses = theme === "dark" ? "bg-slate-800 border-slate-700" : "bg-gray-100 border-gray-300";
 
   return (
     <div className={`${containerClasses} p-6 min-h-screen space-y-8 transition-colors duration-300`}>
+
       {/* THEME TOGGLE */}
       <div className="flex justify-end mb-4">
         <button
-          onClick={toggleTheme}
+          onClick={toggle}
           className="px-4 py-2 border rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition"
         >
           {theme === "dark" ? "Switch to Light" : "Switch to Dark"}

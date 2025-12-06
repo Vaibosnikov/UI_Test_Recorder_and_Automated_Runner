@@ -21,22 +21,18 @@ jobs:
         browser: [chromium]   # Start with chromium; add firefox, webkit once green
 
     steps:
-      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Setup Node.js (with npm cache)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
 
-      # Step 3: Install dependencies (root)
       - name: Install dependencies (root)
         run: npm ci
 
-      # Optional diagnostics
       - name: "Diagnostic: which playwright and list folders"
         run: |
           node -v
@@ -46,16 +42,13 @@ jobs:
           ls -la
           ls -la playwright || true
 
-      # Step 4: Install Playwright browsers (avoid folder/CLI name collision)
       - name: Install Playwright browsers
         run: npx -p @playwright/test@latest playwright install --with-deps
 
-      # Step 5: Install backend API deps
       - name: Install backend API deps
         working-directory: runner/api
         run: npm ci
 
-      # Step 6: Start backend API on port 5000 and wait until reachable (IPv4)
       - name: "Start backend API and wait"
         run: |
           # Capture logs for troubleshooting
@@ -71,25 +64,21 @@ jobs:
           # DB_PASSWORD: ""
           # DB_NAME: testcraft_db
 
-      # Step 7: Show which tests will run (discovery)
-      - name: Diagnostic: list discovered tests
+      - name: "Diagnostic: list discovered tests"
         run: npx playwright test --config=playwright/playwright.config.ts --list
 
-      # Step 8: Run Playwright tests (per-browser)
-      - name: Run Playwright tests - ${{ matrix.browser }}
+      - name: "Run Playwright tests - ${{ matrix.browser }}"
         run: |
           npx playwright test \
             --config=playwright/playwright.config.ts \
             --project=${{ matrix.browser }} \
             --reporter=html,line
 
-      # Step 9: Collect artifacts into per-browser folders
       - name: Collect artifacts
         if: always()
         run: |
           mkdir -p artifacts/playwright-report-${{ matrix.browser }}
           mkdir -p artifacts/test-results-${{ matrix.browser }}
-          # Backend logs (helpful if server fails)
           if [ -f "api-server.log" ]; then
             mkdir -p artifacts/backend-logs-${{ matrix.browser }}
             cp api-server.log artifacts/backend-logs-${{ matrix.browser }}/ || true
@@ -101,7 +90,6 @@ jobs:
             cp -r test-results/* artifacts/test-results-${{ matrix.browser }}/ || true
           fi
 
-      # Step 10: Upload Playwright HTML Report
       - name: Upload Playwright HTML Report
         if: always()
         uses: actions/upload-artifact@v4
@@ -111,7 +99,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-      # Step 11: Upload traces/screenshots/videos
       - name: Upload traces/screenshots/videos
         if: always()
         uses: actions/upload-artifact@v4
@@ -121,7 +108,6 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-      # Step 12: Upload backend logs (optional but very useful)
       - name: Upload backend server logs
         if: always()
         uses: actions/upload-artifact@v4

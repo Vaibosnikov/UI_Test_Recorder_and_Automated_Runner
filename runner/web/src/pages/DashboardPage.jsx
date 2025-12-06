@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
-import KpiCard from "../components/cards/KpiCards"; // ✅ Correct import path
+import KpiCard from "../components/cards/KpiCard"; // ✅ Correct import
 import LatestRunsTable from "../components/tables/LatestRunsTable";
 import DashboardFilters from "../components/filters/DashboardFilters";
 import TestPipelineFunnel from "../components/funnels/TestPipelineFunnel";
@@ -35,13 +35,12 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const { theme, toggle } = useTheme();
 
-  // Map raw run data to friendly names for non-tech users
   useEffect(() => {
     let mappedRuns = [];
     if (mock.data?.length) {
       mappedRuns = mock.data.map((r, i) => ({
         id: r.id || i + 1,
-        testName: r.test_name || r.test_id || `Feature ${i + 1}`, // friendly name
+        testName: r.test_name || r.test_id || `Feature ${i + 1}`,
         status: r.status || "passed",
         branch: r.branch || "main",
         duration: r.duration_ms || Math.floor(Math.random() * 500) + 100,
@@ -49,7 +48,6 @@ export default function DashboardPage() {
         environment: r.environment || "local",
       }));
     } else {
-      // fallback mock
       mappedRuns = [
         { id: 1, testName: "Login Page", status: "passed", branch: "main", duration: 120, startedAt: new Date().toISOString(), environment: "local" },
         { id: 2, testName: "Signup Page", status: "failed", branch: "dev", duration: 450, startedAt: new Date().toISOString(), environment: "staging" },

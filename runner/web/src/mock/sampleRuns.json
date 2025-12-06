@@ -17,8 +17,6 @@
       "branch": "dev",
       "duration_ms": 1100,
       "started_at": "2025-11-19T10:05:00.000Z"
-<<<<<<< HEAD
-=======
     },
     {
       "id": "run-checkout-001",
@@ -28,7 +26,6 @@
       "branch": "feature/demo",
       "duration_ms": 2100,
       "started_at": "2025-11-20T09:30:00.000Z"
->>>>>>> dev
     }
   ]
 }

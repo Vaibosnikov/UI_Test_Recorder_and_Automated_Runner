@@ -14,7 +14,7 @@ jobs:
       BASE_URL: http://127.0.0.1:5000
       CI: true
       PORT: 5000
-      # Optional backend hints—uncomment if useful in your server:
+      # Optional: uncomment if your server supports these and you want to avoid DB in CI
       # HOST: 127.0.0.1
       # NODE_ENV: test
       # DISABLE_DB: true
@@ -49,13 +49,14 @@ jobs:
         run: npm ci
 
       - name: Start backend API and wait (/health)
-        timeout-minutes: 5
+        timeout-minutes: 3
         run: |
+          # Start server in background and capture logs
           (cd runner/api && npm run dev > ../api-server.log 2>&1) &
-          # Use http-get scheme for reliable endpoint polling:
+          # Wait for the health endpoint (HTTP GET check)
           npx --yes wait-on "http-get://127.0.0.1:${PORT}/health"
-          # Sanity probe:
-          curl -i "http://127.0.0.1:${PORT}/health" || (echo '---- backend log ----'; tail -n 200 api-server.log; exit 1)
+          # Sanity probe; if it fails, show last logs and exit non-zero
+          curl -sf "http://127.0.0.1:${PORT}/health" || (echo '---- backend log ----'; tail -n 200 api-server.log; exit 1)
 
       - name: List discovered tests
         run: npx -p @playwright/test@latest playwright test --config=playwright/playwright.config.ts --list

@@ -1,29 +1,29 @@
+// src/pages/DashboardPage.jsx
 import React, { useEffect, useState } from "react";
 import SummaryCard from "../components/SummaryCard";
-import LatestRunsTable from "../components/tables/LatestRunsTable"; // ✅ Corrected path
+import LatestRunsTable from "../components/tables/LatestRunsTable";
 import DashboardFilters from "../components/filters/DashboardFilters";
 import TestPipelineFunnel from "../components/funnels/TestPipelineFunnel";
 import VisualDiffViewer from "../components/visual/VisualDiffViewer";
 import FlakyTestsHeatmap from "../components/charts/FlakyTestsHeatmap";
 
-import {
-  RunStatusChart,
-  RunTrendChart,
-  RunDurationChart,
-  EnvironmentChart,
-} from "../visualizations";
+import RunStatusChart from "../visualizations/RunStatusChart";
+import RunTrendChart from "../visualizations/RunTrendChart";
+import RunDurationChart from "../visualizations/RunDurationChart";
+import EnvironmentChart from "../visualizations/EnvironmentChart";
 
 import mock from "../mock/sampleRuns.json";
-import { useTheme } from "../components/ThemeProvider.jsx";
+import { useTheme } from "../components/ThemeProvider";
 
 export default function DashboardPage() {
   const [runs, setRuns] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { theme, toggle } = useTheme(); // ✅ global theme from provider
+  const { theme, toggle } = useTheme();
 
   useEffect(() => {
+    let mappedRuns = [];
     if (mock.data && mock.data.length) {
-      const mappedRuns = mock.data.map((r, i) => ({
+      mappedRuns = mock.data.map((r, i) => ({
         id: r.id || i + 1,
         testId: r.test_id || `T0${i + 1}`,
         status: r.status || "passed",
@@ -32,14 +32,14 @@ export default function DashboardPage() {
         startedAt: r.started_at || new Date().toISOString(),
         environment: r.environment || "local",
       }));
-      setRuns(mappedRuns);
     } else {
-      setRuns([
+      mappedRuns = [
         { id: 1, testId: "T01", status: "passed", branch: "main", duration: 120, startedAt: new Date().toISOString(), environment: "local" },
         { id: 2, testId: "T02", status: "failed", branch: "dev", duration: 450, startedAt: new Date().toISOString(), environment: "staging" },
         { id: 3, testId: "T03", status: "passed", branch: "feature", duration: 300, startedAt: new Date().toISOString(), environment: "prod" },
-      ]);
+      ];
     }
+    setRuns(mappedRuns);
     setLoading(false);
   }, []);
 
@@ -53,7 +53,9 @@ export default function DashboardPage() {
       <div className="flex justify-end mb-4">
         <button
           onClick={toggle}
-          className="px-4 py-2 border rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+          className={`px-4 py-2 border rounded transition ${
+            theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-200"
+          }`}
         >
           {theme === "dark" ? "Switch to Light" : "Switch to Dark"}
         </button>
@@ -67,7 +69,7 @@ export default function DashboardPage() {
         <SummaryCard
           title="Average Duration"
           value={runs.length
-            ? Math.round(runs.reduce((acc, r) => acc + r.duration, 0) / runs.length) + " ms"
+            ? `${Math.round(runs.reduce((acc, r) => acc + r.duration, 0) / runs.length)} ms`
             : "--"}
           theme={theme}
         />
@@ -83,24 +85,24 @@ export default function DashboardPage() {
 
       {/* MAIN CHARTS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <RunStatusChart runs={runs} theme={theme} />
-        <RunTrendChart runs={runs} theme={theme} />
+        <RunStatusChart runs={runs} />
+        <RunTrendChart runs={runs} />
       </div>
 
       {/* SECONDARY CHARTS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <RunDurationChart runs={runs} theme={theme} />
-        <EnvironmentChart runs={runs} theme={theme} />
+        <RunDurationChart runs={runs} />
+        <EnvironmentChart runs={runs} />
       </div>
 
       {/* FUNNEL + HEATMAP */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <TestPipelineFunnel theme={theme} />
-        <FlakyTestsHeatmap theme={theme} />
+        <TestPipelineFunnel />
+        <FlakyTestsHeatmap />
       </div>
 
       {/* VISUAL REGRESSION */}
-      <VisualDiffViewer theme={theme} />
+      <VisualDiffViewer />
     </div>
   );
 }

@@ -8,7 +8,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { useTheme } from "./ThemeProvider";
+
+import { useTheme } from "../components/ThemeProvider";  // ✅ FIXED PATH
 
 export default function RunDurationChart({ runs = [] }) {
   const { theme } = useTheme();
@@ -18,7 +19,7 @@ export default function RunDurationChart({ runs = [] }) {
     ? "bg-slate-800 border-slate-700 text-slate-200"
     : "bg-white border-gray-300 text-gray-900";
 
-  const axisColor = isDark ? "#cbd5e1" : "#334155"; // light blue-gray vs slate
+  const axisColor = isDark ? "#cbd5e1" : "#334155";
   const gridColor = isDark ? "#475569" : "#e2e8f0";
 
   const data = runs.map((r) => ({

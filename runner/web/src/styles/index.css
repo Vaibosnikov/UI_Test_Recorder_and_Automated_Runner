@@ -1,17 +1,120 @@
+/* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Smooth global background + text transitions */
-html, body {
-  transition: background-color 0.25s ease, color 0.25s ease;
+/* Global resets (help avoid unexpected gaps) */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
 
-/* Smooth transitions for cards and containers */
-.card-transition {
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
+/* Project global styles (keeps previous theme) */
+:root {
+  --bg: #0f1724;
+  --card: #0b1220;
+  --muted: #9ca3af;
+  --primary: #60a5fa;
 }
+body {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: var(--bg);
+  color: #e6eef8;
+}
+
+/* --- Fix for unexpected large top spacing / hero spacer --- */
+.header,
+.page-hero,
+.hero,
+.banner,
+.top-banner,
+.header-spacer,
+.page-header,
+.header-placeholder {
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+}
+
+/* If your main content had an extra top padding/margin, remove it */
+.main,
+.content,
+.page-content,
+.dashboard-container,
+.app-content {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Keep sidebar fixed and content aligned (adjust if your layout differs) */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+}
+
+/* Page title row — ensure it doesn't create extra gap */
+.page-title,
+.page-title-row {
+  margin: 0 !important;
+  padding: 0.5rem 0 !important;
+}
+
+/* ---------------------------
+   Title animation & gradient
+   --------------------------- */
+
+/* pop-in animation for headings */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(0) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.title-pop {
+  display: inline-block;
+  animation: popIn 500ms cubic-bezier(.2,.9,.3,1) both;
+  will-change: transform, opacity;
+}
+
+/* animated gradient text for TestCraft word */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #60a5fa, #7c3aed, #22c55e);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradientShift 4s ease infinite;
+}
+
+/* subtle focus outline for accessibility */
+.title-pop:focus {
+  outline: 2px solid rgba(96,165,250,0.25);
+  outline-offset: 2px;
+}
+
+/* Optional small tweak: slightly smaller Dashboard subtitle color */
+.title-pop + .text-base {
+  color: rgba(255,255,255,0.85);
+}
+
+/* Optional dev utility to visualize element outlines (remove when done) */
+/* .debug-outline * { outline: 1px dashed rgba(255,255,255,0.04); } */

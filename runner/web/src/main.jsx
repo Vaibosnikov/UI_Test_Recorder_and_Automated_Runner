@@ -1,9 +1,9 @@
 // src/main.jsx
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";               // your existing App
+import App from "./App";                
 import { ThemeProvider } from "./components/ThemeProvider";
-import "./index.css";                  // Tailwind + transitions
+import "./styles/index.css";            // updated path
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

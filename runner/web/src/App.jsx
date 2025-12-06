@@ -9,9 +9,11 @@ function AppContent() {
   const { theme } = useTheme();
 
   return (
-    <div className="flex min-h-screen transition-colors duration-300" 
-         className={theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-black"}>
-      
+    <div
+      className={`flex min-h-screen transition-colors duration-300 ${
+        theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-black"
+      }`}
+    >
       {/* Sidebar */}
       <Sidebar />
 
@@ -29,12 +31,10 @@ function AppContent() {
   );
 }
 
-function App() {
+export default function App() {
   return (
     <ThemeProvider>
       <AppContent />
     </ThemeProvider>
   );
 }
-
-export default App;

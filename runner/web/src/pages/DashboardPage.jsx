@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
-import KpiCard from "../components/KpiCard";
+import KpiCard from "../components/cards/KpiCards"; // ✅ Correct import path
 import LatestRunsTable from "../components/tables/LatestRunsTable";
 import DashboardFilters from "../components/filters/DashboardFilters";
 import TestPipelineFunnel from "../components/funnels/TestPipelineFunnel";

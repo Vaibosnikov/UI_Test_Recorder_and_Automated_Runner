@@ -1,139 +1,243 @@
-{
-  "data": [
+
+import React from "react";
+
+/** Known IDs → friendly names (extend as needed) */
+const TEST_ID_MAP = {
+  "AC-LOGIN-001":   { feature: "Login",     displayName: "Login – Basic" },
+  "AC-LOGIN-002":   { feature: "Login",     displayName: "Login – Invalid Credentials" },
+  "AC-LOGIN-003":   { feature: "Login",     displayName: "Login – Lockout / Rate Limit" },
+  "AC-SIGNUP-001":  { feature: "Signup",    displayName: "Signup – Basic Flow" },
+  "AC-SIGNUP-002":  { feature: "Signup",    displayName: "Signup – Validation Errors" },
+  "AC-PROFILE-001": { feature: "Profile",   displayName: "Profile – Load" },
+  "AC-PROFILE-002": { feature: "Profile",   displayName: "Profile – Update" },
+  "AC-LOGOUT-001":  { feature: "Logout",    displayName: "Logout – Basic" },
+  "AC-LOGOUT-002":  { feature: "Logout",    displayName: "Logout – Token Expiry" },
+  "AC-DASHBOARD-001": { feature: "Dashboard", displayName: "Dashboard – Widgets Render" },
+  "AC-DASHBOARD-002": { feature: "Dashboard", displayName: "Dashboard – KPI Tiles" },
+  "AC-SEARCH-001":    { feature: "Search",    displayName: "Search – Basic" },
+  "AC-FILTER-001":    { feature: "Filters",   displayName: "Filters – Apply & Reset" },
+  "AC-CART-001":      { feature: "Cart",      displayName: "Cart – Add / Remove Items" },
+  "AC-CHECKOUT-001":  { feature: "Checkout",  displayName: "Checkout – Payment Success" },
+};
+
+/** Derive feature + display name from test_id */
+function parseTestId(testId) {
+  if (!testId) return { feature: "Unknown", displayName: "Unknown Test" };
+  const known = TEST_ID_MAP[testId];
+  if (known) return known;
+
+  const parts = String(testId).split("-"); // ["AC","LOGIN","001"]
+  const rawFeature = parts[1] || "unknown";
+  const feature = rawFeature.charAt(0).toUpperCase() + rawFeature.slice(1).toLowerCase();
+  const displayName = `${rawFeature.toUpperCase()} ${parts[2] || ""}`.trim();
+  return { feature, displayName };
+}
+
+/** Formatters */
+const formatDuration = (ms) =>
+  ms == null ? "—" : ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`;
+
+const formatDate = (iso) => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleString(undefined, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+/** Status badge with friendly label + tooltip */
+function StatusBadge({ status, isDark }) {
+  const meta =
     {
-      "id": "run-001",
-      "test_id": "AC-LOGIN-001",
-      "status": "passed",
-      "environment": "local",
-      "branch": "main",
-      "duration_ms": 1350,
-      "started_at": "2025-12-01T10:00:00.000Z"
-    },
-    {
-      "id": "run-002",
-      "test_id": "AC-LOGIN-002",
-      "status": "failed",
-      "environment": "staging",
-      "branch": "dev",
-      "duration_ms": 2100,
-      "started_at": "2025-12-01T10:10:00.000Z"
-    },
-    {
-      "id": "run-003",
-      "test_id": "AC-SIGNUP-001",
-      "status": "passed",
-      "environment": "prod",
-      "branch": "feature/signup",
-      "duration_ms": 980,
-      "started_at": "2025-12-01T10:20:00.000Z"
-    },
-    {
-      "id": "run-004",
-      "test_id": "AC-PROFILE-001",
-      "status": "skipped",
-      "environment": "local",
-      "branch": "main",
-      "duration_ms": 0,
-      "started_at": "2025-12-01T10:30:00.000Z"
-    },
-    {
-      "id": "run-005",
-      "test_id": "AC-LOGOUT-001",
-      "status": "passed",
-      "environment": "staging",
-      "branch": "dev",
-      "duration_ms": 540,
-      "started_at": "2025-12-01T10:40:00.000Z"
-    },
-    {
-      "id": "run-006",
-      "test_id": "AC-DASHBOARD-001",
-      "status": "failed",
-      "environment": "prod",
-      "branch": "feature/dashboard",
-      "duration_ms": 1850,
-      "started_at": "2025-12-01T10:50:00.000Z"
-    },
-    {
-      "id": "run-007",
-      "test_id": "AC-SEARCH-001",
-      "status": "passed",
-      "environment": "local",
-      "branch": "main",
-      "duration_ms": 1120,
-      "started_at": "2025-12-01T11:00:00.000Z"
-    },
-    {
-      "id": "run-008",
-      "test_id": "AC-FILTER-001",
-      "status": "passed",
-      "environment": "staging",
-      "branch": "dev",
-      "duration_ms": 980,
-      "started_at": "2025-12-01T11:10:00.000Z"
-    },
-    {
-      "id": "run-009",
-      "test_id": "AC-CART-001",
-      "status": "failed",
-      "environment": "prod",
-      "branch": "feature/cart",
-      "duration_ms": 2300,
-      "started_at": "2025-12-01T11:20:00.000Z"
-    },
-    {
-      "id": "run-010",
-      "test_id": "AC-CHECKOUT-001",
-      "status": "passed",
-      "environment": "local",
-      "branch": "main",
-      "duration_ms": 1500,
-      "started_at": "2025-12-01T11:30:00.000Z"
-    },
-    {
-      "id": "run-011",
-      "test_id": "AC-LOGIN-003",
-      "status": "passed",
-      "environment": "staging",
-      "branch": "dev",
-      "duration_ms": 1200,
-      "started_at": "2025-12-01T11:40:00.000Z"
-    },
-    {
-      "id": "run-012",
-      "test_id": "AC-SIGNUP-002",
-      "status": "failed",
-      "environment": "prod",
-      "branch": "feature/signup",
-      "duration_ms": 2100,
-      "started_at": "2025-12-01T11:50:00.000Z"
-    },
-    {
-      "id": "run-013",
-      "test_id": "AC-PROFILE-002",
-      "status": "passed",
-      "environment": "local",
-      "branch": "main",
-      "duration_ms": 800,
-      "started_at": "2025-12-01T12:00:00.000Z"
-    },
-    {
-      "id": "run-014",
-      "test_id": "AC-LOGOUT-002",
-      "status": "skipped",
-      "environment": "staging",
-      "branch": "dev",
-      "duration_ms": 0,
-      "started_at": "2025-12-01T12:10:00.000Z"
-    },
-    {
-      "id": "run-015",
-      "test_id": "AC-DASHBOARD-002",
-      "status": "passed",
-      "environment": "prod",
-      "branch": "feature/dashboard",
-      "duration_ms": 1300,
-      "started_at": "2025-12-01T12:20:00.000Z"
-    }
-  ]
+      passed: {
+        label: "Passed ✅",
+        tip: "All checks succeeded",
+        cls: isDark ? "bg-green-700 text-green-100" : "bg-green-200 text-green-800",
+      },
+      failed: {
+        label: "Failed ❌",
+        tip: "At least one check failed",
+        cls: isDark ? "bg-red-700 text-red-100" : "bg-red-200 text-red-800",
+      },
+      skipped: {
+        label: "Skipped ⏭️",
+        tip: "Test was skipped by config or filter",
+        cls: isDark ? "bg-yellow-600 text-yellow-100" : "bg-yellow-200 text-yellow-800",
+      },
+      running: {
+        label: "Running 🟡",
+        tip: "Currently executing",
+        cls: isDark ? "bg-amber-600 text-amber-100" : "bg-amber-200 text-amber-800",
+      },
+      queued: {
+        label: "Queued 🕒",
+        tip: "Waiting to start",
+        cls: isDark ? "bg-gray-700 text-gray-100" : "bg-gray-200 text-gray-800",
+      },
+    }[status] || {
+      label: "Unknown",
+      tip: "Status not available",
+      cls: isDark ? "bg-gray-700 text-gray-100" : "bg-gray-200 text-gray-800",
+    };
+
+  return (
+    <span
+      title={meta.tip}
+      className={`px-2 py-1 rounded text-xs font-medium transition-colors duration-300 ${meta.cls}`}
+      aria-label={meta.label}
+    >
+      {meta.label}
+    </span>
+  );
+}
+
+/** Small icon per feature (visual cue for non-tech users) */
+function FeatureIcon({ name }) {
+  const n = (name || "").toLowerCase();
+  const icon =
+    n.includes("login") ? "🔑" :
+    n.includes("signup") ? "📝" :
+    n.includes("checkout") ? "🛒" :
+    n.includes("dashboard") ? "📋" :
+    n.includes("profile") ? "👤" :
+    n.includes("search") ? "🔎" :
+    n.includes("filter") ? "🎛️" :
+    n.includes("cart") ? "🛍️" :
+    "🧪";
+  return <span aria-hidden className="mr-1">{icon}</span>;
+}
+
+/** Normalize incoming `data`:
+ * - Accepts array OR { data: [...] }
+ * - Uses mock-style fields: test_id, duration_ms, started_at, environment, branch
+ */
+function normalizeRows(data) {
+  const raw = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+  return raw.map((run) => ({
+    id: run.id,
+    test_id: run.test_id,
+    status: run.status,
+    environment: run.environment,
+    branch: run.branch,
+    duration_ms: run.duration_ms,
+    started_at: run.started_at,
+    detailsUrl: run.detailsUrl, // optional
+    // Optional backend-provided fields:
+    feature: run.feature,
+    application: run.application,
+  }));
+}
+
+export default function LatestRunsTable({ data = [], theme = "dark" }) {
+  const isDark = theme === "dark";
+  const rows = normalizeRows(data);
+
+  const bgClass = isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300";
+  const headerText = isDark ? "text-gray-400" : "text-gray-600";
+  const bodyText = isDark ? "text-gray-300" : "text-gray-800";
+  const borderColor = isDark ? "border-gray-700" : "border-gray-200";
+  const headerBg = isDark ? "bg-gray-800" : "bg-gray-100";
+  const titleText = isDark ? "text-white" : "text-gray-900";
+
+  if (!rows.length) {
+    return (
+      <div className={`p-4 rounded-lg border ${bgClass} transition-colors duration-300`}>
+        <h2 className={`text-lg font-semibold mb-3 transition-colors duration-300 ${titleText}`}>
+          Recent Test Runs
+        </h2>
+        <p className={`transition-colors duration-300 ${bodyText}`}>
+          No runs available. When tests execute, they’ll show up here.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`p-4 rounded-lg border ${bgClass} overflow-x-auto transition-colors duration-300`}>
+      <h2 className={`text-lg font-semibold mb-3 transition-colors duration-300 ${titleText}`}>
+        Recent Test Runs
+      </h2>
+
+      <table className="w-full text-left border-collapse">
+        <thead className={`${headerText} text-sm sticky top-0 ${headerBg} border-b ${borderColor} transition-colors duration-300`}>
+          <tr>
+            <th className="p-2">Feature / Application</th>
+            <th className="p-2">Test</th>
+            <th className="p-2">Status</th>
+            <th className="p-2">Environment</th>
+            <th className="p-2">Branch</th>
+            <th className="p-2">Duration</th>
+            <th className="p-2">Started At</th>
+          </tr>
+        </thead>
+
+        <tbody className={`transition-colors duration-300 ${bodyText}`}>
+          {rows.map((run) => {
+            const { feature: parsedFeature, displayName } = parseTestId(run.test_id);
+            const featureOrApp = run.feature || run.application || parsedFeature;
+            const detailsHref = run.detailsUrl || `/runs/${run.id}`;
+
+            return (
+              <tr key={run.id} className={`border-t ${borderColor} hover:bg-gray-700/30 transition`}>
+                {/* Feature / Application (clickable) */}
+                <td className="p-2">
+                  <a
+                    href={detailsHref}
+                    className={`underline underline-offset-2 ${
+                      isDark ? "text-sky-300 hover:text-sky-200" : "text-sky-700 hover:text-sky-600"
+                    }`}
+                    title={`Open details for ${displayName}`}
+                  >
+                    <FeatureIcon name={featureOrApp} />
+                    {featureOrApp}
+                  </a>
+                </td>
+
+                {/* Test: friendly name + raw test_id in tooltip */}
+                <td className="p-2">
+                  <div className="flex items-center gap-2">
+                    <span>{displayName}</span>
+                    {run.test_id && (
+                      <span
+                        className={`${isDark ? "text-gray-400" : "text-gray-500"} text-xs`}
+                        title={`Test ID: ${run.test_id}`}
+                      >
+                        ({run.test_id})
+                      </span>
+                    )}
+                  </div>
+                </td>
+
+                {/* Status */}
+                <td className="p-2">
+                  <StatusBadge status={run.status} isDark={isDark} />
+                </td>
+
+                {/* Environment */}
+                <td className="p-2">{run.environment || "—"}</td>
+
+                {/* Branch */}
+                <td className="p-2">{run.branch || "—"}</td>
+
+                {/* Duration */}
+                <td className="p-2">{formatDuration(run.duration_ms)}</td>
+
+                {/* Started At */}
+                <td className="p-2">{formatDate(run.started_at)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      {/* Friendly tip for non-tech users */}
+      <div className={`mt-3 text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+        Tip: Click the <span className={isDark ? "text-sky-300" : "text-sky-700"}>Feature / Application</span> to view test details (steps, screenshots, and logs).
+      </div>
+    </div>
+  );
 }

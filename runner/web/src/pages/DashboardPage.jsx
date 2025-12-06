@@ -71,8 +71,6 @@ export default function DashboardPage() {
 
   return (
     <div className={containerClasses}>
-      {/* Only one heading */}
-      <Header theme={theme} title="TestCraft Dashboard" />
 
       {/* Theme Toggle */}
       <div className="flex justify-end mb-4">

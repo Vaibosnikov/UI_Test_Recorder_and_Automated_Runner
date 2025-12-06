@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
-import KpiCard from "../components/cards/KpiCard"; // ✅ Correct import
+import KpiCard from "../components/cards/KpiCard";
 import LatestRunsTable from "../components/tables/LatestRunsTable";
 import DashboardFilters from "../components/filters/DashboardFilters";
 import TestPipelineFunnel from "../components/funnels/TestPipelineFunnel";
@@ -35,6 +35,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const { theme, toggle } = useTheme();
 
+  // Map raw run data to friendly names for non-tech users
   useEffect(() => {
     let mappedRuns = [];
     if (mock.data?.length) {
@@ -46,12 +47,14 @@ export default function DashboardPage() {
         duration: r.duration_ms || Math.floor(Math.random() * 500) + 100,
         startedAt: r.started_at || new Date().toISOString(),
         environment: r.environment || "local",
+        feature: r.feature || `Feature ${i + 1}`,       // Added feature
+        application: r.application || `App ${i + 1}`,  // Added application
       }));
     } else {
       mappedRuns = [
-        { id: 1, testName: "Login Page", status: "passed", branch: "main", duration: 120, startedAt: new Date().toISOString(), environment: "local" },
-        { id: 2, testName: "Signup Page", status: "failed", branch: "dev", duration: 450, startedAt: new Date().toISOString(), environment: "staging" },
-        { id: 3, testName: "Checkout Page", status: "passed", branch: "feature", duration: 300, startedAt: new Date().toISOString(), environment: "prod" },
+        { id: 1, testName: "Login Page", status: "passed", branch: "main", duration: 120, startedAt: new Date().toISOString(), environment: "local", feature: "Login", application: "WebApp" },
+        { id: 2, testName: "Signup Page", status: "failed", branch: "dev", duration: 450, startedAt: new Date().toISOString(), environment: "staging", feature: "Signup", application: "WebApp" },
+        { id: 3, testName: "Checkout Page", status: "passed", branch: "feature", duration: 300, startedAt: new Date().toISOString(), environment: "prod", feature: "Checkout", application: "MobileApp" },
       ];
     }
     setRuns(mappedRuns);
@@ -68,6 +71,7 @@ export default function DashboardPage() {
 
   return (
     <div className={containerClasses}>
+      {/* Only one heading */}
       <Header theme={theme} title="TestCraft Dashboard" />
 
       {/* Theme Toggle */}

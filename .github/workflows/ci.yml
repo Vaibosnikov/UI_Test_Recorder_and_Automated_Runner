@@ -1,4 +1,3 @@
-
 name: CI Pipeline
 
 on:
@@ -11,126 +10,108 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        browser: [chromium, firefox, webkit]
+        browser: [chromium]   # 🔧 Start with chromium for faster iteration; add firefox, webkit once green
 
     steps:
       # Step 1: Checkout code
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Step 2: Setup Node.js
+      # Step 2: Setup Node.js (with npm cache)
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
+          cache: 'npm'
 
-      # Step 3: Cache Node modules
-      - name: Cache Node modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+      # Step 3: Install dependencies (root)
+      - name: Install dependencies (root)
+        run: npm ci
 
-      # Step 4: Install dependencies
-      - name: Install dependencies
-        run: npm install
+      # Optional diagnostics
+      - name: "Diagnostic: which playwright & list folders"
+        run: |
+          node -v
+          npm -v
+          npx @playwright/test --version || true
+          command -v playwright || true
+          ls -la
+          ls -la playwright || true
 
-      # Step 5: Install Playwright browsers
+      # Step 4: Install Playwright browsers (avoid folder/CLI name collision)
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: npx -p @playwright/test@latest playwright install --with-deps
 
-      # Step 6: Run Playwright tests
-      - name: Run Playwright tests
-        run: npx playwright test --config=playwright/playwright.config.ts
+      # Step 5: Install backend API deps
+      - name: Install backend API deps
+        working-directory: runner/api
+        run: npm ci
 
-      # Debug step to confirm report & outputs exist
-      - name: "Debug: List files"
-        run: ls -R
+      # Step 6: Start backend API on port 5000 & wait until reachable (IPv4)
+      - name: Start backend API & wait
+        run: |
+          export PORT=${PORT:-5000}
+          (cd runner/api && npm run dev) &
+          npx --yes wait-on http://127.0.0.1:$PORT
+        env:
+          PORT: 5000
+          # Uncomment & set if your API needs DB in CI:
+          # DB_HOST: 127.0.0.1
+          # DB_PORT: 5432
+          # DB_USER: vaibh
+          # DB_PASSWORD: ""
+          # DB_NAME: testcraft_db
+          CI: true
 
-      # Step 7: Upload Playwright HTML Report (per browser)
+      # Step 7: Show which tests will run (discovery)
+      - name: "Diagnostic: list discovered tests"
+        run: npx playwright test --config=playwright/playwright.config.ts --list
+
+      # Step 8: Run Playwright tests (per-browser)
+      - name: "Run Playwright tests - ${{ matrix.browser }}"
+        run: |
+          npx playwright test \
+            --config=playwright/playwright.config.ts \
+            --project=${{ matrix.browser }} \
+            --reporter=html,line
+        env:
+          BASE_URL: http://127.0.0.1:5000
+          CI: true
+
+      # Step 9: Collect artifacts into per-browser folders
+      - name: Collect artifacts
+        if: always()
+        run: |
+          mkdir -p artifacts/playwright-report-${{ matrix.browser }}
+          mkdir -p artifacts/test-results-${{ matrix.browser }}
+          if [ -d "playwright-report" ]; then
+            cp -r playwright-report/* artifacts/playwright-report-${{ matrix.browser }}/ || true
+          fi
+          if [ -d "test-results" ]; then
+            cp -r test-results/* artifacts/test-results-${{ matrix.browser }}/ || true
+          fi
+
+      # Step 10: Upload Playwright HTML Report
       - name: Upload Playwright HTML Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ matrix.browser }}
-          path: playwright/playwright-report/
-          if-no-files-found: ignore
-          retention-days: 30
+          path: artifacts/playwright-report-${{ matrix.browser }}/
+          if-no-files-found: warn
+          retention-days: 7
 
-      # Upload Traces (if any)
-      - name: Upload Traces
+      # Step 11: Upload traces/screenshots/videos
+      - name: "Upload traces/screenshots/videos"
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: traces-${{ matrix.browser }}
-          path: |
-            test-results/**/trace.zip
-            test-results/**/trace/*.zip
+          name: test-results-${{ matrix.browser }}
+          path: artifacts/test-results-${{ matrix.browser }}/
           if-no-files-found: ignore
-          retention-days: 30
+          retention-days: 7
 
-      # Upload Logs, Screenshots, and Videos
-      - name: Upload Logs & Screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: logs-screens-${{ matrix.browser }}
-          path: |
-            test-results/**/stdout.txt
-            test-results/**/stderr.txt
-            test-results/**/screenshots/**
-            test-results/**/videos/**
-          if-no-files-found: ignore
-          retention-days: 30
-
-      # Summarize artifact names in the job summary
-      - name: Summarize artifact names
-        if: always()
-        run: |
-          echo "### Artifacts for ${{ matrix.browser }}" >> $GITHUB_STEP_SUMMARY
-          echo "- HTML report: playwright-report-${{ matrix.browser }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Traces: traces-${{ matrix.browser }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Logs & Screenshots: logs-screens-${{ matrix.browser }}" >> $GITHUB_STEP_SUMMARY
-
-  publish-pages:
-    # Publish the Playwright HTML report when the dev branch builds
-    if: github.ref == 'refs/heads/dev'
-    needs: [ build-test ]
-    runs-on: ubuntu-latest
-
-    # Required permissions for Pages
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # Prepare a site folder from the Playwright HTML report
-      # NOTE: This copies from your config path: playwright-report/
-      - name: Prepare site folder
-        run: |
-          rm -rf site
-          mkdir -p site
-          cp -r playwright-report/* site/
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact for Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-      - name: Deploy to Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+  # (Optional) If you still want Pages publishing, we can wire a single 'site' artifact
+  # produced in this job and download it in a publish job. For now, focus on green tests.

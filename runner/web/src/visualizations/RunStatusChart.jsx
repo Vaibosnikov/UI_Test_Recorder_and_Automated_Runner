@@ -7,7 +7,7 @@ import {
   Legend,
   ResponsiveContainer
 } from "recharts";
-import { useTheme } from "./ThemeProvider";
+import { useTheme } from "../components/ThemeProvider";
 
 const COLORS = ["#22c55e", "#ef4444", "#f59e0b"];
 

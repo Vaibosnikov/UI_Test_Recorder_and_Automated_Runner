@@ -1,3 +1,4 @@
+
 name: CI Pipeline
 
 on:
@@ -37,7 +38,7 @@ jobs:
         run: npm ci
 
       # Optional diagnostics
-      - name: Diagnostic: which playwright & list folders
+      - name: "Diagnostic: which playwright and list folders"
         run: |
           node -v
           npm -v
@@ -55,8 +56,8 @@ jobs:
         working-directory: runner/api
         run: npm ci
 
-      # Step 6: Start backend API on port 5000 & wait until reachable (IPv4)
-      - name: Start backend API & wait
+      # Step 6: Start backend API on port 5000 and wait until reachable (IPv4)
+      - name: "Start backend API and wait"
         run: |
           # Capture logs for troubleshooting
           (cd runner/api && npm run dev > ../api-server.log 2>&1) &

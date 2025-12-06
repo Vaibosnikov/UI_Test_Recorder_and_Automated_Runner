@@ -68,7 +68,6 @@ export default function DashboardPage() {
 
   return (
     <>
-   
       <div className={containerClasses}>
         {/* Theme toggle */}
         <div className="flex justify-end mb-4">
@@ -135,16 +134,16 @@ export default function DashboardPage() {
         {/* FUNNEL + HEATMAP */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <ChartCard>
-            <TestPipelineFunnel />
+            <TestPipelineFunnel theme={theme} />
           </ChartCard>
           <ChartCard>
-            <FlakyTestsHeatmap />
+            <FlakyTestsHeatmap theme={theme} />
           </ChartCard>
         </div>
 
         {/* VISUAL REGRESSION */}
         <ChartCard>
-          <VisualDiffViewer />
+          <VisualDiffViewer theme={theme} />
         </ChartCard>
       </div>
     </>

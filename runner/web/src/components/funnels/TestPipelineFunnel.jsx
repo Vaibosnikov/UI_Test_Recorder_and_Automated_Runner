@@ -5,12 +5,15 @@ export default function TestPipelineFunnel({ theme = "dark" }) {
 
   // Container background and text dynamically follow the theme
   const containerClasses = `p-4 rounded-lg border transition-colors duration-300 ${
-    isDark ? "bg-slate-800 border-slate-700 text-white" : "bg-white border-gray-300 text-gray-900"
+    isDark
+      ? "bg-slate-800 border-slate-700 text-white"
+      : "bg-white border-gray-300 text-gray-900"
   }`;
 
-  // Step bars: background changes by theme, text color follows contrast
-  const stepClasses = (bgColor, width, textColor) =>
-    `p-2 rounded font-medium transition-all duration-300 ${bgColor} ${width} ${textColor}`;
+  const stepClasses = (isDarkBg, lightBg, width) =>
+    `p-2 rounded font-medium transition-all duration-300 ${width} ${
+      isDark ? isDarkBg + " text-white" : lightBg + " text-gray-900"
+    }`;
 
   return (
     <div className={containerClasses}>
@@ -26,9 +29,9 @@ export default function TestPipelineFunnel({ theme = "dark" }) {
         {/* Step 1 */}
         <div
           className={stepClasses(
-            isDark ? "bg-blue-700" : "bg-blue-200",
-            "w-full",
-            isDark ? "text-white" : "text-blue-800"
+            "bg-blue-700",
+            "bg-blue-200",
+            "w-full"
           )}
         >
           Recorded
@@ -37,9 +40,9 @@ export default function TestPipelineFunnel({ theme = "dark" }) {
         {/* Step 2 */}
         <div
           className={stepClasses(
-            isDark ? "bg-purple-700" : "bg-purple-200",
-            "w-4/5",
-            isDark ? "text-white" : "text-purple-800"
+            "bg-purple-700",
+            "bg-purple-200",
+            "w-4/5"
           )}
         >
           Script Generated
@@ -48,9 +51,9 @@ export default function TestPipelineFunnel({ theme = "dark" }) {
         {/* Step 3 */}
         <div
           className={stepClasses(
-            isDark ? "bg-indigo-700" : "bg-indigo-200",
-            "w-3/5",
-            isDark ? "text-white" : "text-indigo-800"
+            "bg-indigo-700",
+            "bg-indigo-200",
+            "w-3/5"
           )}
         >
           Execution Triggered
@@ -59,9 +62,9 @@ export default function TestPipelineFunnel({ theme = "dark" }) {
         {/* Step 4 */}
         <div
           className={stepClasses(
-            isDark ? "bg-green-700" : "bg-green-200",
-            "w-2/5",
-            isDark ? "text-white" : "text-green-800"
+            "bg-green-700",
+            "bg-green-200",
+            "w-2/5"
           )}
         >
           Passed

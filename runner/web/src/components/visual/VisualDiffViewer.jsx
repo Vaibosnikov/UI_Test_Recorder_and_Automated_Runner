@@ -18,7 +18,7 @@ export default function VisualDiffViewer({ theme = "dark" }) {
     isDark ? "border-gray-600 bg-gray-900" : "border-gray-300 bg-gray-100"
   }`;
 
-  const textClasses = isDark ? "text-gray-400" : "text-gray-500";
+  const textClasses = isDark ? "text-gray-300" : "text-gray-700";
 
   return (
     <div className={containerClasses}>
@@ -27,24 +27,27 @@ export default function VisualDiffViewer({ theme = "dark" }) {
       </h2>
 
       <div className={previewClasses}>
-        {mockDiffs.map((diff) => (
-          <div key={diff.name} className="flex items-center gap-2 mb-1">
-            <span className={textClasses}>{diff.name}:</span>
-            <span
-              className={`px-2 py-1 rounded text-xs font-medium ${
-                diff.status === "changed"
-                  ? isDark
-                    ? "bg-red-700"
-                    : "bg-red-200 text-red-800"
-                  : isDark
-                  ? "bg-green-700"
-                  : "bg-green-200 text-green-800"
-              }`}
-            >
-              {diff.status}
-            </span>
-          </div>
-        ))}
+        {mockDiffs.map((diff) => {
+          const isChanged = diff.status === "changed";
+
+          const badgeClasses = isChanged
+            ? isDark
+              ? "bg-red-700 text-white"
+              : "bg-red-200 text-red-800"
+            : isDark
+            ? "bg-green-700 text-white"
+            : "bg-green-200 text-green-800";
+
+          return (
+            <div key={diff.name} className="flex items-center gap-2 mb-1">
+              <span className={textClasses}>{diff.name}:</span>
+              <span className={`px-2 py-1 rounded text-xs font-medium ${badgeClasses}`}>
+                {diff.status}
+              </span>
+            </div>
+          );
+        })}
+
         <span className={`${textClasses} mt-2`}>
           Image diff preview will appear here
         </span>

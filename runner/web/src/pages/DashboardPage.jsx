@@ -15,19 +15,21 @@ import EnvironmentChart from "../visualizations/EnvironmentChart";
 
 import mock from "../mock/sampleRuns.json";
 import { useTheme } from "../components/ThemeProvider";
-import ThemeToggle from "../components/ThemeToggle"; // ✅ Import ThemeToggle
+import ThemeToggle from "../components/ThemeToggle";
 
-// Classic dashboard card container (no blur)
-function DashboardCard({ title, children }) {
+// Dashboard Card container
+function DashboardCard({ title, children, className = "" }) {
   const { theme } = useTheme();
 
   return (
     <div
       className={`
         p-6 rounded-xl border shadow-lg transition duration-300
+        hover:shadow-2xl
         ${theme === "dark"
           ? "bg-slate-800 border-slate-700 shadow-slate-900"
           : "bg-white border-gray-300 shadow-gray-300"}
+        ${className}
       `}
     >
       {title && (
@@ -54,7 +56,6 @@ export default function DashboardPage() {
         startedAt: r.started_at || new Date().toISOString(),
         environment: r.environment || "local",
       }));
-
       setRuns(mapped);
     }
     setLoading(false);
@@ -63,20 +64,20 @@ export default function DashboardPage() {
   return (
     <>
       {/* HEADER + THEME TOGGLE */}
-      <div className="px-8 pt-5 flex items-center justify-between">
-        <Header />
-        <ThemeToggle /> {/* ✅ Replaced old button */}
-      </div>
+      <Header theme={theme}>
+        <ThemeToggle />
+      </Header>
 
       {/* MAIN PAGE */}
-      <div
+      <main
         className={`
-          px-8 py-6 space-y-10 min-h-screen transition duration-300
+          w-full max-w-[1440px] mx-auto px-8 py-6 space-y-10 min-h-screen
+          transition-colors duration-300
           ${theme === "dark" ? "bg-slate-900 text-white" : "bg-gray-100 text-black"}
         `}
       >
         {/* FILTER SECTION */}
-        <DashboardCard>
+        <DashboardCard className="min-h-[120px]">
           <DashboardFilters />
         </DashboardCard>
 
@@ -103,7 +104,8 @@ export default function DashboardPage() {
         </div>
 
         {/* RECENT RUNS TABLE */}
-        <DashboardCard title="Recent Test Runs">
+        <DashboardCard className="min-h-[300px]">
+          <h2 className="text-xl font-semibold mb-4 opacity-80">Recent Test Runs</h2>
           {loading ? (
             <div className="h-40 flex items-center justify-center text-lg opacity-60">
               Loading...
@@ -115,42 +117,44 @@ export default function DashboardPage() {
 
         {/* STATUS + TREND ROW */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <DashboardCard title="Run Status Distribution">
+          <DashboardCard title="Run Status Distribution" className="min-h-[300px]">
             <RunStatusChart runs={runs} />
           </DashboardCard>
 
-          <DashboardCard title="Daily Run Trend">
+          <DashboardCard title="Daily Run Trend" className="min-h-[300px]">
             <RunTrendChart runs={runs} />
           </DashboardCard>
         </div>
 
         {/* DURATION + ENVIRONMENT */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <DashboardCard title="Execution Duration">
+          <DashboardCard title="Execution Duration" className="min-h-[300px]">
             <RunDurationChart runs={runs} />
           </DashboardCard>
 
-          <DashboardCard title="Environment Usage">
+          <DashboardCard title="Environment Usage" className="min-h-[300px]">
             <EnvironmentChart runs={runs} />
           </DashboardCard>
         </div>
 
         {/* FUNNEL + HEATMAP */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <DashboardCard title="Test Execution Funnel">
+          <DashboardCard title="Test Execution Funnel" className="min-h-[300px]">
             <TestPipelineFunnel />
           </DashboardCard>
 
-          <DashboardCard title="Flaky Tests Heatmap">
+          <DashboardCard title="Flaky Tests Heatmap" className="min-h-[300px]">
             <FlakyTestsHeatmap />
           </DashboardCard>
         </div>
 
         {/* VISUAL DIFF VIEWER */}
-        <DashboardCard title="Visual Regression Differences">
-          <VisualDiffViewer />
-        </DashboardCard>
-      </div>
+        <div className="grid grid-cols-1">
+          <DashboardCard title="Visual Regression Differences" className="min-h-[400px]">
+            <VisualDiffViewer />
+          </DashboardCard>
+        </div>
+      </main>
     </>
   );
 }

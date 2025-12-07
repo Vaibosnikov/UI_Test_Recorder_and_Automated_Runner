@@ -1,16 +1,23 @@
 import React from "react";
 
-export default function Header({ theme = "dark", title = "TestCraft Dashboard" }) {
+export default function Header({ theme = "dark", title = "TestCraft Dashboard", children }) {
   const isDark = theme === "dark";
-  const bgClass = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-300";
+
+  // Background based on theme
+  const bgClass = isDark
+    ? "bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 border-slate-700"
+    : "bg-gradient-to-r from-white via-gray-100 to-white border-gray-300";
 
   return (
-    <header className={`${bgClass} px-4 py-3 border-b transition-colors duration-300 !mt-0`}>
-      <div className="max-w-7xl mx-auto w-full flex justify-center">
-        {/* Navbar title centered */}
-        <span className="title-pop gradient-text hover:scale-105 transform-gpu transition-transform duration-300 font-extrabold text-2xl md:text-3xl">
+    <header className={`${bgClass} px-6 py-4 border-b transition-colors duration-300`}>
+      <div className="max-w-7xl mx-auto w-full flex justify-between items-center">
+        {/* Title centered with gradient and hover effect */}
+        <h1 className="text-2xl md:text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:scale-105 transform-gpu transition-transform duration-300">
           {title}
-        </span>
+        </h1>
+
+        {/* Theme toggle or other right-side elements */}
+        {children && <div>{children}</div>}
       </div>
     </header>
   );

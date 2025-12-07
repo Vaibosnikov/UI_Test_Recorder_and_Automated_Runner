@@ -1,52 +1,33 @@
-// src/pages/DashboardPage.jsx
 import React, { useEffect, useState } from "react";
-import Header from "../components/Header";
 import SummaryCard from "../components/SummaryCard";
-import LatestRunsTable from "../components/tables/LatestRunsTable";
+import RunsTable from "../components/RunsTable";
 import mock from "../mock/sampleRuns.json";
 
 export default function DashboardPage() {
   const [runs, setRuns] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (mock.data && mock.data.length) {
-      setRuns(mock.data);
-      console.log("Loaded runs:", mock.data);
-    } else {
-      console.warn("No runs data found in mock JSON");
-    }
+    // Use mock data for this UI-focused branch
+    setRuns(mock.data || []);
+    setLoading(false);
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      <Header theme="dark" />
+    <div className="max-w-7xl mx-auto p-4">
+      <section className="mb-6 flex gap-4">
+        <SummaryCard title="Total Tests" value="--" />
+        <SummaryCard title="Total Runs" value={runs.length} />
+        <SummaryCard
+          title="Passing"
+          value={runs.filter((r) => r.status === "passed").length}
+        />
+      </section>
 
-      <div className="p-4 space-y-6">
-        {/* KPIs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <SummaryCard title="Total Tests" value={runs.length} />
-          <SummaryCard
-            title="Passed"
-            value={runs.filter((r) => r.status === "passed").length}
-          />
-          <SummaryCard
-            title="Failed"
-            value={runs.filter((r) => r.status === "failed").length}
-          />
-          <SummaryCard
-            title="Skipped"
-            value={runs.filter((r) => r.status === "skipped").length}
-          />
-        </div>
-
-        {/* Latest Runs Table */}
-        <div className="bg-slate-800 p-4 rounded">
-          <h2 className="text-xl font-semibold mb-2 text-white">
-            Latest Test Runs
-          </h2>
-          <LatestRunsTable runs={runs} />
-        </div>
-      </div>
+      <section className="bg-slate-800 p-4 rounded border border-slate-700">
+        <h2 className="text-lg mb-3">Recent Test Runs</h2>
+        {loading ? <div>Loading...</div> : <RunsTable runs={runs} />}
+      </section>
     </div>
   );
 }

@@ -1,22 +1,18 @@
 // src/components/ThemeProvider.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-// Create a context for theme
 const ThemeContext = createContext();
 
-// Provider component
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState("dark"); // default theme
+  const [theme, setTheme] = useState("dark");
 
-  // Load theme from localStorage on mount
+  // Load saved theme
   useEffect(() => {
     const saved = localStorage.getItem("theme");
-    if (saved) {
-      setTheme(saved);
-    }
+    if (saved) setTheme(saved);
   }, []);
 
-  // Apply theme to <html> and save to localStorage
+  // Apply theme to <html>
   useEffect(() => {
     const root = document.documentElement;
 
@@ -31,20 +27,15 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // Toggle between dark and light
-  const toggle = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
+  const toggle = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
   return (
     <ThemeContext.Provider value={{ theme, toggle }}>
-      {/* wrapper ensures smooth transition */}
-      <div className="transition-colors duration-300 min-h-screen">
+      <div className="min-h-screen w-full transition-colors duration-300">
         {children}
       </div>
     </ThemeContext.Provider>
   );
 };
 
-// Custom hook to consume theme
 export const useTheme = () => useContext(ThemeContext);

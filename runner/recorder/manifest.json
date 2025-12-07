@@ -1,0 +1,29 @@
+﻿{
+  "manifest_version": 3,
+  "name": "TestCraft Recorder",
+  "version": "1.0.0",
+  "description": "Records user interactions on web pages for TestCraft automated test generation.",
+  "permissions": [
+    "scripting",
+    "activeTab",
+    "storage",
+    "downloads"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "src/ui/popup.html",
+    "default_title": "TestCraft Recorder"
+  },
+  "background": {
+    "service_worker": "src/background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content-scripts/recorder.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

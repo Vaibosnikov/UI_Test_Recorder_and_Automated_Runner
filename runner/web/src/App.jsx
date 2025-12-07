@@ -1,40 +1,35 @@
 import React from "react";
-import { ThemeProvider, useTheme } from "./components/ThemeProvider";
-import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
-import DashboardPage from "./pages/DashboardPage";
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+import DashboardPage from "./pages/DashboardPage.jsx";
 
-// Wrapper component to pass theme to Header and DashboardPage
-function AppContent() {
-  const { theme } = useTheme();
-
+function App() {
   return (
-    <div
-      className={`flex min-h-screen transition-colors duration-300 ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-black"
-      }`}
-    >
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="app-root">
+      <header className="app-header">
+        <h1>TestCraft Dashboard</h1>
+        <p className="subtitle">
+          UI Test Recorder and Automated Runner – Execution Overview
+        </p>
+      </header>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <Header theme={theme} />
-
-        {/* Dashboard */}
-        <main className="flex-1 overflow-auto p-6">
-          <DashboardPage />
-        </main>
-      </div>
+      <main className="app-main">
+        <DashboardPage />
+      </main>
     </div>
   );
 }
 
+export default App;
+=======
+>>>>>>> dev
+import Shell from "./components/Shell";
+
 export default function App() {
-  return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
-  );
+  return <Shell />;
 }
+<<<<<<< HEAD
+=======
+>>>>>>> f836e58a1da0bdfdfc4271e740d87ea28a0a59c5
+>>>>>>> dev

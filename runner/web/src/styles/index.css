@@ -1,120 +1,141 @@
-/* src/index.css */
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+/* Basic styling for TestCraft dashboard */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background-color: #0f172a;
+  color: #e5e7eb;
+}
+
+.app-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #1f2933;
+  background: #020617;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.app-main {
+  padding: 24px;
+}
+
+.dashboard-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.summary-section {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.summary-card {
+  background: #020617;
+  border-radius: 8px;
+  padding: 16px 20px;
+  border: 1px solid #1f2933;
+  flex: 1 1 200px;
+}
+
+.summary-card h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #9ca3af;
+}
+
+.summary-value {
+  margin-top: 8px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.runs-section {
+  background: #020617;
+  border-radius: 8px;
+  border: 1px solid #1f2933;
+  padding: 16px 20px;
+}
+
+.runs-header h2 {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}
+
+.runs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.runs-table thead {
+  background: #111827;
+}
+
+.runs-table th,
+.runs-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #1f2933;
+  text-align: left;
+}
+
+.runs-table tbody tr:hover {
+  background: #020617;
+}
+
+.status {
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+.status-passed {
+  color: #22c55e;
+}
+
+.status-failed {
+  color: #ef4444;
+}
+
+.error-text {
+  color: #f97316;
+  margin-top: 8px;
+=======
+>>>>>>> dev
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Global resets (help avoid unexpected gaps) */
-html, body, #root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-/* Project global styles (keeps previous theme) */
-:root {
-  --bg: #0f1724;
-  --card: #0b1220;
-  --muted: #9ca3af;
-  --primary: #60a5fa;
-}
+<<<<<<< HEAD
+/* small custom tweaks */
 body {
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  background: var(--bg);
-  color: #e6eef8;
+  background-color: #0b1220;
+=======
+body {
+  background-color: #0b1220;
+>>>>>>> f836e58a1da0bdfdfc4271e740d87ea28a0a59c5
+>>>>>>> dev
 }
-
-/* --- Fix for unexpected large top spacing / hero spacer --- */
-.header,
-.page-hero,
-.hero,
-.banner,
-.top-banner,
-.header-spacer,
-.page-header,
-.header-placeholder {
-  min-height: 0 !important;
-  height: auto !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  display: block !important;
-}
-
-/* If your main content had an extra top padding/margin, remove it */
-.main,
-.content,
-.page-content,
-.dashboard-container,
-.app-content {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-/* Keep sidebar fixed and content aligned (adjust if your layout differs) */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-}
-
-/* Page title row — ensure it doesn't create extra gap */
-.page-title,
-.page-title-row {
-  margin: 0 !important;
-  padding: 0.5rem 0 !important;
-}
-
-/* ---------------------------
-   Title animation & gradient
-   --------------------------- */
-
-/* pop-in animation for headings */
-@keyframes popIn {
-  0% {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.98);
-  }
-  60% {
-    opacity: 1;
-    transform: translateY(0) scale(1.02);
-  }
-  100% {
-    transform: translateY(0) scale(1);
-  }
-}
-
-.title-pop {
-  display: inline-block;
-  animation: popIn 500ms cubic-bezier(.2,.9,.3,1) both;
-  will-change: transform, opacity;
-}
-
-/* animated gradient text for TestCraft word */
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.gradient-text {
-  background: linear-gradient(90deg, #60a5fa, #7c3aed, #22c55e);
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: gradientShift 4s ease infinite;
-}
-
-/* subtle focus outline for accessibility */
-.title-pop:focus {
-  outline: 2px solid rgba(96,165,250,0.25);
-  outline-offset: 2px;
-}
-
-/* Optional small tweak: slightly smaller Dashboard subtitle color */
-.title-pop + .text-base {
-  color: rgba(255,255,255,0.85);
-}
-
-/* Optional dev utility to visualize element outlines (remove when done) */
-/* .debug-outline * { outline: 1px dashed rgba(255,255,255,0.04); } */

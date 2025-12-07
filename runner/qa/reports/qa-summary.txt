@@ -1,0 +1,13 @@
+
+TestCraft QA Summary
+---------------------
+Tests Schema Valid: 0
+Tests Schema Invalid: 0
+
+Run Results Valid: 0
+Run Results Invalid: 0
+
+Acceptance Criteria Covered: 1
+Missing Acceptance Criteria: 1
+
+Timestamp: 2025-11-19T17:22:04.469Z

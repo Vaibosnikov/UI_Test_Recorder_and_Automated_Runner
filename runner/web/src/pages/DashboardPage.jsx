@@ -1,153 +1,179 @@
 import React, { useEffect, useState } from "react";
-import Header from "../components/Header";
-import KpiCard from "../components/cards/KpiCard";
-import LatestRunsTable from "../components/tables/LatestRunsTable";
+<<<<<<< HEAD
+import SummaryCard from "../components/SummaryCard";
+import RunsTable from "../components/RunsTable";
+import mock from "../mock/sampleRuns.json";
+
+=======
+<<<<<<< HEAD
+import { fetchTests, fetchRuns } from "../services/apiClient.js";
+import RunsTable from "../components/RunsTable.jsx";
+
+function DashboardPage() {
+  const [tests, setTests] = useState([]);
+  const [runs, setRuns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const [testsRes, runsRes] = await Promise.all([
+          fetchTests(),
+          fetchRuns()
+        ]);
+
+        setTests(testsRes?.data || []);
+        setRuns(runsRes?.data || []);
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
+        setError(err.message || "Failed to load data from API");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  return (
+    <div className="dashboard-container">
+      <section className="summary-section">
+        <div className="summary-card">
+          <h2>Total Tests</h2>
+          <p className="summary-value">{tests.length}</p>
+        </div>
+        <div className="summary-card">
+          <h2>Total Runs</h2>
+          <p className="summary-value">{runs.length}</p>
+        </div>
+      </section>
+
+      <section className="runs-section">
+        <div className="runs-header">
+          <h2>Recent Test Runs</h2>
+        </div>
+
+        {loading && <p>Loading data from API...</p>}
+        {!loading && error && (
+          <p className="error-text">Error: {error}</p>
+        )}
+        {!loading && !error && (
+          <RunsTable runs={runs} />
+        )}
+      </section>
+    </div>
+  );
+}
+
+export default DashboardPage;
+=======
+import SummaryCard from "../components/SummaryCard";
+import RunsTable from "../components/RunsTable";
+
+import mock from "../mock/sampleRuns.json";
+
+// New components you will add
 import DashboardFilters from "../components/filters/DashboardFilters";
 import TestPipelineFunnel from "../components/funnels/TestPipelineFunnel";
 import VisualDiffViewer from "../components/visual/VisualDiffViewer";
 import FlakyTestsHeatmap from "../components/charts/FlakyTestsHeatmap";
 
-import RunStatusChart from "../visualizations/RunStatusChart";
-import RunTrendChart from "../visualizations/RunTrendChart";
-import RunDurationChart from "../visualizations/RunDurationChart";
-import EnvironmentChart from "../visualizations/EnvironmentChart";
+// Your existing charts
+import {
+  RunStatusChart,
+  RunTrendChart,
+  RunDurationChart,
+  EnvironmentChart,
+} from "../visualizations";
 
-import mock from "../mock/sampleRuns.json";
-import { useTheme } from "../components/ThemeProvider";
-
-// Reusable Chart Container
-function ChartCard({ children }) {
-  const { theme } = useTheme();
-  const bgClass =
-    theme === "dark"
-      ? "bg-slate-800 border-slate-700 text-white"
-      : "bg-white border-gray-300 text-gray-900";
-
-  return (
-    <div className={`p-4 rounded border transition-colors duration-300 ${bgClass}`}>
-      {children}
-    </div>
-  );
-}
-
+>>>>>>> dev
 export default function DashboardPage() {
   const [runs, setRuns] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { theme, toggle } = useTheme();
 
-  // Map raw run data to friendly names for non-tech users
   useEffect(() => {
-    let mappedRuns = [];
-    if (mock.data?.length) {
-      mappedRuns = mock.data.map((r, i) => ({
-        id: r.id || i + 1,
-        testName: r.test_name || r.test_id || `Feature ${i + 1}`,
-        status: r.status || "passed",
-        branch: r.branch || "main",
-        duration: r.duration_ms || Math.floor(Math.random() * 500) + 100,
-        startedAt: r.started_at || new Date().toISOString(),
-        environment: r.environment || "local",
-        feature: r.feature || `Feature ${i + 1}`,       // Added feature
-        application: r.application || `App ${i + 1}`,  // Added application
-      }));
-    } else {
-      mappedRuns = [
-        { id: 1, testName: "Login Page", status: "passed", branch: "main", duration: 120, startedAt: new Date().toISOString(), environment: "local", feature: "Login", application: "WebApp" },
-        { id: 2, testName: "Signup Page", status: "failed", branch: "dev", duration: 450, startedAt: new Date().toISOString(), environment: "staging", feature: "Signup", application: "WebApp" },
-        { id: 3, testName: "Checkout Page", status: "passed", branch: "feature", duration: 300, startedAt: new Date().toISOString(), environment: "prod", feature: "Checkout", application: "MobileApp" },
-      ];
-    }
-    setRuns(mappedRuns);
+<<<<<<< HEAD
+    // Use mock data for this UI-focused branch
+=======
+>>>>>>> dev
+    setRuns(mock.data || []);
     setLoading(false);
   }, []);
 
-  const containerClasses = `p-6 min-h-0 space-y-8 transition-colors duration-300 ${
-    theme === "dark" ? "bg-slate-900 text-white" : "bg-white text-black"
-  }`;
-
-  const sectionClasses = `p-5 rounded-lg border transition-colors duration-300 ${
-    theme === "dark" ? "bg-slate-800 border-slate-700" : "bg-gray-100 border-gray-300"
-  }`;
-
   return (
-    <div className={containerClasses}>
-
-      {/* Theme Toggle */}
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={toggle}
-          className={`px-4 py-2 border rounded focus:outline-none focus:ring transition ${
-            theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-200"
-          }`}
-        >
-          {theme === "dark" ? "Switch to Light" : "Switch to Dark"}
-        </button>
-      </div>
-
-      {/* TOP KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        <KpiCard title="Tests Executed" value={runs.length} theme={theme} />
-        <KpiCard title="Passing Tests" value={runs.filter(r => r.status === "passed").length} theme={theme} />
-        <KpiCard title="Failed Tests" value={runs.filter(r => r.status === "failed").length} theme={theme} />
-        <KpiCard
-          title="Average Duration"
-          value={
-            runs.length
-              ? `${Math.round(runs.reduce((acc, r) => acc + r.duration, 0) / runs.length)} ms`
-              : "--"
-          }
-          theme={theme}
-        />
-      </div>
-
-      {/* FILTER BAR */}
-      <DashboardFilters theme={theme} />
-
-      {/* RECENT RUNS TABLE */}
-      <section className={sectionClasses}>
-        {loading ? (
-          <div className={`h-56 flex items-center justify-center ${theme === "dark" ? "text-slate-500" : "text-gray-500"}`}>
-            Loading...
-          </div>
-        ) : (
-          <LatestRunsTable data={runs} theme={theme} />
-        )}
+<<<<<<< HEAD
+    <div className="max-w-7xl mx-auto">
+      <section className="mb-6 flex gap-4">
+        <SummaryCard title="Total Tests" value="--" />
+        <SummaryCard title="Total Runs" value={runs.length} />
+        <SummaryCard title="Passing" value={runs.filter(r=>r.status==="passed").length} />
       </section>
 
-      {/* MAIN CHARTS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ChartCard>
-          <RunStatusChart runs={runs} theme={theme} />
-        </ChartCard>
-        <ChartCard>
-          <RunTrendChart runs={runs} theme={theme} />
-        </ChartCard>
-      </div>
-
-      {/* SECONDARY CHARTS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ChartCard>
-          <RunDurationChart runs={runs} theme={theme} />
-        </ChartCard>
-        <ChartCard>
-          <EnvironmentChart runs={runs} theme={theme} />
-        </ChartCard>
-      </div>
-
-      {/* FUNNEL + HEATMAP */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ChartCard>
-          <TestPipelineFunnel theme={theme} />
-        </ChartCard>
-        <ChartCard>
-          <FlakyTestsHeatmap theme={theme} />
-        </ChartCard>
-      </div>
-
-      {/* VISUAL REGRESSION */}
-      <ChartCard>
-        <VisualDiffViewer theme={theme} />
-      </ChartCard>
+      <section className="bg-slate-800 p-4 rounded border border-slate-700">
+        <h2 className="text-lg mb-3">Recent Test Runs</h2>
+        {loading ? <div>Loading...</div> : <RunsTable runs={runs} />}
+      </section>
     </div>
   );
 }
+=======
+    <div className="p-6 bg-slate-900 min-h-screen text-white space-y-8">
+
+      {/* ------------------ TOP KPIs ------------------ */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <SummaryCard title="Total Tests" value="--" />
+        <SummaryCard title="Total Runs" value={runs.length} />
+        <SummaryCard
+          title="Passing"
+          value={runs.filter((r) => r.status === "passed").length}
+        />
+        <SummaryCard
+          title="Average Duration"
+          value={
+            runs.length
+              ? Math.round(
+                  runs.reduce((acc, r) => acc + r.duration, 0) / runs.length
+                ) + " ms"
+              : "--"
+          }
+        />
+      </div>
+
+      {/* ------------------ FILTER BAR ------------------ */}
+      <DashboardFilters />
+
+      {/* ------------------ RECENT RUNS TABLE ------------------ */}
+      <section className="bg-slate-800 p-5 rounded-lg border border-slate-700">
+        <h2 className="text-xl font-semibold mb-4">Recent Test Runs</h2>
+        {loading ? <div>Loading...</div> : <RunsTable runs={runs} />}
+      </section>
+
+      {/* ------------------ MAIN CHARTS ROW ------------------ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <RunStatusChart runs={runs} />
+        <RunTrendChart runs={runs} />
+      </div>
+
+      {/* ------------------ SECONDARY CHARTS ROW ------------------ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <RunDurationChart runs={runs} />
+        <EnvironmentChart runs={runs} />
+      </div>
+
+      {/* ------------------ FUNNEL + HEATMAP ------------------ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <TestPipelineFunnel />
+        <FlakyTestsHeatmap />
+      </div>
+
+      {/* ------------------ VISUAL REGRESSION ------------------ */}
+      <VisualDiffViewer />
+    </div>
+  );
+}
+>>>>>>> f836e58a1da0bdfdfc4271e740d87ea28a0a59c5
+>>>>>>> dev

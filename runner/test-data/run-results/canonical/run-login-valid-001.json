@@ -1,0 +1,14 @@
+{
+  "id": "run-login-valid-001",
+  "test_id": "AC-LOGIN-001",
+  "status": "passed",
+  "environment": "local",
+  "branch": "dev",
+  "commit_hash": "demo-abc123",
+  "duration_ms": 1350,
+  "started_at": "2025-11-19T10:00:00.000Z",
+  "finished_at": "2025-11-19T10:00:01.350Z",
+  "artifacts": [
+    { "type": "screenshot", "path": "/artifacts/screenshots/login_valid_1.png" }
+  ]
+}

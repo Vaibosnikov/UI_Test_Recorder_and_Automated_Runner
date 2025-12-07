@@ -1,7 +1,4 @@
 import React from "react";
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
 import DashboardPage from "./pages/DashboardPage.jsx";
 
 function App() {
@@ -22,14 +19,3 @@ function App() {
 }
 
 export default App;
-=======
->>>>>>> dev
-import Shell from "./components/Shell";
-
-export default function App() {
-  return <Shell />;
-}
-<<<<<<< HEAD
-=======
->>>>>>> f836e58a1da0bdfdfc4271e740d87ea28a0a59c5
->>>>>>> dev

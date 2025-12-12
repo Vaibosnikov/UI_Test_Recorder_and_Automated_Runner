@@ -1,4 +1,3 @@
-
 import React from "react";
 import sampleRuns from "../../mock/sampleRuns.json";
 
@@ -8,11 +7,7 @@ const statusColors = {
   skipped: "bg-yellow-100 text-yellow-700 border-yellow-300",
 };
 
-export default function LatestRunsTable() {
-  const runs = sampleRuns.data; // use the data array from JSON
-
-<<<<<<< HEAD
-/** Known IDs → friendly names (extend as needed) */
+/** Known IDs → friendly names */
 const TEST_ID_MAP = {
   "AC-LOGIN-001":   { feature: "Login",     displayName: "Login – Basic", docsUrl: "/docs/tests/login-basic" },
   "AC-LOGIN-002":   { feature: "Login",     displayName: "Login – Invalid Credentials" },
@@ -37,7 +32,7 @@ function parseTestId(testId) {
   const known = TEST_ID_MAP[testId];
   if (known) return known;
 
-  const parts = String(testId).split("-"); // ["AC","LOGIN","001"]
+  const parts = String(testId).split("-");
   const rawFeature = parts[1] || "unknown";
   const feature = rawFeature.charAt(0).toUpperCase() + rawFeature.slice(1).toLowerCase();
   const displayName = `${rawFeature.toUpperCase()} ${parts[2] || ""}`.trim();
@@ -60,7 +55,7 @@ const formatDate = (iso) => {
   });
 };
 
-/** Status badge with friendly label + tooltip */
+/** Status badge */
 function StatusBadge({ status, isDark }) {
   const meta =
     {
@@ -106,7 +101,7 @@ function StatusBadge({ status, isDark }) {
   );
 }
 
-/** Tiny icon for common features (visual cue for non-tech users) */
+/** Tiny icon for common features */
 function FeatureIcon({ name }) {
   const n = (name || "").toLowerCase();
   const icon =
@@ -122,10 +117,7 @@ function FeatureIcon({ name }) {
   return <span aria-hidden className="mr-1">{icon}</span>;
 }
 
-/** Normalize incoming `data` to rows:
- * - Accepts array OR { data: [...] }
- * - Supports both field styles: test_id/testId, duration_ms/duration, started_at/startedAt
- */
+/** Normalize incoming data */
 function normalizeRows(data) {
   const raw = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
   return raw.map((run) => {
@@ -136,25 +128,18 @@ function normalizeRows(data) {
       id: run.id,
       testId,
       status: run.status,
-      feature: run.feature,         // if backend provides, we use it
-      application: run.application, // if backend provides, we use it
+      feature: run.feature,
+      application: run.application,
       environment: run.environment,
       branch: run.branch,
       durationMs,
       startedAt,
-      detailsUrl: run.detailsUrl,   // optional
+      detailsUrl: run.detailsUrl,
     };
   });
 }
 
-/**
- * LatestRunsTable.jsx
- * - Derives Feature/Application from testId when missing
- * - Clickable Feature/Application linking to run details
- * - Friendly test names + raw ID in tooltip
- * - Handles array or { data: [...] } inputs
- */
-export default function LatestRunsTable({ data = [], theme = "dark" }) {
+export default function LatestRunsTable({ data = sampleRuns.data, theme = "dark" }) {
   const isDark = theme === "dark";
   const rows = normalizeRows(data);
 
@@ -203,13 +188,10 @@ export default function LatestRunsTable({ data = [], theme = "dark" }) {
 
             return (
               <tr key={run.id} className={`border-t ${borderColor} hover:bg-gray-700/30 transition`}>
-                {/* Feature / Application (clickable) */}
                 <td className="p-2">
                   <a
                     href={detailsHref}
-                    className={`underline underline-offset-2 ${
-                      isDark ? "text-sky-300 hover:text-sky-200" : "text-sky-700 hover:text-sky-600"
-                    }`}
+                    className={`underline underline-offset-2 ${isDark ? "text-sky-300 hover:text-sky-200" : "text-sky-700 hover:text-sky-600"}`}
                     title={`Open details for ${displayName}`}
                   >
                     <FeatureIcon name={featureOrApp} />
@@ -217,30 +199,22 @@ export default function LatestRunsTable({ data = [], theme = "dark" }) {
                   </a>
                 </td>
 
-                {/* Test: friendly name + raw testId in tooltip */}
                 <td className="p-2">
                   <div className="flex items-center gap-2">
                     <span>{displayName}</span>
                     {run.testId && (
-                      <span
-                        className={`${isDark ? "text-gray-400" : "text-gray-500"} text-xs`}
-                        title={`Test ID: ${run.testId}`}
-                      >
+                      <span className={`${isDark ? "text-gray-400" : "text-gray-500"} text-xs`} title={`Test ID: ${run.testId}`}>
                         ({run.testId})
                       </span>
                     )}
                   </div>
                 </td>
 
-                {/* Status */}
                 <td className="p-2">
                   <StatusBadge status={run.status} isDark={isDark} />
                 </td>
 
-                {/* Duration */}
                 <td className="p-2">{formatDuration(run.durationMs)}</td>
-
-                {/* Started At */}
                 <td className="p-2">{formatDate(run.startedAt)}</td>
               </tr>
             );
@@ -248,90 +222,9 @@ export default function LatestRunsTable({ data = [], theme = "dark" }) {
         </tbody>
       </table>
 
-      {/* Friendly legend for non-tech users */}
       <div className={`mt-3 text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>
         Tip: Click the <span className={isDark ? "text-sky-300" : "text-sky-700"}>Feature / Application</span> to view test details (steps, screenshots, and logs).
       </div>
-=======
-  return (
-    <div className="w-full rounded-xl border border-white/10 bg-white/5 p-4 shadow">
-      <h2 className="text-lg font-semibold mb-3">Recent Test Runs</h2>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="bg-white/10 text-left text-gray-300 uppercase text-xs">
-              <th className="p-3">Feature / Application</th>
-              <th className="p-3">Test</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Duration</th>
-              <th className="p-3">Started At</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {runs.map((run) => (
-              <tr
-                key={run.id}
-                className="border-b border-white/10 hover:bg-white/5 transition"
-              >
-                {/* Feature / Application (using test_id as placeholder name) */}
-                <td className="p-3">
-                  <a
-                    href="#"
-                    className="text-blue-400 hover:underline flex items-center gap-1"
-                  >
-                    <span className="text-green-400">🖋️</span>
-                    {run.feature || run.test_id}
-                  </a>
-                </td>
-
-                {/* Test Name */}
-                <td className="p-3 text-gray-200">
-                  {run.test_name || run.test_id || "Unknown Test"}
-                </td>
-
-                {/* Status */}
-                <td className="p-3">
-                  <span
-                    className={`px-3 py-1 rounded-md border text-xs font-semibold inline-flex items-center gap-1 ${
-                      statusColors[run.status.toLowerCase()]
-                    }`}
-                  >
-                    {run.status.charAt(0).toUpperCase() + run.status.slice(1)}{" "}
-                    {run.status === "passed" && "✅"}
-                    {run.status === "failed" && "❌"}
-                    {run.status === "skipped" && "⏭️"}
-                  </span>
-                </td>
-
-                {/* Duration */}
-                <td className="p-3 text-gray-300">
-                  {run.duration_ms >= 1000
-                    ? `${(run.duration_ms / 1000).toFixed(1)} s`
-                    : `${run.duration_ms} ms`}
-                </td>
-
-                {/* Started At */}
-                <td className="p-3 text-gray-300">
-                  {new Date(run.started_at).toLocaleString("en-GB", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <p className="mt-2 text-xs text-gray-400">
-        Tip: Click the <span className="text-blue-400">Feature / Application</span> to view test details (steps, screenshots, and logs).
-      </p>
->>>>>>> c1569ec22f02ec85a92c37cfd5c85177a6b480c9
     </div>
   );
 }

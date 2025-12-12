@@ -7,7 +7,9 @@
       "environment": "local",
       "branch": "dev",
       "duration_ms": 1350,
-      "started_at": "2025-11-19T10:00:00.000Z"
+      "duration": 1350,
+      "started_at": "2025-11-19T10:00:00.000Z",
+      "startedAt": "2025-11-19T10:00:00.000Z"
     },
     {
       "id": "run-login-invalid-001",
@@ -16,7 +18,9 @@
       "environment": "local",
       "branch": "dev",
       "duration_ms": 1100,
-      "started_at": "2025-11-19T10:05:00.000Z"
+      "duration": 1100,
+      "started_at": "2025-11-19T10:05:00.000Z",
+      "startedAt": "2025-11-19T10:05:00.000Z"
     },
     {
       "id": "run-checkout-001",
@@ -25,7 +29,86 @@
       "environment": "staging",
       "branch": "feature/demo",
       "duration_ms": 2100,
-      "started_at": "2025-11-20T09:30:00.000Z"
+      "duration": 2100,
+      "started_at": "2025-11-20T09:30:00.000Z",
+      "startedAt": "2025-11-20T09:30:00.000Z"
+    },
+    {
+      "id": "run-search-001",
+      "test_id": "AC-SEARCH-001",
+      "status": "passed",
+      "environment": "prod",
+      "branch": "release/1.0",
+      "duration_ms": 920,
+      "duration": 920,
+      "started_at": "2025-11-20T11:15:00.000Z",
+      "startedAt": "2025-11-20T11:15:00.000Z"
+    },
+    {
+      "id": "run-cart-001",
+      "test_id": "AC-CART-001",
+      "status": "failed",
+      "environment": "staging",
+      "branch": "dev",
+      "duration_ms": 1780,
+      "duration": 1780,
+      "started_at": "2025-11-21T08:45:00.000Z",
+      "startedAt": "2025-11-21T08:45:00.000Z"
+    },
+    {
+      "id": "run-checkout-002",
+      "test_id": "AC-CHECKOUT-002",
+      "status": "skipped",
+      "environment": "local",
+      "branch": "feature/demo",
+      "duration_ms": 0,
+      "duration": 0,
+      "started_at": "2025-11-21T09:00:00.000Z",
+      "startedAt": "2025-11-21T09:00:00.000Z"
+    },
+    {
+      "id": "run-profile-001",
+      "test_id": "AC-PROFILE-001",
+      "status": "passed",
+      "environment": "prod",
+      "branch": "hotfix/123",
+      "duration_ms": 640,
+      "duration": 640,
+      "started_at": "2025-11-21T10:30:00.000Z",
+      "startedAt": "2025-11-21T10:30:00.000Z"
+    },
+    {
+      "id": "run-payment-001",
+      "test_id": "AC-PAYMENT-001",
+      "status": "failed",
+      "environment": "staging",
+      "branch": "dev",
+      "duration_ms": 2410,
+      "duration": 2410,
+      "started_at": "2025-11-22T07:20:00.000Z",
+      "startedAt": "2025-11-22T07:20:00.000Z"
+    },
+    {
+      "id": "run-search-002",
+      "test_id": "AC-SEARCH-002",
+      "status": "passed",
+      "environment": "local",
+      "branch": "dev",
+      "duration_ms": 480,
+      "duration": 480,
+      "started_at": "2025-11-22T09:05:00.000Z",
+      "startedAt": "2025-11-22T09:05:00.000Z"
+    },
+    {
+      "id": "run-login-valid-002",
+      "test_id": "AC-LOGIN-003",
+      "status": "passed",
+      "environment": "staging",
+      "branch": "feature/login-improv",
+      "duration_ms": 1020,
+      "duration": 1020,
+      "started_at": "2025-11-22T10:10:00.000Z",
+      "startedAt": "2025-11-22T10:10:00.000Z"
     }
   ]
 }

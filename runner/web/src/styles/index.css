@@ -1,15 +1,42 @@
-/* Basic styling for TestCraft dashboard */
+/* Basic styling for TestCraft dashboard (theme-aware via .dark / .light on <html>) */
 
 * {
   box-sizing: border-box;
 }
 
+/* Theme variables (used by rest of the stylesheet) */
+:root {
+  --bg: #0f172a;
+  --panel-bg: #020617;
+  --panel-border: #1f2933;
+  --muted: #9ca3af;
+  --text: #e5e7eb;
+  --card-radius: 8px;
+}
+
+/* Light theme overrides (applies when <html> has .light) */
+.light {
+  --bg: #f5f7fa;
+  --panel-bg: #ffffff;
+  --panel-border: #e6eef6;
+  --muted: #4b5563;
+  --text: #0b1220;
+}
+
+/* Dark theme overrides (applies when <html> has .dark) */
+.dark {
+  --bg: #0f172a;
+  --panel-bg: #020617;
+  --panel-border: #1f2933;
+  --muted: #9ca3af;
+  --text: #e5e7eb;
+}
+
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-  background-color: #0f172a;
-  color: #e5e7eb;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 .app-root {
@@ -20,19 +47,20 @@ body {
 
 .app-header {
   padding: 16px 24px;
-  border-bottom: 1px solid #1f2933;
-  background: #020617;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-bg);
 }
 
 .app-header h1 {
   margin: 0;
   font-size: 1.5rem;
+  color: var(--text);
 }
 
 .subtitle {
   margin: 4px 0 0;
   font-size: 0.9rem;
-  color: #9ca3af;
+  color: var(--muted);
 }
 
 .app-main {
@@ -52,30 +80,33 @@ body {
 }
 
 .summary-card {
-  background: #020617;
-  border-radius: 8px;
+  background: var(--panel-bg);
+  border-radius: var(--card-radius);
   padding: 16px 20px;
-  border: 1px solid #1f2933;
+  border: 1px solid var(--panel-border);
   flex: 1 1 200px;
+  color: var(--text);
 }
 
 .summary-card h2 {
   margin: 0;
   font-size: 0.95rem;
-  color: #9ca3af;
+  color: var(--muted);
 }
 
 .summary-value {
   margin-top: 8px;
   font-size: 1.5rem;
   font-weight: 600;
+  color: var(--text);
 }
 
 .runs-section {
-  background: #020617;
-  border-radius: 8px;
-  border: 1px solid #1f2933;
+  background: var(--panel-bg);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--panel-border);
   padding: 16px 20px;
+  color: var(--text);
 }
 
 .runs-header h2 {
@@ -87,21 +118,22 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
+  color: var(--text);
 }
 
 .runs-table thead {
-  background: #111827;
+  background: rgba(0,0,0,0.05);
 }
 
 .runs-table th,
 .runs-table td {
   padding: 8px 10px;
-  border-bottom: 1px solid #1f2933;
+  border-bottom: 1px solid var(--panel-border);
   text-align: left;
 }
 
 .runs-table tbody tr:hover {
-  background: #020617;
+  background: rgba(255,255,255,0.01);
 }
 
 .status {

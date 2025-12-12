@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // src/components/ThemeToggle.jsx
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -61,3 +62,21 @@ export default function ThemeToggle({ className = "" }) {
     </motion.button>
   );
 }
+=======
+import React from "react";
+import { useTheme } from "./ThemeProvider";
+
+export default function ThemeToggle({ className }) {
+  const { theme, toggle } = useTheme();
+
+  return (
+    <button
+      className={className || "theme-toggle"}
+      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+      onClick={toggle}
+    >
+      {theme === "dark" ? "Switch to Light" : "Switch to Dark"}
+    </button>
+  );
+}
+>>>>>>> c1569ec22f02ec85a92c37cfd5c85177a6b480c9

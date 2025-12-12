@@ -1,5 +1,12 @@
+// src/components/Sidebar.jsx
 import React from "react";
-import { LayoutDashboard, PlayCircle, ListChecks, FileBarChart, Settings } from "lucide-react";
+import {
+  LayoutDashboard,
+  PlayCircle,
+  ListChecks,
+  FileBarChart,
+  Settings,
+} from "lucide-react";
 
 export default function Sidebar() {
   const navItems = [
@@ -11,24 +18,20 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4">
-      <nav className="space-y-3">
-        <div className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide mb-1">
+    <aside className="w-64 min-h-screen bg-[#020617] border-r border-slate-800 p-4">
+      <nav className="space-y-2">
+        <div className="text-slate-500 text-xs uppercase tracking-wide mb-2">
           Navigation
         </div>
-
         {navItems.map((item) => (
           <button
             key={item.label}
-            className="
-              w-full flex items-center gap-3 px-3 py-2 rounded-lg
-              text-slate-700 dark:text-slate-300
-              hover:bg-slate-100 dark:hover:bg-slate-800
-              transition-colors
-            "
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg
+                       text-slate-300 hover:bg-slate-800 hover:text-white
+                       transition-colors text-sm"
           >
             {item.icon}
-            <span className="text-sm">{item.label}</span>
+            <span>{item.label}</span>
           </button>
         ))}
       </nav>

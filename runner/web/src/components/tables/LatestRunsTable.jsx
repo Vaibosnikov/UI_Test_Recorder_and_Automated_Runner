@@ -1,4 +1,5 @@
 import React from "react";
+import sampleRuns from "../../mock/sampleRuns.json";
 
 const statusColors = {
   passed: "bg-green-100 text-green-700 border-green-300",
@@ -6,7 +7,9 @@ const statusColors = {
   skipped: "bg-yellow-100 text-yellow-700 border-yellow-300",
 };
 
-export default function LatestRunsTable({ runs = [] }) {
+export default function LatestRunsTable() {
+  const runs = sampleRuns.data; // use the data array from JSON
+
   return (
     <div className="w-full rounded-xl border border-white/10 bg-white/5 p-4 shadow">
       <h2 className="text-lg font-semibold mb-3">Recent Test Runs</h2>
@@ -29,20 +32,20 @@ export default function LatestRunsTable({ runs = [] }) {
                 key={run.id}
                 className="border-b border-white/10 hover:bg-white/5 transition"
               >
-                {/* Feature / Application */}
+                {/* Feature / Application (using test_id as placeholder name) */}
                 <td className="p-3">
                   <a
                     href="#"
                     className="text-blue-400 hover:underline flex items-center gap-1"
                   >
                     <span className="text-green-400">🖋️</span>
-                    {run.feature || `Feature ${run.id}`}
+                    {run.feature || run.test_id}
                   </a>
                 </td>
 
                 {/* Test Name */}
                 <td className="p-3 text-gray-200">
-                  {run.test_name || "Unknown Test"}
+                  {run.test_name || run.test_id || "Unknown Test"}
                 </td>
 
                 {/* Status */}
@@ -52,8 +55,7 @@ export default function LatestRunsTable({ runs = [] }) {
                       statusColors[run.status.toLowerCase()]
                     }`}
                   >
-                    {run.status.charAt(0).toUpperCase() +
-                      run.status.slice(1)}{" "}
+                    {run.status.charAt(0).toUpperCase() + run.status.slice(1)}{" "}
                     {run.status === "passed" && "✅"}
                     {run.status === "failed" && "❌"}
                     {run.status === "skipped" && "⏭️"}
@@ -83,7 +85,6 @@ export default function LatestRunsTable({ runs = [] }) {
         </table>
       </div>
 
-      {/* Bottom Tip */}
       <p className="mt-2 text-xs text-gray-400">
         Tip: Click the <span className="text-blue-400">Feature / Application</span> to view test details (steps, screenshots, and logs).
       </p>

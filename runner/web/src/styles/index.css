@@ -1,20 +1,18 @@
-/* Basic styling for TestCraft dashboard (theme-aware via .dark / .light on <html>) */
-
+/* Global reset */
 * {
   box-sizing: border-box;
 }
 
-/* Theme variables (used by rest of the stylesheet) */
+/* Theme variables (kept in case you still use them somewhere) */
 :root {
   --bg: #0f172a;
   --panel-bg: #020617;
   --panel-border: #1f2933;
   --muted: #9ca3af;
   --text: #e5e7eb;
-  --card-radius: 8px;
 }
 
-/* Light theme overrides (applies when <html> has .light) */
+/* Optional: light & dark overrides if you still toggle .light / .dark on <html> */
 .light {
   --bg: #f5f7fa;
   --panel-bg: #ffffff;
@@ -23,7 +21,6 @@
   --text: #0b1220;
 }
 
-/* Dark theme overrides (applies when <html> has .dark) */
 .dark {
   --bg: #0f172a;
   --panel-bg: #020617;
@@ -32,6 +29,7 @@
   --text: #e5e7eb;
 }
 
+/* Base body styles only – no layout, no alignment */
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -39,117 +37,5 @@ body {
   color: var(--text);
 }
 
-.app-root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.app-header {
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: var(--text);
-}
-
-.subtitle {
-  margin: 4px 0 0;
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-.app-main {
-  padding: 24px;
-}
-
-.dashboard-container {
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.summary-section {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.summary-card {
-  background: var(--panel-bg);
-  border-radius: var(--card-radius);
-  padding: 16px 20px;
-  border: 1px solid var(--panel-border);
-  flex: 1 1 200px;
-  color: var(--text);
-}
-
-.summary-card h2 {
-  margin: 0;
-  font-size: 0.95rem;
-  color: var(--muted);
-}
-
-.summary-value {
-  margin-top: 8px;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.runs-section {
-  background: var(--panel-bg);
-  border-radius: var(--card-radius);
-  border: 1px solid var(--panel-border);
-  padding: 16px 20px;
-  color: var(--text);
-}
-
-.runs-header h2 {
-  margin: 0 0 12px;
-  font-size: 1.1rem;
-}
-
-.runs-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-  color: var(--text);
-}
-
-.runs-table thead {
-  background: rgba(0,0,0,0.05);
-}
-
-.runs-table th,
-.runs-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--panel-border);
-  text-align: left;
-}
-
-.runs-table tbody tr:hover {
-  background: rgba(255,255,255,0.01);
-}
-
-.status {
-  text-transform: capitalize;
-  font-weight: 500;
-}
-
-.status-passed {
-  color: #22c55e;
-}
-
-.status-failed {
-  color: #ef4444;
-}
-
-.error-text {
-  color: #f97316;
-  margin-top: 8px;
-}
+/* Remove old .app-root, .dashboard-container, .summary-*, .runs-*,
+   .status-*, etc., because Tailwind + JSX handle layout now. */

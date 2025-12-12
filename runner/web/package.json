@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "dayjs": "^1.11.19",
+    "lucide-react": "^0.561.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "recharts": "^2.15.4"

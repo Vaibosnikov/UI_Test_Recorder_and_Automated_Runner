@@ -1,3 +1,33 @@
+<<<<<<< HEAD
+/* src/styles/index.css */
+
+/* Tailwind base imports */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Body styling */
+body {
+  @apply font-sans m-0 bg-gray-100 text-black dark:bg-slate-900 dark:text-white;
+}
+
+/* Root app container */
+.app-root {
+  @apply min-h-screen flex flex-col;
+}
+
+/* Subtitle text */
+.subtitle {
+  @apply mt-1 text-sm text-gray-400 dark:text-gray-400;
+}
+
+/* Error text */
+.error-text {
+  @apply text-orange-500 mt-2;
+}
+
+/* Additional utility tweaks if needed */
+=======
 /* Global reset */
 * {
   box-sizing: border-box;
@@ -39,3 +69,4 @@ body {
 
 /* Remove old .app-root, .dashboard-container, .summary-*, .runs-*,
    .status-*, etc., because Tailwind + JSX handle layout now. */
+>>>>>>> c1569ec22f02ec85a92c37cfd5c85177a6b480c9

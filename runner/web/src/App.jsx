@@ -1,13 +1,22 @@
 import React from "react";
-import { ThemeProvider } from "./components/ThemeProvider";
-import Shell from "./components/Shell";
+import DashboardPage from "./pages/DashboardPage.jsx";
+import { ThemeProvider } from "./components/ThemeProvider.jsx";
 
-function App() {
+export default function App() {
   return (
     <ThemeProvider>
-      <Shell />
+      <div className="app-root">
+        <header className="app-header">
+          <h1>TestCraft Dashboard</h1>
+          <p className="subtitle">
+            UI Test Recorder and Automated Runner – Execution Overview
+          </p>
+        </header>
+
+        <main className="app-main">
+          <DashboardPage />
+        </main>
+      </div>
     </ThemeProvider>
   );
 }
-
-export default App;

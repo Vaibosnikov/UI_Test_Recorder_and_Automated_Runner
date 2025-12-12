@@ -1,2 +1,6 @@
+# Ignore node_modules
 node_modules/
+runner/web/node_modules/
+
+# Ignore package-lock.json outside the repo root (if needed)
 ../package-lock.json

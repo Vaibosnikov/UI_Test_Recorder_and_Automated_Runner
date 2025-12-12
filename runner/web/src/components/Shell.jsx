@@ -3,7 +3,10 @@ import React from "react";
 import DashboardPage from "../pages/DashboardPage";
 
 export default function Shell() {
-  // Shell should only be responsible for app layout or routing,
-  // not for theme, since App.jsx already handles that.
-  return <DashboardPage />;
+  // Full viewport wrapper to center content
+  return (
+    <div className="flex flex-col items-center justify-start min-h-screen w-full">
+      <DashboardPage />
+    </div>
+  );
 }

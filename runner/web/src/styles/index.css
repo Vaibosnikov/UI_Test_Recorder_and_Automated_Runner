@@ -1,54 +1,23 @@
-/* src/styles/index.css */
+﻿/* src/styles/index.css - Tailwind entry for TestCraft dashboard */
 
-/* Tailwind base imports */
+/* Tailwind base / preflight */
 @tailwind base;
+
+/* Tailwind components */
 @tailwind components;
+
+/* Tailwind utilities */
 @tailwind utilities;
 
-/* Global reset */
-* {
-  box-sizing: border-box;
+/* Example: configure base font using theme value rather than @apply */
+:root {
+  --app-font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "sans-serif";
+}
+
+/* Apply a sensible default body font */
+html, body {
+  font-family: var(--app-font-family);
   margin: 0;
   padding: 0;
-}
-
-/* Body styling */
-body {
-  @apply font-sans bg-gray-100 text-black transition-colors duration-300;
-}
-
-.dark body {
-  @apply bg-slate-900 text-white;
-}
-
-/* Root app container */
-.app-root {
-  @apply min-h-screen flex flex-col;
-}
-
-/* Subtitle text */
-.subtitle {
-  @apply mt-1 text-sm text-gray-400 transition-colors duration-300;
-}
-
-/* Error text */
-.error-text {
-  @apply mt-2 text-orange-500;
-}
-
-/* Optional CSS variables for theme customization */
-:root {
-  --bg: #f5f7fa;
-  --panel-bg: #ffffff;
-  --panel-border: #e6eef6;
-  --muted: #4b5563;
-  --text: #0b1220;
-}
-
-.dark {
-  --bg: #0f172a;
-  --panel-bg: #020617;
-  --panel-border: #1f2933;
-  --muted: #9ca3af;
-  --text: #e5e7eb;
 }

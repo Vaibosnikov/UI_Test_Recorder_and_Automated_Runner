@@ -1,6 +1,13 @@
+﻿/** tailwind.config.cjs */
 module.exports = {
-  darkMode: 'class',
-  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
-  theme: { extend: {} },
+  content: [
+    "./index.html",
+    "./src/**/*.{js,jsx,ts,tsx,html}"
+  ],
+  theme: {
+    extend: {
+      // add custom fonts or theme values if you need them
+    },
+  },
   plugins: [],
 };

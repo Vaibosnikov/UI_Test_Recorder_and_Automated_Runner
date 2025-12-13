@@ -290,3 +290,106 @@ body {
   }
 }
 
+/***************RunDistributiionTest*******************/
+/* ================================
+   Theme Variables
+   ================================ */
+:root {
+  /* Light Theme */
+  --rs-bg: #ffffff;
+  --rs-border: #e2e8f0;
+  --rs-text-primary: #0f172a;
+  --rs-text-secondary: #475569;
+
+  --rs-passed: #22c55e;
+  --rs-failed: #ef4444;
+  --rs-skipped: #f59e0b;
+
+  --rs-tooltip-bg: #ffffff;
+  --rs-tooltip-border: #cbd5e1;
+}
+
+[data-theme="dark"] {
+  /* Dark Theme */
+  --rs-bg: #1e293b;
+  --rs-border: #334155;
+  --rs-text-primary: #e5e7eb;
+  --rs-text-secondary: #94a3b8;
+
+  --rs-passed: #22c55e;
+  --rs-failed: #ef4444;
+  --rs-skipped: #f59e0b;
+
+  --rs-tooltip-bg: #0f172a;
+  --rs-tooltip-border: #334155;
+}
+
+/* ================================
+   Run Status Distribution Container
+   ================================ */
+.run-status-distribution {
+  background-color: var(--rs-bg);
+  border: 1px solid var(--rs-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Section Title */
+.run-status-distribution h2,
+.run-status-distribution h3 {
+  color: var(--rs-text-primary);
+}
+
+/* Subtitle / muted text */
+.run-status-distribution .subtitle {
+  color: var(--rs-text-secondary);
+}
+
+/* ================================
+   Recharts Styling
+   ================================ */
+
+/* Legend */
+.run-status-distribution .recharts-default-legend {
+  font-size: 0.875rem;
+}
+
+.run-status-distribution .recharts-legend-item-text {
+  color: var(--rs-text-secondary) !important;
+}
+
+/* Tooltip */
+.run-status-distribution .recharts-default-tooltip {
+  background-color: var(--rs-tooltip-bg) !important;
+  border: 1px solid var(--rs-tooltip-border) !important;
+  color: var(--rs-text-primary) !important;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Pie Labels */
+.run-status-distribution .recharts-pie-label-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ================================
+   Pie Sector Colors
+   ================================ */
+.run-status-distribution path[name="passed"] {
+  fill: var(--rs-passed) !important;
+}
+
+.run-status-distribution path[name="failed"] {
+  fill: var(--rs-failed) !important;
+}
+
+.run-status-distribution path[name="skipped"] {
+  fill: var(--rs-skipped) !important;
+}
+
+/* Label Lines */
+.run-status-distribution .recharts-pie-label-line {
+  stroke-width: 1.5;
+}

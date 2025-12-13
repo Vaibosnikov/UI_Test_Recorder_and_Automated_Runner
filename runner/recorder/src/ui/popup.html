@@ -1,14 +1,26 @@
-﻿<!DOCTYPE html>
+﻿<!-- runner/recorder/src/ui/popup.html
+     Popup UI for TestCraft Recorder.
+     Buttons: Start, Stop, Export
+ -->
+<!doctype html>
 <html>
-<head>
-  <title>TestCraft Recorder</title>
-  <link rel="stylesheet" href="popup.css" />
-</head>
-<body>
-  <h2>TestCraft Recorder</h2>
-  <button id="start">Start Recording</button>
-  <button id="stop">Stop Recording</button>
-  <button id="export">Export JSON</button>
-  <script src="popup.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>TestCraft Recorder</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h3>TestCraft Recorder</h3>
+      <div class="controls">
+        <button id="start" class="btn">Start Recording</button>
+        <button id="stop" class="btn">Stop Recording</button>
+        <button id="export" class="btn primary">Export JSON</button>
+      </div>
+      <div id="status" class="status">Idle</div>
+      <small class="note">Exported JSON matches Script Generator input schema.</small>
+    </div>
+    <script type="module" src="popup.js"></script>
+  </body>
 </html>

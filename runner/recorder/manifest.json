@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "TestCraft Recorder",
   "version": "1.0.0",
-  "description": "Records user interactions on web pages for TestCraft automated test generation.",
+  "description": "Record user interactions to generate Playwright specs for TestCraft.",
   "permissions": [
     "scripting",
     "activeTab",
@@ -25,5 +25,10 @@
       "js": ["src/content-scripts/recorder.js"],
       "run_at": "document_idle"
     }
-  ]
+  ],
+  "icons": {
+    "16": "src/icons/icon16.png",
+    "48": "src/icons/icon48.png",
+    "128": "src/icons/icon128.png"
+  }
 }

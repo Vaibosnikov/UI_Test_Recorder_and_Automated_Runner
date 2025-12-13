@@ -1,45 +1,30 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import sampleRuns from "../../mock/sampleRuns.json";
-
-const statusColors = {
-  passed: "bg-green-100 text-green-700 border-green-300",
-  failed: "bg-red-100 text-red-700 border-red-300",
-  skipped: "bg-yellow-100 text-yellow-700 border-yellow-300",
-};
 
 /** Known IDs → friendly names */
 const TEST_ID_MAP = {
-  "AC-LOGIN-001":   { feature: "Login",     displayName: "Login – Basic", docsUrl: "/docs/tests/login-basic" },
-  "AC-LOGIN-002":   { feature: "Login",     displayName: "Login – Invalid Credentials" },
-  "AC-LOGIN-003":   { feature: "Login",     displayName: "Login – Lockout / Rate Limit" },
-  "AC-SIGNUP-001":  { feature: "Signup",    displayName: "Signup – Basic Flow" },
-  "AC-SIGNUP-002":  { feature: "Signup",    displayName: "Signup – Validation Errors" },
-  "AC-PROFILE-001": { feature: "Profile",   displayName: "Profile – Load" },
-  "AC-PROFILE-002": { feature: "Profile",   displayName: "Profile – Update" },
-  "AC-LOGOUT-001":  { feature: "Logout",    displayName: "Logout – Basic" },
-  "AC-LOGOUT-002":  { feature: "Logout",    displayName: "Logout – Token Expiry" },
+  "AC-LOGIN-001": { feature: "Login", displayName: "Login – Basic" },
+  "AC-LOGIN-002": { feature: "Login", displayName: "Login – Invalid Credentials" },
+  "AC-LOGIN-003": { feature: "Login", displayName: "Login – Lockout / Rate Limit" },
+  "AC-SIGNUP-001": { feature: "Signup", displayName: "Signup – Basic Flow" },
+  "AC-SIGNUP-002": { feature: "Signup", displayName: "Signup – Validation Errors" },
+  "AC-PROFILE-001": { feature: "Profile", displayName: "Profile – Load" },
+  "AC-PROFILE-002": { feature: "Profile", displayName: "Profile – Update" },
+  "AC-LOGOUT-001": { feature: "Logout", displayName: "Logout – Basic" },
+  "AC-LOGOUT-002": { feature: "Logout", displayName: "Logout – Token Expiry" },
   "AC-DASHBOARD-001": { feature: "Dashboard", displayName: "Dashboard – Widgets Render" },
   "AC-DASHBOARD-002": { feature: "Dashboard", displayName: "Dashboard – KPI Tiles" },
-  "AC-SEARCH-001":    { feature: "Search",    displayName: "Search – Basic" },
-  "AC-FILTER-001":    { feature: "Filters",   displayName: "Filters – Apply & Reset" },
-  "AC-CART-001":      { feature: "Cart",      displayName: "Cart – Add / Remove Items" },
-  "AC-CHECKOUT-001":  { feature: "Checkout",  displayName: "Checkout – Payment Success" },
+  "AC-SEARCH-001": { feature: "Search", displayName: "Search – Basic" },
+  "AC-FILTER-001": { feature: "Filters", displayName: "Filters – Apply & Reset" },
+  "AC-CART-001": { feature: "Cart", displayName: "Cart – Add / Remove Items" },
+  "AC-CHECKOUT-001": { feature: "Checkout", displayName: "Checkout – Payment Success" },
 };
 
-/** Derive feature + display name from test_id / testId */
 function parseTestId(testId) {
   if (!testId) return { feature: "Unknown", displayName: "Unknown Test" };
-  const known = TEST_ID_MAP[testId];
-  if (known) return known;
-
-  const parts = String(testId).split("-");
-  const rawFeature = parts[1] || "unknown";
-  const feature = rawFeature.charAt(0).toUpperCase() + rawFeature.slice(1).toLowerCase();
-  const displayName = `${rawFeature.toUpperCase()} ${parts[2] || ""}`.trim();
-  return { feature, displayName };
+  return TEST_ID_MAP[testId] || { feature: "Unknown", displayName: testId };
 }
 
-/** Formatters */
 const formatDuration = (ms) =>
   ms == null ? "—" : ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`;
 
@@ -55,176 +40,181 @@ const formatDate = (iso) => {
   });
 };
 
-/** Status badge */
 function StatusBadge({ status, isDark }) {
-  const meta =
-    {
-      passed: {
-        label: "Passed ✅",
-        tip: "All checks succeeded",
-        cls: isDark ? "bg-green-700 text-green-100" : "bg-green-200 text-green-800",
-      },
-      failed: {
-        label: "Failed ❌",
-        tip: "At least one check failed",
-        cls: isDark ? "bg-red-700 text-red-100" : "bg-red-200 text-red-800",
-      },
-      skipped: {
-        label: "Skipped ⏭️",
-        tip: "Test was skipped by config or filter",
-        cls: isDark ? "bg-yellow-600 text-yellow-100" : "bg-yellow-200 text-yellow-800",
-      },
-      running: {
-        label: "Running 🟡",
-        tip: "Currently executing",
-        cls: isDark ? "bg-amber-600 text-amber-100" : "bg-amber-200 text-amber-800",
-      },
-      queued: {
-        label: "Queued 🕒",
-        tip: "Waiting to start",
-        cls: isDark ? "bg-gray-700 text-gray-100" : "bg-gray-200 text-gray-800",
-      },
-    }[status] || {
-      label: "Unknown",
-      tip: "Status not available",
-      cls: isDark ? "bg-gray-700 text-gray-100" : "bg-gray-200 text-gray-800",
-    };
-
+  const map = {
+    passed: isDark ? "bg-green-700/80 text-green-100" : "bg-green-100 text-green-800",
+    failed: isDark ? "bg-red-700/80 text-red-100" : "bg-red-100 text-red-800",
+    skipped: isDark ? "bg-yellow-600/80 text-yellow-100" : "bg-yellow-100 text-yellow-800",
+  };
   return (
-    <span
-      title={meta.tip}
-      className={`px-2 py-1 rounded text-xs font-medium transition-colors duration-300 ${meta.cls}`}
-      aria-label={meta.label}
-    >
-      {meta.label}
+    <span className={`px-3 py-1 rounded-full text-sm font-medium ${map[status]}`}>
+      {status}
     </span>
   );
 }
 
-/** Tiny icon for common features */
 function FeatureIcon({ name }) {
   const n = (name || "").toLowerCase();
-  const icon =
-    n.includes("login") ? "🔑" :
-    n.includes("signup") ? "📝" :
-    n.includes("checkout") ? "🛒" :
-    n.includes("dashboard") ? "📋" :
-    n.includes("profile") ? "👤" :
-    n.includes("search") ? "🔎" :
-    n.includes("filter") ? "🎛️" :
-    n.includes("cart") ? "🛍️" :
-    "🧪";
-  return <span aria-hidden className="mr-1">{icon}</span>;
+  return (
+    <span className="mr-2">
+      {n.includes("login") ? "🔑" :
+       n.includes("signup") ? "📝" :
+       n.includes("checkout") ? "🛒" :
+       n.includes("dashboard") ? "📋" :
+       n.includes("profile") ? "👤" :
+       n.includes("search") ? "🔎" :
+       n.includes("filter") ? "🎛️" :
+       n.includes("cart") ? "🛍️" : "🧪"}
+    </span>
+  );
 }
 
-/** Normalize incoming data */
 function normalizeRows(data) {
-  const raw = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
-  return raw.map((run) => {
-    const testId = run.test_id ?? run.testId;
-    const durationMs = run.duration_ms ?? run.duration ?? null;
-    const startedAt = run.started_at ?? run.startedAt ?? null;
-    return {
-      id: run.id,
-      testId,
-      status: run.status,
-      feature: run.feature,
-      application: run.application,
-      environment: run.environment,
-      branch: run.branch,
-      durationMs,
-      startedAt,
-      detailsUrl: run.detailsUrl,
-    };
-  });
+  const raw = Array.isArray(data) ? data : data?.data || [];
+  return raw.map((run) => ({
+    id: run.id,
+    testId: run.test_id ?? run.testId,
+    status: run.status,
+    feature: run.feature,
+    application: run.application,
+    durationMs: run.duration_ms ?? run.duration,
+    startedAt: run.started_at ?? run.startedAt,
+    detailsUrl: run.detailsUrl,
+  }));
 }
 
 export default function LatestRunsTable({ data = sampleRuns.data, theme = "dark" }) {
   const isDark = theme === "dark";
   const rows = normalizeRows(data);
 
-  const bgClass = isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300";
-  const headerText = isDark ? "text-gray-400" : "text-gray-600";
-  const bodyText = isDark ? "text-gray-300" : "text-gray-800";
-  const borderColor = isDark ? "border-gray-700" : "border-gray-200";
-  const headerBg = isDark ? "bg-gray-800" : "bg-gray-100";
-  const titleText = isDark ? "text-white" : "text-gray-900";
+  const [sortKey, setSortKey] = useState("startedAt");
+  const [sortDir, setSortDir] = useState("desc");
+  const [expandedRow, setExpandedRow] = useState(null);
 
-  if (!rows.length) {
-    return (
-      <div className={`p-4 rounded-lg border ${bgClass} transition-colors duration-300`}>
-        <h2 className={`text-lg font-semibold mb-3 transition-colors duration-300 ${titleText}`}>
-          Recent Test Runs
-        </h2>
-        <p className={`transition-colors duration-300 ${bodyText}`}>
-          No runs available. When tests execute, they’ll show up here.
-        </p>
-      </div>
-    );
-  }
+  const sortedRows = useMemo(() => {
+    return [...rows].sort((a, b) => {
+      const v1 = a[sortKey];
+      const v2 = b[sortKey];
+      if (v1 == null) return 1;
+      if (v2 == null) return -1;
+      if (sortDir === "asc") return v1 > v2 ? 1 : -1;
+      return v1 < v2 ? 1 : -1;
+    });
+  }, [rows, sortKey, sortDir]);
+
+  const bg = isDark ? "bg-gray-900 border-gray-700" : "bg-white border-gray-200";
+  const headerBg = isDark ? "bg-gray-800" : "bg-gray-50";
+  const text = isDark ? "text-gray-200" : "text-gray-800";
+  const border = isDark ? "border-gray-600/40" : "border-gray-300/40";
+
+  const onSort = (key) => {
+    if (sortKey === key) setSortDir(sortDir === "asc" ? "desc" : "asc");
+    else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
 
   return (
-    <div className={`p-4 rounded-lg border ${bgClass} overflow-x-auto transition-colors duration-300`}>
-      <h2 className={`text-lg font-semibold mb-3 transition-colors duration-300 ${titleText}`}>
+    <div className={`p-6 rounded-xl border ${bg} overflow-x-auto`}>
+      <h2 className={`text-xl font-semibold mb-5 ${isDark ? "text-white" : "text-gray-900"}`}>
         Recent Test Runs
       </h2>
 
-      <table className="w-full text-left border-collapse">
-        <thead className={`${headerText} text-sm sticky top-0 ${headerBg} border-b ${borderColor} transition-colors duration-300`}>
+      <table className="w-full border-separate border-spacing-0 text-base">
+        <thead className={`${headerBg} ${text}`}>
           <tr>
-            <th className="p-2">Feature / Application</th>
-            <th className="p-2">Test</th>
-            <th className="p-2">Status</th>
-            <th className="p-2">Duration</th>
-            <th className="p-2">Started At</th>
+            <th className={`p-4 border-r ${border}`}>Feature</th>
+            <th
+              className={`p-4 border-r ${border} cursor-pointer`}
+              onClick={() => onSort("testId")}
+            >
+              Test {sortKey === "testId" && (sortDir === "asc" ? "▲" : "▼")}
+            </th>
+            <th
+              className={`p-4 border-r ${border} text-center cursor-pointer`}
+              onClick={() => onSort("status")}
+            >
+              Status {sortKey === "status" && (sortDir === "asc" ? "▲" : "▼")}
+            </th>
+            <th
+              className={`p-4 border-r ${border} text-right cursor-pointer`}
+              onClick={() => onSort("durationMs")}
+            >
+              Duration {sortKey === "durationMs" && (sortDir === "asc" ? "▲" : "▼")}
+            </th>
+            <th
+              className="p-4 text-right cursor-pointer"
+              onClick={() => onSort("startedAt")}
+            >
+              Started {sortKey === "startedAt" && (sortDir === "asc" ? "▲" : "▼")}
+            </th>
           </tr>
         </thead>
 
-        <tbody className={`transition-colors duration-300 ${bodyText}`}>
-          {rows.map((run) => {
-            const { feature: parsedFeature, displayName } = parseTestId(run.testId);
-            const featureOrApp = run.feature || run.application || parsedFeature;
-            const detailsHref = run.detailsUrl || `/runs/${run.id}`;
+        <tbody className={text}>
+          {sortedRows.map((run) => {
+            const { feature, displayName } = parseTestId(run.testId);
+            const featureName = run.feature || run.application || feature;
+            const isOpen = expandedRow === run.id;
 
             return (
-              <tr key={run.id} className={`border-t ${borderColor} hover:bg-gray-700/30 transition`}>
-                <td className="p-2">
-                  <a
-                    href={detailsHref}
-                    className={`underline underline-offset-2 ${isDark ? "text-sky-300 hover:text-sky-200" : "text-sky-700 hover:text-sky-600"}`}
-                    title={`Open details for ${displayName}`}
-                  >
-                    <FeatureIcon name={featureOrApp} />
-                    {featureOrApp}
-                  </a>
-                </td>
+              <React.Fragment key={run.id}>
+                <tr
+                  onClick={() => setExpandedRow(isOpen ? null : run.id)}
+                  className={`
+                    cursor-pointer
+                    ${isDark ? "odd:bg-gray-900 even:bg-gray-800/40" : "odd:bg-white even:bg-gray-50"}
+                    ${isDark ? "hover:bg-gray-800" : "hover:bg-gray-100"}
+                  `}
+                >
+                  <td className={`p-4 border-t border-r ${border}`}>
+                    <FeatureIcon name={featureName} />
+                    {featureName}
+                  </td>
 
-                <td className="p-2">
-                  <div className="flex items-center gap-2">
-                    <span>{displayName}</span>
-                    {run.testId && (
-                      <span className={`${isDark ? "text-gray-400" : "text-gray-500"} text-xs`} title={`Test ID: ${run.testId}`}>
-                        ({run.testId})
-                      </span>
-                    )}
-                  </div>
-                </td>
+                  <td className={`p-4 border-t border-r ${border}`}>
+                    {displayName}
+                    <div className="text-sm text-gray-500">{run.testId}</div>
+                  </td>
 
-                <td className="p-2">
-                  <StatusBadge status={run.status} isDark={isDark} />
-                </td>
+                  <td className={`p-4 border-t border-r ${border} text-center`}>
+                    <StatusBadge status={run.status} isDark={isDark} />
+                  </td>
 
-                <td className="p-2">{formatDuration(run.durationMs)}</td>
-                <td className="p-2">{formatDate(run.startedAt)}</td>
-              </tr>
+                  <td className={`p-4 border-t border-r ${border} text-right font-mono`}>
+                    {formatDuration(run.durationMs)}
+                  </td>
+
+                  <td className="p-4 border-t text-right font-mono">
+                    {formatDate(run.startedAt)}
+                  </td>
+                </tr>
+
+                {isOpen && (
+                  <tr className={isDark ? "bg-gray-800/60" : "bg-gray-50"}>
+                    <td colSpan={5} className={`p-4 border-t ${border} text-sm`}>
+                      <div className="flex flex-wrap gap-6">
+                        <div><strong>Test ID:</strong> {run.testId}</div>
+                        <div><strong>Status:</strong> {run.status}</div>
+                        <div><strong>Duration:</strong> {formatDuration(run.durationMs)}</div>
+                        <div>
+                          <a
+                            href={run.detailsUrl || `/runs/${run.id}`}
+                            className="text-sky-400 underline underline-offset-2"
+                          >
+                            View Details →
+                          </a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             );
           })}
         </tbody>
       </table>
-
-      <div className={`mt-3 text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-        Tip: Click the <span className={isDark ? "text-sky-300" : "text-sky-700"}>Feature / Application</span> to view test details (steps, screenshots, and logs).
-      </div>
     </div>
   );
 }

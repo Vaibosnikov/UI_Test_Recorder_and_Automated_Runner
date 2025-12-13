@@ -368,7 +368,9 @@ nav button.active {
   border-color: #334155;
 }
 
-/* ===== Select Box Styling ===== */
+/* ===============================
+   BASE SELECT STYLING
+   =============================== */
 select {
   appearance: none;
   -webkit-appearance: none;
@@ -376,44 +378,69 @@ select {
 
   font-size: 14px;
   font-weight: 500;
-  color: #ffffff;
 
   padding: 8px 36px 8px 12px;
   border-radius: 6px;
-  border: 1px solid #475569;
+  border: 1px solid;
 
-  background-color: #334155;
   cursor: pointer;
-
   transition: background-color 0.25s ease,
               border-color 0.25s ease,
               box-shadow 0.25s ease;
 }
 
-/* Custom dropdown arrow */
-select {
+/* ===============================
+   LIGHT THEME
+   =============================== */
+html.light select {
+  background-color: #ffffff;
+  color: #111827;
+  border-color: #d1d5db;
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 20 20'%3E%3Cpath d='M5.25 7.5L10 12.25L14.75 7.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+}
+
+/* ===============================
+   DARK THEME
+   =============================== */
+html.dark select {
+  background-color: #334155;
+  color: #ffffff;
+  border-color: #475569;
+
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 20 20'%3E%3Cpath d='M5.25 7.5L10 12.25L14.75 7.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 14px;
 }
 
-/* Hover */
+/* ===============================
+   HOVER
+   =============================== */
 select:hover {
-  background-color: #3b475a;
-  border-color: #64748b;
+  border-color: #60a5fa;
 }
 
-/* Focus */
+/* ===============================
+   FOCUS
+   =============================== */
 select:focus {
   outline: none;
-  border-color: #60a5fa;
   box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.85);
 }
 
-/* Options */
-select option {
+/* ===============================
+   OPTIONS (important)
+   =============================== */
+html.dark select option {
   background-color: #1e293b;
   color: #ffffff;
 }
 
+html.light select option {
+  background-color: #ffffff;
+  color: #111827;
+}

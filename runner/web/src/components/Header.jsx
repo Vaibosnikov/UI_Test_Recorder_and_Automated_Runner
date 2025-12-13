@@ -21,7 +21,7 @@ export default function Header({ theme = "dark", title = "TestCraft Dashboard", 
         </h1>
 
         {/* Right-aligned ThemeToggle */}
-        <div className="flex-1 flex justify-end">
+        <div className="flex justify-end">
           {children || <ThemeToggle />}
         </div>
       </div>

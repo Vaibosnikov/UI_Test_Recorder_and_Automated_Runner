@@ -13,7 +13,7 @@ export default function Header({ theme = "dark", title = "TestCraft Dashboard", 
     <header className={`${bgClass} px-6 py-4 border-b transition-colors duration-300 w-full`}>
       <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
         {/* Empty div for left spacing */}
-        <div className="flex-1" />
+        <div className="" />
 
         {/* Title centered */}
         <h1 className="flex-1 text-2xl md:text-3xl font-extrabold text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:scale-105 transform-gpu transition-transform duration-300">

@@ -92,7 +92,8 @@ export default function DashboardPage() {
 
           {/* Filters */}
           <DashboardCard className="min-h-[120px] w-full">
-            <DashboardFilters />
+            {/* <DashboardFilters /> */}
+            <DashboardFilters theme={theme} />
           </DashboardCard>
 
           {/* Recent Runs Table */}
@@ -130,11 +131,11 @@ export default function DashboardPage() {
           {/* Funnel + Heatmap Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
             <DashboardCard title="Test Execution Funnel" className="min-h-[300px] w-full">
-              <TestPipelineFunnel />
+              <TestPipelineFunnel theme={theme} />
             </DashboardCard>
 
             <DashboardCard title="Flaky Tests Heatmap" className="min-h-[300px] w-full">
-              <FlakyTestsHeatmap />
+              <FlakyTestsHeatmap theme={theme} />
             </DashboardCard>
           </div>
 

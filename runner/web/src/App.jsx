@@ -6,12 +6,12 @@ export default function App() {
   return (
     <ThemeProvider>
       <div className="app-root">
-        <header className="app-header">
+        {/* <header className="app-header">
           <h1>TestCraft Dashboard</h1>
           <p className="subtitle">
             UI Test Recorder and Automated Runner – Execution Overview
           </p>
-        </header>
+        </header> */}
 
         <main className="app-main">
           <DashboardPage />

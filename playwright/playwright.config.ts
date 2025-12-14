@@ -1,32 +1,30 @@
-// playwright.config.ts
+// playwright/playwright.config.ts
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests', // adjust if your tests live elsewhere
+  testDir: './tests', // or './playwright/tests' if that's where your tests are
   timeout: 30_000,
   fullyParallel: true,
 
   use: {
-    baseURL: process.env.BASE_URL || 'http://127.0.0.1:4173',
+    baseURL: process.env.BASE_URL || 'http://127.0.0.1:5173', // <-- matches YAML
     headless: true,
     trace: 'on-first-retry',
     video: 'retain-on-failure',
     screenshot: 'only-on-failure'
   },
 
-  // Let Playwright own the web server so CI doesn't double-start
   webServer: {
-    command: 'npm run preview',
-    url: 'http://127.0.0.1:4173',
-    reuseExistingServer: !process.env.CI, // reuse locally, start fresh in CI
+    // Build first, then preview on the same port
+    command: 'npm run build && npm run preview -- --port 5173',
+    url: 'http://127.0.0.1:5173',
+    reuseExistingServer: !process.env.CI,
     timeout: 120_000
   },
 
-  // Typical browser projects (optional)
   projects: [
     { name: 'Chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'Firefox',  use: { ...devices['Desktop Firefox'] } },
-    { name: 'WebKit',   use: { ...devices['Desktop Safari'] } },
+    // enable Firefox/WebKit later as needed
   ],
 
   reporter: [['html', { outputFolder: 'playwright-report' }]],

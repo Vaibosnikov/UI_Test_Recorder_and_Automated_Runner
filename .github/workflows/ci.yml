@@ -2,7 +2,8 @@ name: CI pipeline
 
 on:
   push:
-    branches: [ dev, main ]
+    branches:
+     - '**'
   pull_request:
 
 concurrency:

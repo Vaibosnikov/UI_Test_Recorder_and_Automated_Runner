@@ -6,7 +6,44 @@ const counterEl = document.getElementById("counter");
 const recordDot = document.getElementById("recordDot");
 const recordText = document.getElementById("recordText");
 const errorEl = document.getElementById("error");
-const themeToggle = document.getElementById("themeToggle");
+const themeBtn = document.getElementById("themeToggle");
+
+const SUN_ICON = `
+<svg viewBox="0 0 24 24">
+  <circle cx="12" cy="12" r="5"/>
+  <g>
+    <line x1="12" y1="1" x2="12" y2="3"/>
+    <line x1="12" y1="21" x2="12" y2="23"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="1" y1="12" x2="3" y2="12"/>
+    <line x1="21" y1="12" x2="23" y2="12"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+  </g>
+</svg>
+`;
+
+const MOON_ICON = `
+<svg viewBox="0 0 24 24">
+  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+</svg>
+`;
+
+function setTheme(theme) {
+  document.body.dataset.theme = theme;
+  themeBtn.innerHTML = theme === "light" ? MOON_ICON : SUN_ICON;
+  chrome.storage.local.set({ theme });
+}
+
+chrome.storage.local.get("theme", (d) => {
+  setTheme(d.theme || "dark");
+});
+
+themeBtn.onclick = () => {
+  const next = document.body.dataset.theme === "light" ? "dark" : "light";
+  setTheme(next);
+};
 
 function setStatus(text) {
   statusEl.textContent = text;
@@ -36,13 +73,7 @@ function withActiveTab(cb) {
 function injectAndSend(tab, message) {
   chrome.scripting.executeScript(
     { target: { tabId: tab.id }, files: ["src/content-scripts/recorder.js"] },
-    () => {
-      chrome.tabs.sendMessage(tab.id, message, () => {
-        if (chrome.runtime.lastError) {
-          setStatus("Reload page and retry");
-        }
-      });
-    }
+    () => chrome.tabs.sendMessage(tab.id, message)
   );
 }
 
@@ -84,15 +115,4 @@ document.getElementById("export").onclick = () => {
 
     setStatus("Exported JSON");
   });
-};
-
-/* Theme persistence */
-chrome.storage.local.get("theme", (d) => {
-  if (d.theme) document.body.dataset.theme = d.theme;
-});
-
-themeToggle.onclick = () => {
-  const next = document.body.dataset.theme === "light" ? "dark" : "light";
-  document.body.dataset.theme = next;
-  chrome.storage.local.set({ theme: next });
 };

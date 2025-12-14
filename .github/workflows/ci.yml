@@ -1,168 +1,93 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
-    branches:
-      - "**"
-  pull_request: {}
+    branches: [ dev, main ]
+  pull_request:
+
+# Avoid parallel runs on the same ref
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     env:
       CI: true
-      # Backend API port
-      PORT: 5000
-      # Point Playwright to the FRONTEND UI (Vite) at 5173
-      BASE_URL: http://127.0.0.1:5173
+      # Keep Playwright browsers inside node_modules cache (optional)
+      PLAYWRIGHT_BROWSERS_PATH: 0
+      # Base URL for tests (should match preview port below and playwright.config.ts)
+      BASE_URL: http://127.0.0.1:4173
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: '20'
+          cache: 'npm'
 
-      - name: Install root deps
+      - name: Install root deps (if any)
         run: npm ci
+        # If monorepo uses workspaces/pnpm, adapt to:
+        # uses: pnpm/action-setup@v4
+        # with: { version: 9 }
+        # run: pnpm -w install --frozen-lockfile
 
-      - name: Diagnostic versions and folders
-        run: |
-          node -v
-          npm -v
-          ./node_modules/.bin/playwright --version || true
-          ls -la
-          ls -la playwright || true
-          npm ls @playwright/test || true
+      # ---------------------------
+      # OPTIONAL: Start backend first if UI depends on it
+      # Uncomment and adjust port/command if your frontend makes API calls to runner/backend.
+      # ---------------------------
+      # - name: Start runner backend
+      #   working-directory: runner
+      #   run: |
+      #     npm ci
+      #     npm run start:backend > backend.log 2>&1 &
+      #     npx wait-on tcp:127.0.0.1:3000
+      #   env:
+      #     NODE_ENV: test
+      #     PORT: 3000
 
-      - name: Install Playwright browsers
-        run: ./node_modules/.bin/playwright install --with-deps
-
-      # ------------------------
-      # Backend API (port 5000)
-      # ------------------------
-      - name: Install backend API deps
-        working-directory: runner/api
-        run: npm ci
-
-      - name: Start backend API and wait
-        timeout-minutes: 5
-        run: |
-          (cd runner/api && npm run dev > ../api-server.log 2>&1) &
-          # Prefer health endpoint; if not available yet, fall back to port
-          npx --yes wait-on "http-get://127.0.0.1:${PORT}/health" || npx --yes wait-on "http://127.0.0.1:${PORT}"
-          # Probe but do not fail here
-          curl -sS "http://127.0.0.1:${PORT}/health" || true
-
-      # ------------------------
-      # Frontend UI (Vite, port 5173)
-      # ------------------------
-      - name: Install frontend deps
+      - name: Install UI deps
         working-directory: runner/web
         run: npm ci
 
-      # Choose ONE of the following:
-      # Option A: Vite dev server (fast, fine for CI)
-      - name: Start frontend (Vite dev) and wait
-        timeout-minutes: 5
-        run: |
-          (cd runner/web && npm run dev > ../ui-server.log 2>&1) &
-          npx --yes wait-on "http-get://127.0.0.1:5173"
+      - name: Build UI
+        working-directory: runner/web
+        run: npm run build
 
-          
-      - name: Diagnose Vite server
-        if: always()
-        run: |
-          echo "Netstat for ports:"
-          ss -lntp | (grep -E ':5173|:5000' || true)
-          echo "Probe Vite root:"
-          curl -i "http://127.0.0.1:5173/" || true
-          echo "Tail last 200 lines of UI log:"
-          tail -n 200 ui-server.log || true
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
 
+      # ---------------------------
+      # Run Playwright tests: Playwright will start Vite preview via webServer (no manual server in CI)
+      # ---------------------------
+      - name: Run E2E tests
+        run: npx playwright test
+        env:
+          BASE_URL: ${{ env.BASE_URL }}
 
-      # Option B: Production-like (build + preview)
-      # Uncomment these two steps and comment the dev step above if you prefer preview
-      # - name: Build frontend (Vite)
-      #   working-directory: runner/web
-      #   run: npm run build
-      #
-      # - name: Preview frontend (Vite) and wait
-      #   timeout-minutes: 5
-      #   run: |
-      #     (cd runner/web && npx vite preview --port 5173 > ../ui-server.log 2>&1) &
-      #     npx --yes wait-on "http-get://127.0.0.1:5173"
-
-      - name: Probe UI routes
-        run: |
-          echo "GET /"
-          curl -i "http://127.0.0.1:5173/" || true
-          echo "GET /dashboard"
-          curl -i "http://127.0.0.1:5173/dashboard" || true
-
-      # ------------------------
-      # Playwright test run
-      # ------------------------
-      - name: List discovered tests
-        run: ./node_modules/.bin/playwright test --config=playwright/playwright.config.ts --list
-
-      - name: Run Playwright tests (Chromium)
-        run: |
-          ./node_modules/.bin/playwright test \
-            --config=playwright/playwright.config.ts \
-            --project=chromium \
-            --reporter=html,line
-
-      # ------------------------
-      # Artifacts
-      # ------------------------
-      # Detect where Playwright put the report (repo root vs under playwright/)
-      - name: Locate HTML report directory
-        if: always()
-        run: |
-          REPORT_DIR="playwright-report"
-          if [ ! -d "$REPORT_DIR" ] && [ -d "playwright/playwright-report" ]; then
-            REPORT_DIR="playwright/playwright-report"
-          fi
-          echo "REPORT_DIR=$REPORT_DIR" >> "$GITHUB_ENV"
-          echo "Resolved REPORT_DIR=$REPORT_DIR"
-          ls -la "$REPORT_DIR" || true
-
+      # Artifacts (HTML report)
       - name: Upload Playwright HTML report
-        if: always()
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: ${{ env.REPORT_DIR }}
+          path: playwright-report
           if-no-files-found: warn
-          retention-days: 7
 
-      - name: Upload test results
-        if: always()
+      # Artifacts (traces/videos/screens)
+      - name: Upload Playwright artifacts
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: test-results
-          if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Upload server logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: server-logs
+          name: pw-artifacts
           path: |
-            api-server.log
-            ui-server.log
+            test-results/**
+            **/test-results/**
           if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Stop servers
-        if: always()
-        run: |
-          pkill -f "runner/api" || true
-          pkill -f "runner/web" || true

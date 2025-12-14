@@ -5,7 +5,6 @@ on:
     branches: [ dev, main ]
   pull_request:
 
-# Avoid parallel runs on the same ref
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -17,10 +16,8 @@ jobs:
 
     env:
       CI: true
-      # Keep Playwright browsers inside node_modules cache (optional)
-      PLAYWRIGHT_BROWSERS_PATH: 0
-      # Base URL for tests (should match preview port below and playwright.config.ts)
-      BASE_URL: http://127.0.0.1:4173
+      # If your frontend needs a backend API, set it here:
+      # VITE_API_BASE_URL: http://127.0.0.1:3000
 
     steps:
       - name: Checkout
@@ -32,47 +29,31 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install root deps (if any)
-        run: npm ci
-        # If monorepo uses workspaces/pnpm, adapt to:
-        # uses: pnpm/action-setup@v4
-        # with: { version: 9 }
-        # run: pnpm -w install --frozen-lockfile
-
-      # ---------------------------
-      # OPTIONAL: Start backend first if UI depends on it
-      # Uncomment and adjust port/command if your frontend makes API calls to runner/backend.
-      # ---------------------------
-      # - name: Start runner backend
-      #   working-directory: runner
-      #   run: |
-      #     npm ci
-      #     npm run start:backend > backend.log 2>&1 &
-      #     npx wait-on tcp:127.0.0.1:3000
-      #   env:
-      #     NODE_ENV: test
-      #     PORT: 3000
-
-      - name: Install UI deps
+      # Install dependencies for the whole repo if monorepo; otherwise scope to runner/web
+      - name: Install deps (frontend)
         working-directory: runner/web
         run: npm ci
 
-      - name: Build UI
+      # (Optional) start backend if required by UI; uncomment and adapt
+      # - name: Start backend
+      #   run: |
+      #     npm run start:backend &
+      #     npx wait-on tcp:127.0.0.1:3000
+
+      - name: Build frontend
         working-directory: runner/web
         run: npm run build
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # ---------------------------
-      # Run Playwright tests: Playwright will start Vite preview via webServer (no manual server in CI)
-      # ---------------------------
-      - name: Run E2E tests
+      # Do NOT start the UI manually here.
+      # Playwright will start `npm run preview` via webServer config.
+      - name: Run Playwright tests
         run: npx playwright test
         env:
-          BASE_URL: ${{ env.BASE_URL }}
+          BASE_URL: http://127.0.0.1:4173
 
-      # Artifacts (HTML report)
       - name: Upload Playwright HTML report
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -81,8 +62,7 @@ jobs:
           path: playwright-report
           if-no-files-found: warn
 
-      # Artifacts (traces/videos/screens)
-      - name: Upload Playwright artifacts
+      - name: Upload Playwright artifacts (traces/videos/screens)
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:

@@ -1,19 +1,25 @@
 ﻿import { defineConfig, devices } from "@playwright/test";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  testDir: path.resolve(__dirname, "../tests"),
+  // Playwright will discover tests ONLY from this directory
+  testDir: "./generated",
+
+  // Global timeouts
   timeout: 60_000,
-  expect: { timeout: 5000 },
+  expect: {
+    timeout: 5_000
+  },
+
+  // Test reports
   reporter: [
     ["list"],
     ["html", { open: "never" }]
   ],
-  outputDir: path.resolve(__dirname, "../results"),
+
+  // Artifacts output
+  outputDir: "./results",
+
+  // Shared test settings
   use: {
     headless: true,
     viewport: { width: 1280, height: 800 },
@@ -22,6 +28,8 @@ export default defineConfig({
     screenshot: "only-on-failure",
     baseURL: process.env.BASE_URL || "http://localhost:5000"
   },
+
+  // Browser projects
   projects: [
     {
       name: "Chromium",

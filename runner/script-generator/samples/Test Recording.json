@@ -1,0 +1,10 @@
+{
+  "name": "Recorded Flow (TestCraft)",
+  "baseUrl": "chrome-extension://febgjfponknchdjflpocijlcbkkjlpla",
+  "steps": [
+    {
+      "type": "navigate",
+      "url": "/help/example-domains"
+    }
+  ]
+}

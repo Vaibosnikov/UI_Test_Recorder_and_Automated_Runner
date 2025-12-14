@@ -6,7 +6,7 @@
  * (returns 404), we treat it as a graceful NO-OP rather than failing.
  */
 
-const API = process.env.API_ENDPOINT || "http://localhost:5000";
+const API = process.env.API_ENDPOINT || "http://localhost:5173";
 const RUN_ID = process.env.RUN_ID || ("local-" + Date.now());
 
 async function main() {

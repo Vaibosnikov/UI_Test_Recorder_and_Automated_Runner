@@ -1,63 +1,61 @@
-﻿/**
- * runner/recorder/src/ui/popup.js
- * Robust popup that ensures recorder content script is injected before messaging.
- */
-
-function updateStatus(text) {
-  const el = document.getElementById("status");
-  if (el) el.textContent = text;
+﻿function setStatus(text) {
+  document.getElementById("status").textContent = text;
 }
 
-function sendToActiveTab(message) {
+function withActiveTab(cb) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (!tabs || !tabs.length) {
-      updateStatus("No active tab");
+    if (!tabs.length) {
+      setStatus("No active tab");
       return;
     }
 
     const tab = tabs[0];
-
-    if (!tab.url || tab.url.startsWith("chrome://")) {
-      updateStatus("Cannot record this page");
+    if (!tab.url.startsWith("http")) {
+      setStatus("Unsupported page");
       return;
     }
 
-    chrome.scripting.executeScript(
-      {
-        target: { tabId: tab.id },
-        files: ["src/content-scripts/recorder.js"]
-      },
-      () => {
-        chrome.tabs.sendMessage(tab.id, message, (resp) => {
-          if (chrome.runtime.lastError) {
-            updateStatus("Recorder not injected. Reload page.");
-            console.warn(chrome.runtime.lastError.message);
-          }
-        });
-      }
-    );
+    cb(tab);
   });
 }
 
-document.getElementById("start").addEventListener("click", () => {
-  sendToActiveTab({ type: "RECORDER_START" });
-  updateStatus("Recording started");
-});
+function injectAndSend(tab, message) {
+  chrome.scripting.executeScript(
+    {
+      target: { tabId: tab.id },
+      files: ["src/content-scripts/recorder.js"]
+    },
+    () => {
+      chrome.tabs.sendMessage(tab.id, message, () => {
+        if (chrome.runtime.lastError) {
+          setStatus("Reload page and retry");
+        }
+      });
+    }
+  );
+}
 
-document.getElementById("stop").addEventListener("click", () => {
-  sendToActiveTab({ type: "RECORDER_STOP" });
-  updateStatus("Recording stopped");
-});
+document.getElementById("start").onclick = () => {
+  withActiveTab((tab) => {
+    injectAndSend(tab, { type: "START" });
+    setStatus("Recording started");
+  });
+};
 
-document.getElementById("export").addEventListener("click", () => {
+document.getElementById("stop").onclick = () => {
+  withActiveTab((tab) => {
+    injectAndSend(tab, { type: "STOP" });
+    setStatus("Recording stopped");
+  });
+};
+
+document.getElementById("export").onclick = () => {
   chrome.storage.local.get("lastRecording", (data) => {
-    const events = data.lastRecording || [];
-
     const recording = {
-      name: "Recorded Flow (TestCraft Recorder)",
-      description: "Flow recorded using TestCraft Chrome extension.",
-      baseUrl: window.location.origin,
-      steps: events
+      name: "Recorded Flow (TestCraft)",
+      description: "Captured using TestCraft Recorder",
+      baseUrl: location.origin,
+      steps: data.lastRecording || []
     };
 
     const blob = new Blob([JSON.stringify(recording, null, 2)], {
@@ -66,9 +64,12 @@ document.getElementById("export").addEventListener("click", () => {
 
     const url = URL.createObjectURL(blob);
 
-    chrome.downloads.download(
-      { url, filename: "testcraft-recording.json", saveAs: true },
-      () => updateStatus("Exported JSON")
-    );
+    chrome.downloads.download({
+      url,
+      filename: "testcraft-recording.json",
+      saveAs: true
+    });
+
+    setStatus("Recording exported");
   });
-});
+};

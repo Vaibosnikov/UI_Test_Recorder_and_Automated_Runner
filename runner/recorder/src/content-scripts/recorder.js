@@ -1,51 +1,55 @@
 ﻿/**
- * runner/recorder/src/content-scripts/recorder.js
- * Records clicks, inputs and navigation events.
- * Responds to popup messages to avoid message port errors.
+ * TestCraft Recorder content script
+ * Captures navigation, click, and input events
  */
 
-let isRecording = false;
+let recording = false;
 let events = [];
 
 function getSelector(el) {
   if (!el) return "";
+  if (el.dataset && el.dataset.testid) {
+    return `[data-testid="${el.dataset.testid}"]`;
+  }
   if (el.id) return `#${el.id}`;
-  const testId = el.getAttribute && el.getAttribute("data-testid");
-  if (testId) return `[data-testid="${testId}"]`;
   return el.tagName.toLowerCase();
 }
 
+events.push({
+  type: "navigate",
+  url: location.pathname
+});
+
 document.addEventListener("click", (e) => {
-  if (!isRecording) return;
+  if (!recording) return;
   events.push({
     type: "click",
     selector: getSelector(e.target)
   });
-  chrome.storage.local.set({ lastRecording: events });
 });
 
 document.addEventListener("input", (e) => {
-  if (!isRecording) return;
+  if (!recording) return;
+  if (!e.target.value) return;
   events.push({
     type: "fill",
     selector: getSelector(e.target),
     value: e.target.value
   });
-  chrome.storage.local.set({ lastRecording: events });
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === "RECORDER_START") {
-    isRecording = true;
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.type === "START") {
+    recording = true;
     events = [];
-    chrome.storage.local.set({ lastRecording: [] });
-    sendResponse({ ok: true });
+    sendResponse({ status: "recording_started" });
     return true;
   }
 
-  if (message.type === "RECORDER_STOP") {
-    isRecording = false;
-    sendResponse({ ok: true, events });
+  if (msg.type === "STOP") {
+    recording = false;
+    chrome.storage.local.set({ lastRecording: events });
+    sendResponse({ status: "recording_stopped", events });
     return true;
   }
 });

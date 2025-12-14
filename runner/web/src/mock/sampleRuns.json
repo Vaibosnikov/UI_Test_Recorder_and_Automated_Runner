@@ -1,31 +1,169 @@
 {
   "data": [
     {
-      "id": "run-login-valid-001",
+      "id": "run-001",
       "test_id": "AC-LOGIN-001",
       "status": "passed",
       "environment": "local",
-      "branch": "dev",
+      "branch": "main",
       "duration_ms": 1350,
-      "started_at": "2025-11-19T10:00:00.000Z"
+      "duration": 1350,
+      "started_at": "2025-12-01T10:00:00.000Z",
+      "startedAt": "2025-12-01T10:00:00.000Z"
     },
     {
-      "id": "run-login-invalid-001",
+      "id": "run-002",
       "test_id": "AC-LOGIN-002",
       "status": "failed",
-      "environment": "local",
+      "environment": "staging",
       "branch": "dev",
-      "duration_ms": 1100,
-      "started_at": "2025-11-19T10:05:00.000Z"
+      "duration_ms": 2100,
+      "duration": 2100,
+      "started_at": "2025-12-01T10:10:00.000Z",
+      "startedAt": "2025-12-01T10:10:00.000Z"
     },
     {
-      "id": "run-checkout-001",
-      "test_id": "AC-CHECKOUT-001",
+      "id": "run-003",
+      "test_id": "AC-SIGNUP-001",
+      "status": "passed",
+      "environment": "prod",
+      "branch": "feature/signup",
+      "duration_ms": 980,
+      "duration": 980,
+      "started_at": "2025-12-01T10:20:00.000Z",
+      "startedAt": "2025-12-01T10:20:00.000Z"
+    },
+    {
+      "id": "run-004",
+      "test_id": "AC-PROFILE-001",
+      "status": "skipped",
+      "environment": "local",
+      "branch": "main",
+      "duration_ms": 0,
+      "duration": 0,
+      "started_at": "2025-12-01T10:30:00.000Z",
+      "startedAt": "2025-12-01T10:30:00.000Z"
+    },
+    {
+      "id": "run-005",
+      "test_id": "AC-LOGOUT-001",
       "status": "passed",
       "environment": "staging",
-      "branch": "feature/demo",
+      "branch": "dev",
+      "duration_ms": 540,
+      "duration": 540,
+      "started_at": "2025-12-01T10:40:00.000Z",
+      "startedAt": "2025-12-01T10:40:00.000Z"
+    },
+    {
+      "id": "run-006",
+      "test_id": "AC-DASHBOARD-001",
+      "status": "failed",
+      "environment": "prod",
+      "branch": "feature/dashboard",
+      "duration_ms": 1850,
+      "duration": 1850,
+      "started_at": "2025-12-01T10:50:00.000Z",
+      "startedAt": "2025-12-01T10:50:00.000Z"
+    },
+    {
+      "id": "run-007",
+      "test_id": "AC-SEARCH-001",
+      "status": "passed",
+      "environment": "local",
+      "branch": "main",
+      "duration_ms": 1120,
+      "duration": 1120,
+      "started_at": "2025-12-01T11:00:00.000Z",
+      "startedAt": "2025-12-01T11:00:00.000Z"
+    },
+    {
+      "id": "run-008",
+      "test_id": "AC-FILTER-001",
+      "status": "passed",
+      "environment": "staging",
+      "branch": "dev",
+      "duration_ms": 980,
+      "duration": 980,
+      "started_at": "2025-12-01T11:10:00.000Z",
+      "startedAt": "2025-12-01T11:10:00.000Z"
+    },
+    {
+      "id": "run-009",
+      "test_id": "AC-CART-001",
+      "status": "failed",
+      "environment": "prod",
+      "branch": "feature/cart",
+      "duration_ms": 2300,
+      "duration": 2300,
+      "started_at": "2025-12-01T11:20:00.000Z",
+      "startedAt": "2025-12-01T11:20:00.000Z"
+    },
+    {
+      "id": "run-010",
+      "test_id": "AC-CHECKOUT-001",
+      "status": "passed",
+      "environment": "local",
+      "branch": "main",
+      "duration_ms": 1500,
+      "duration": 1500,
+      "started_at": "2025-12-01T11:30:00.000Z",
+      "startedAt": "2025-12-01T11:30:00.000Z"
+    },
+    {
+      "id": "run-011",
+      "test_id": "AC-LOGIN-003",
+      "status": "passed",
+      "environment": "staging",
+      "branch": "dev",
+      "duration_ms": 1200,
+      "duration": 1200,
+      "started_at": "2025-12-01T11:40:00.000Z",
+      "startedAt": "2025-12-01T11:40:00.000Z"
+    },
+    {
+      "id": "run-012",
+      "test_id": "AC-SIGNUP-002",
+      "status": "failed",
+      "environment": "prod",
+      "branch": "feature/signup",
       "duration_ms": 2100,
-      "started_at": "2025-11-20T09:30:00.000Z"
+      "duration": 2100,
+      "started_at": "2025-12-01T11:50:00.000Z",
+      "startedAt": "2025-12-01T11:50:00.000Z"
+    },
+    {
+      "id": "run-013",
+      "test_id": "AC-PROFILE-002",
+      "status": "passed",
+      "environment": "local",
+      "branch": "main",
+      "duration_ms": 800,
+      "duration": 800,
+      "started_at": "2025-12-01T12:00:00.000Z",
+      "startedAt": "2025-12-01T12:00:00.000Z"
+    },
+    {
+      "id": "run-014",
+      "test_id": "AC-LOGOUT-002",
+      "status": "skipped",
+      "environment": "staging",
+      "branch": "dev",
+      "duration_ms": 0,
+      "duration": 0,
+      "started_at": "2025-12-01T12:10:00.000Z",
+      "startedAt": "2025-12-01T12:10:00.000Z"
+    },
+    {
+      "id": "run-015",
+      "test_id": "AC-DASHBOARD-002",
+      "status": "passed",
+      "environment": "prod",
+      "branch": "feature/dashboard",
+      "duration_ms": 1300,
+      "duration": 1300,
+      "started_at": "2025-12-01T12:20:00.000Z",
+      "startedAt": "2025-12-01T12:20:00.000Z"
     }
   ]
 }

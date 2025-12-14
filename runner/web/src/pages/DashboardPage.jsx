@@ -1,151 +1,152 @@
+// src/pages/DashboardPage.jsx
 import React, { useEffect, useState } from "react";
-<<<<<<< HEAD
-import { fetchTests, fetchRuns } from "../services/apiClient.js";
-import RunsTable from "../components/RunsTable.jsx";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import { useTheme } from "../components/ThemeProvider";
 
-function DashboardPage() {
-  const [tests, setTests] = useState([]);
-  const [runs, setRuns] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+import DashboardFilters from "../components/filters/DashboardFilters";
+import LatestRunsTable from "../components/tables/LatestRunsTable";
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        setError("");
+import RunStatusChart from "../visualizations/RunStatusChart";
+import RunDurationChart from "../visualizations/RunDurationChart";
+import RunTrendChart from "../visualizations/RunTrendChart";
+import EnvironmentChart from "../visualizations/EnvironmentChart";
 
-        const [testsRes, runsRes] = await Promise.all([
-          fetchTests(),
-          fetchRuns()
-        ]);
+import TestPipelineFunnel from "../components/funnels/TestPipelineFunnel";
+import FlakyTestsHeatmap from "../components/charts/FlakyTestsHeatmap";
+import VisualDiffViewer from "../components/visual/VisualDiffViewer";
 
-        setTests(testsRes?.data || []);
-        setRuns(runsRes?.data || []);
-      } catch (err) {
-        console.error("Error loading dashboard data:", err);
-        setError(err.message || "Failed to load data from API");
-      } finally {
-        setLoading(false);
-      }
-    }
+import SummaryCard from "../components/SummaryCard";
+import ThemeToggle from "../components/ThemeToggle";
+import mock from "../mock/sampleRuns.json";
 
-    loadData();
-  }, []);
+// Dashboard Card wrapper
+function DashboardCard({ title, children, className = "" }) {
+  const { theme } = useTheme();
 
   return (
-    <div className="dashboard-container">
-      <section className="summary-section">
-        <div className="summary-card">
-          <h2>Total Tests</h2>
-          <p className="summary-value">{tests.length}</p>
-        </div>
-        <div className="summary-card">
-          <h2>Total Runs</h2>
-          <p className="summary-value">{runs.length}</p>
-        </div>
-      </section>
-
-      <section className="runs-section">
-        <div className="runs-header">
-          <h2>Recent Test Runs</h2>
-        </div>
-
-        {loading && <p>Loading data from API...</p>}
-        {!loading && error && (
-          <p className="error-text">Error: {error}</p>
-        )}
-        {!loading && !error && (
-          <RunsTable runs={runs} />
-        )}
-      </section>
+    <div
+      className={`
+        p-6 rounded-xl border shadow-lg transition duration-300
+        hover:shadow-2xl
+        ${theme === "dark"
+          ? "bg-slate-800 border-slate-700 shadow-slate-900"
+          : "bg-white border-gray-300 shadow-gray-300"}
+        ${className}
+      `}
+    >
+      {title && (
+        <h2 className="text-xl font-semibold mb-4 opacity-80">{title}</h2>
+      )}
+      {children}
     </div>
   );
 }
 
-export default DashboardPage;
-=======
-import SummaryCard from "../components/SummaryCard";
-import RunsTable from "../components/RunsTable";
-
-import mock from "../mock/sampleRuns.json";
-
-// New components you will add
-import DashboardFilters from "../components/filters/DashboardFilters";
-import TestPipelineFunnel from "../components/funnels/TestPipelineFunnel";
-import VisualDiffViewer from "../components/visual/VisualDiffViewer";
-import FlakyTestsHeatmap from "../components/charts/FlakyTestsHeatmap";
-
-// Your existing charts
-import {
-  RunStatusChart,
-  RunTrendChart,
-  RunDurationChart,
-  EnvironmentChart,
-} from "../visualizations";
-
 export default function DashboardPage() {
+  const { theme } = useTheme();
   const [runs, setRuns] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setRuns(mock.data || []);
+    if (mock.data?.length) {
+      const mapped = mock.data.map((r, i) => ({
+        id: r.id || i + 1,
+        testId: r.test_id || `T0${i + 1}`,
+        status: r.status || "passed",
+        branch: r.branch || "main",
+        duration: r.duration_ms || Math.floor(Math.random() * 500) + 100,
+        startedAt: r.started_at || new Date().toISOString(),
+        environment: r.environment || "local",
+      }));
+      setRuns(mapped);
+    }
     setLoading(false);
   }, []);
 
   return (
-    <div className="p-6 bg-slate-900 min-h-screen text-white space-y-8">
+    <div className={`flex min-h-screen ${theme === "dark" ? "bg-slate-900 text-white" : "bg-gray-100 text-black"}`}>
+      {/* Sidebar */}
+      <Sidebar />
 
-      {/* ------------------ TOP KPIs ------------------ */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        <SummaryCard title="Total Tests" value="--" />
-        <SummaryCard title="Total Runs" value={runs.length} />
-        <SummaryCard
-          title="Passing"
-          value={runs.filter((r) => r.status === "passed").length}
-        />
-        <SummaryCard
-          title="Average Duration"
-          value={
-            runs.length
-              ? Math.round(
-                  runs.reduce((acc, r) => acc + r.duration, 0) / runs.length
-                ) + " ms"
-              : "--"
-          }
-        />
+      {/* Main content */}
+      <div className="flex-1 flex flex-col items-center justify-start p-6">
+        {/* Header with ThemeToggle */}
+        <Header theme={theme}>
+          <ThemeToggle />
+        </Header>
+
+        {/* Dashboard content wrapper */}
+        <main className="flex flex-col items-center justify-start w-full max-w-[1440px] space-y-8 mt-6">
+          {/* KPI Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+            <SummaryCard title="Total Tests" value={runs.length} theme={theme} />
+            <SummaryCard title="Total Runs" value={runs.length} theme={theme} />
+            <SummaryCard title="Passing" value={runs.filter(r => r.status === "passed").length} theme={theme} />
+            <SummaryCard
+              title="Avg Duration"
+              value={runs.length ? `${Math.round(runs.reduce((a, r) => a + r.duration, 0) / runs.length)} ms` : "--"}
+              theme={theme}
+            />
+          </div>
+
+          {/* Filters */}
+          <DashboardCard className="min-h-[120px] w-full">
+            {/* <DashboardFilters /> */}
+            <DashboardFilters theme={theme} />
+          </DashboardCard>
+
+          {/* Recent Runs Table */}
+          <DashboardCard className="min-h-[300px] w-full">
+            <h2 className="text-xl font-semibold mb-4 opacity-80">Recent Test Runs</h2>
+            {loading ? (
+              <div className="h-40 flex items-center justify-center text-lg opacity-60">Loading...</div>
+            ) : (
+              <LatestRunsTable data={runs} theme={theme} />
+            )}
+          </DashboardCard>
+
+          {/* Status + Trend Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+            <DashboardCard title="Run Status Distribution" className="min-h-[300px] w-full">
+              <RunStatusChart runs={runs} />
+            </DashboardCard>
+
+            <DashboardCard title="Daily Run Trend" className="min-h-[300px] w-full">
+              <RunTrendChart runs={runs} />
+            </DashboardCard>
+          </div>
+
+          {/* Duration + Environment Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+            <DashboardCard title="Execution Duration" className="min-h-[300px] w-full">
+              <RunDurationChart runs={runs} />
+            </DashboardCard>
+
+            <DashboardCard title="Environment Usage" className="min-h-[300px] w-full">
+              <EnvironmentChart runs={runs} />
+            </DashboardCard>
+          </div>
+
+          {/* Funnel + Heatmap Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+            <DashboardCard title="Test Execution Funnel" className="min-h-[300px] w-full">
+              <TestPipelineFunnel theme={theme} />
+            </DashboardCard>
+
+            <DashboardCard title="Flaky Tests Heatmap" className="min-h-[300px] w-full">
+              <FlakyTestsHeatmap theme={theme} />
+            </DashboardCard>
+          </div>
+
+          {/* Visual Regression Viewer */}
+          <div className="grid grid-cols-1 w-full">
+            <DashboardCard title="Visual Regression Differences" className="min-h-[400px] w-full">
+              <VisualDiffViewer />
+            </DashboardCard>
+          </div>
+        </main>
       </div>
-
-      {/* ------------------ FILTER BAR ------------------ */}
-      <DashboardFilters />
-
-      {/* ------------------ RECENT RUNS TABLE ------------------ */}
-      <section className="bg-slate-800 p-5 rounded-lg border border-slate-700">
-        <h2 className="text-xl font-semibold mb-4">Recent Test Runs</h2>
-        {loading ? <div>Loading...</div> : <RunsTable runs={runs} />}
-      </section>
-
-      {/* ------------------ MAIN CHARTS ROW ------------------ */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <RunStatusChart runs={runs} />
-        <RunTrendChart runs={runs} />
-      </div>
-
-      {/* ------------------ SECONDARY CHARTS ROW ------------------ */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <RunDurationChart runs={runs} />
-        <EnvironmentChart runs={runs} />
-      </div>
-
-      {/* ------------------ FUNNEL + HEATMAP ------------------ */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <TestPipelineFunnel />
-        <FlakyTestsHeatmap />
-      </div>
-
-      {/* ------------------ VISUAL REGRESSION ------------------ */}
-      <VisualDiffViewer />
     </div>
   );
 }
->>>>>>> f836e58a1da0bdfdfc4271e740d87ea28a0a59c5

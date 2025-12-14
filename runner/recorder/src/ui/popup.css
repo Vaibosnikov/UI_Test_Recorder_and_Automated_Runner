@@ -1,0 +1,24 @@
+﻿/* runner/recorder/src/ui/popup.css - minimal styling for the popup */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 12px;
+  width: 320px;
+  color: #0f172a;
+  background: #f8fafc;
+}
+.container { display: flex; flex-direction: column; gap: 8px; }
+h3 { margin: 0; font-size: 16px; }
+.controls { display: flex; gap: 8px; }
+.btn {
+  padding: 8px 10px;
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+  flex: 1;
+  font-weight: 600;
+}
+.btn.primary { background: #2563eb; color: white; border: none; }
+.status { margin-top: 6px; color: #334155; font-size: 13px; }
+.note { color: #64748b; font-size: 11px; display:block; margin-top:6px; }

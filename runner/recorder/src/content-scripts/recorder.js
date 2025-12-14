@@ -1,86 +1,51 @@
 ﻿/**
  * runner/recorder/src/content-scripts/recorder.js
- * Content script that captures simple interactions:
- * - click events (selector heuristics)
- * - input events (value)
- * - navigation events (location changes via pushState/popstate)
- * This script listens to messages RECORDER_START and RECORDER_STOP from popup.
+ * Records clicks, inputs and navigation events.
+ * Responds to popup messages to avoid message port errors.
  */
 
-(function() {
-  // Simple in-memory recording
-  let isRecording = false;
-  let events = [];
+let isRecording = false;
+let events = [];
 
-  function getSelector(el) {
-    if (!el) return "";
-    if (el.dataset && el.dataset.testid) return `[data-testid="${el.dataset.testid}"]`;
-    if (el.id) return `#${el.id}`;
-    if (el.className && typeof el.className === "string") {
-      // keep only the first class for stability
-      const first = el.className.split(" ").find(Boolean);
-      if (first) return `${el.tagName.toLowerCase()}.${first}`;
-    }
-    return el.tagName ? el.tagName.toLowerCase() : "";
-  }
+function getSelector(el) {
+  if (!el) return "";
+  if (el.id) return `#${el.id}`;
+  const testId = el.getAttribute && el.getAttribute("data-testid");
+  if (testId) return `[data-testid="${testId}"]`;
+  return el.tagName.toLowerCase();
+}
 
-  function pushEvent(step) {
-    if (!isRecording) return;
-    step.timestamp = Date.now();
-    events.push(step);
-    // optional: send incremental update to background
-    chrome.runtime.sendMessage({ type: "RECORDER_EVENT", step });
-  }
-
-  // Click capture
-  document.addEventListener("click", (e) => {
-    try {
-      const sel = getSelector(e.target);
-      pushEvent({ type: "click", selector: sel });
-    } catch (err) {
-      // swallow
-    }
-  }, true);
-
-  // Input capture (change/input)
-  document.addEventListener("input", (e) => {
-    try {
-      const el = e.target;
-      const sel = getSelector(el);
-      pushEvent({ type: "fill", selector: sel, value: el.value || "" });
-    } catch (err) {}
-  }, true);
-
-  // Navigation detection (history API and popstate)
-  (function() {
-    const pushState = history.pushState;
-    history.pushState = function(state) {
-      pushState.apply(this, arguments);
-      if (isRecording) {
-        pushEvent({ type: "navigate", url: location.pathname + location.search + location.hash });
-      }
-    };
-    window.addEventListener("popstate", () => {
-      if (isRecording) {
-        pushEvent({ type: "navigate", url: location.pathname + location.search + location.hash });
-      }
-    });
-  })();
-
-  // Message handlers
-  chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    if (!msg || !msg.type) return;
-    if (msg.type === "RECORDER_START") {
-      events = [];
-      isRecording = true;
-      chrome.runtime.sendMessage({ type: "RECORDER_EVENT", step: { type: "meta", msg: "recording_started" }});
-      return;
-    }
-    if (msg.type === "RECORDER_STOP") {
-      isRecording = false;
-      // send whole recording to background for persistence
-      chrome.runtime.sendMessage({ type: "RECORDER_EXPORT", events });
-      return;
-    }
+document.addEventListener("click", (e) => {
+  if (!isRecording) return;
+  events.push({
+    type: "click",
+    selector: getSelector(e.target)
   });
-})();
+  chrome.storage.local.set({ lastRecording: events });
+});
+
+document.addEventListener("input", (e) => {
+  if (!isRecording) return;
+  events.push({
+    type: "fill",
+    selector: getSelector(e.target),
+    value: e.target.value
+  });
+  chrome.storage.local.set({ lastRecording: events });
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "RECORDER_START") {
+    isRecording = true;
+    events = [];
+    chrome.storage.local.set({ lastRecording: [] });
+    sendResponse({ ok: true });
+    return true;
+  }
+
+  if (message.type === "RECORDER_STOP") {
+    isRecording = false;
+    sendResponse({ ok: true, events });
+    return true;
+  }
+});

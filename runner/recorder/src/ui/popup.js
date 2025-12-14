@@ -8,6 +8,10 @@ const recordText = document.getElementById("recordText");
 const errorEl = document.getElementById("error");
 const themeBtn = document.getElementById("themeToggle");
 
+const API_ENDPOINT = "http://localhost:5000/v1/tests";
+
+/* ---------- Icons ---------- */
+
 const SUN_ICON = `
 <svg viewBox="0 0 24 24">
   <circle cx="12" cy="12" r="5"/>
@@ -30,6 +34,8 @@ const MOON_ICON = `
 </svg>
 `;
 
+/* ---------- Theme ---------- */
+
 function setTheme(theme) {
   document.body.dataset.theme = theme;
   themeBtn.innerHTML = theme === "light" ? MOON_ICON : SUN_ICON;
@@ -45,6 +51,8 @@ themeBtn.onclick = () => {
   setTheme(next);
 };
 
+/* ---------- UI Helpers ---------- */
+
 function setStatus(text) {
   statusEl.textContent = text;
 }
@@ -58,6 +66,8 @@ function setRecording(active) {
   recordDot.classList.toggle("active", active);
   recordText.textContent = active ? "Recording…" : "Idle";
 }
+
+/* ---------- Tab Utilities ---------- */
 
 function withActiveTab(cb) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -77,6 +87,8 @@ function injectAndSend(tab, message) {
   );
 }
 
+/* ---------- Controls ---------- */
+
 document.getElementById("start").onclick = () => {
   steps = 0;
   updateCounter();
@@ -95,24 +107,55 @@ document.getElementById("stop").onclick = () => {
   });
 };
 
-document.getElementById("export").onclick = () => {
-  chrome.storage.local.get("lastRecording", (data) => {
+/* ---------- AUTO PUSH + EXPORT ---------- */
+
+document.getElementById("export").onclick = async () => {
+  chrome.storage.local.get("lastRecording", async (data) => {
     const events = data.lastRecording || [];
     steps = events.length;
     updateCounter();
 
-    const blob = new Blob([JSON.stringify({
+    if (!events.length) {
+      setStatus("No steps recorded");
+      return;
+    }
+
+    const payload = {
       name: "Recorded Flow (TestCraft)",
-      baseUrl: location.origin,
+      description: "Auto-pushed from TestCraft Recorder",
+      baseUrl: "http://localhost:5173",
       steps: events
-    }, null, 2)], { type: "application/json" });
+    };
+
+    try {
+      setStatus("Uploading…");
+
+      const res = await fetch(API_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        throw new Error(`API error ${res.status}`);
+      }
+
+      setStatus("Uploaded to backend");
+
+    } catch (err) {
+      console.error(err);
+      setStatus("Upload failed");
+    }
+
+    /* Optional local download for backup */
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json"
+    });
 
     chrome.downloads.download({
       url: URL.createObjectURL(blob),
       filename: "testcraft-recording.json",
-      saveAs: true
+      saveAs: false
     });
-
-    setStatus("Exported JSON");
   });
 };

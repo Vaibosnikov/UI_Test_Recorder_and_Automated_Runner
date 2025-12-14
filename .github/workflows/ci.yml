@@ -20,8 +20,8 @@ jobs:
       CI: true
       # Backend API port
       PORT: 5000
-      # Must match playwright.config.ts webServer.url
-      BASE_URL: http://127.0.0.1:5173
+      # Must match Playwright config webServer.url (uses preview on 4173)
+      BASE_URL: http://127.0.0.1:4173
 
     steps:
       - name: Checkout code
@@ -33,7 +33,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      # Root install (adjust if your frontend/backend are separate workspaces)
+      # Install root deps (if you have a root package.json)
       - name: Install root deps
         run: npm ci
         shell: bash
@@ -53,7 +53,15 @@ jobs:
         shell: bash
 
       # ------------------------
-      # Backend API (port 5000) - keep if tests need API
+      # Frontend deps (needed so Playwright build+preview works)
+      # ------------------------
+      - name: Install frontend deps
+        working-directory: runner/web
+        run: npm ci
+        shell: bash
+
+      # ------------------------
+      # Backend API (port 5000) - keep only if tests need API
       # ------------------------
       - name: Install backend API deps
         working-directory: runner/api
@@ -72,30 +80,20 @@ jobs:
         shell: bash
 
       # ------------------------
-      # Frontend UI
-      # ------------------------
-      # IMPORTANT: Do NOT start frontend here.
-      # Playwright will start build+preview via webServer from playwright.config.ts.
-
-      - name: Probe API & environment
-        run: |
-          echo "Netstat for ports:"
-          ss -lntp | (grep -E ':5000|:5173' || true)
-          echo "Probe API /health:"
-          curl -i "http://127.0.0.1:${PORT}/health" || true
-        shell: bash
-
-      # ------------------------
       # Playwright test run
       # ------------------------
+      # DO NOT start frontend in YAML. Playwright webServer will run:
+      # npm --prefix runner/web run build && npm --prefix runner/web run preview -- --port 4173 --strictPort --host 127.0.0.1
+      # from playwright/playwright.config.ts
+
       - name: List discovered tests
         run: npx playwright test --config=playwright/playwright.config.ts --list
         shell: bash
 
       - name: Run Playwright tests (Chromium)
         env:
-          BASE_URL: http://127.0.0.1:5173
-          # Ensure Playwright DOES start its webServer from config
+          BASE_URL: http://127.0.0.1:4173
+          # Ensure Playwright uses its webServer from config (not strictly required if defined)
           PLAYWRIGHT_START_WEB_SERVER: '1'
         run: |
           set -euxo pipefail

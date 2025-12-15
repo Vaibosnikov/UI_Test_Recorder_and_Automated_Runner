@@ -1,3 +1,8 @@
+/**
+ * recorder.js (MV3 SAFE)
+ * Self-contained recorder with default assertions
+ */
+
 let recording = false;
 let events = [];
 let overlayEl = null;
@@ -54,35 +59,46 @@ function hideOverlay() {
 function getSelector(el) {
   if (!el) return "";
   if (el.id) return "#" + el.id;
-  if (el.getAttribute?.("data-testid"))
+  if (el.getAttribute?.("data-testid")) {
     return `[data-testid="${el.getAttribute("data-testid")}"]`;
+  }
   return el.tagName.toLowerCase();
 }
 
-/* ---------- Recorder ---------- */
+/* ---------- Storage ---------- */
 function save() {
   chrome.storage.local.set({ lastRecording: events });
 }
 
 function record(type, payload) {
-  events.push({ type, ...payload, ts: Date.now() });
+  events.push({
+    type,
+    ...payload,
+    ts: Date.now()
+  });
   save();
 }
 
-/* ---------- Events ---------- */
+/* ---------- Click (ASSERT: visible) ---------- */
 document.addEventListener(
   "click",
   (e) => {
     if (!recording) return;
 
+    const selector = getSelector(e.target);
+
     record("click", {
-      selector: getSelector(e.target),
-      assert: "visible"
+      selector,
+      assert: {
+        type: "visible",
+        target: selector
+      }
     });
   },
   true
 );
 
+/* ---------- Input ---------- */
 document.addEventListener(
   "input",
   (e) => {
@@ -96,15 +112,19 @@ document.addEventListener(
   true
 );
 
-/* ---------- Navigation Assertion ---------- */
+/* ---------- Navigation (ASSERT: url) ---------- */
 let lastUrl = location.href;
+
 setInterval(() => {
   if (!recording) return;
 
   if (location.href !== lastUrl) {
     record("navigate", {
       url: location.href,
-      assert: "url"
+      assert: {
+        type: "url",
+        value: location.href
+      }
     });
     lastUrl = location.href;
   }

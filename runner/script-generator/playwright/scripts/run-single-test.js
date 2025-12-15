@@ -1,45 +1,29 @@
-﻿/**
- * Runs a single Playwright spec file using the configured project.
- * Usage:
- *   node scripts/run-single-test.js "generated/login_flow.generated.spec.ts"
- */
-
-import { execSync } from "child_process";
+﻿import { execSync } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function usage() {
-  console.log("Usage: node scripts/run-single-test.js <spec-path>");
+// project root = playwright/
+const PLAYWRIGHT_ROOT = path.resolve(__dirname, "..");
+
+const specArg = process.argv[2];
+
+if (!specArg) {
+  console.error("Usage: node scripts/run-single-test.js <spec-path>");
+  process.exit(1);
 }
 
-function main() {
-  const spec = process.argv[2];
-  if (!spec) {
-    usage();
-    process.exit(1);
+const specPath = path.resolve(PLAYWRIGHT_ROOT, specArg);
+const configPath = path.join(PLAYWRIGHT_ROOT, "playwright.config.ts");
+
+console.log("Running Playwright test:", specPath);
+
+execSync(
+  `npx playwright test "${specPath}" --config "${configPath}"`,
+  {
+    cwd: PLAYWRIGHT_ROOT,
+    stdio: "inherit"
   }
-
-  const specPath = path.resolve(__dirname, "..", spec);
-  console.log("Running Playwright test:", specPath);
-
-  const cmd = [
-    "npx",
-    "playwright",
-    "test",
-    specPath,
-    "--config",
-    path.resolve(__dirname, "..", "config", "playwright.config.ts"),
-    "--project=Chromium"
-  ].join(" ");
-
-  try {
-    execSync(cmd, { stdio: "inherit" });
-  } catch (err) {
-    process.exit(err.status || 1);
-  }
-}
-
-main();
+);

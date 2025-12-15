@@ -92,6 +92,7 @@ function injectAndSend(tab, message) {
 document.getElementById("start").onclick = () => {
   steps = 0;
   updateCounter();
+
   withActiveTab((tab) => {
     injectAndSend(tab, { type: "START" });
     setRecording(true);
@@ -109,7 +110,7 @@ document.getElementById("stop").onclick = () => {
 
 /* ---------- AUTO PUSH + EXPORT ---------- */
 
-document.getElementById("export").onclick = async () => {
+document.getElementById("export").onclick = () => {
   chrome.storage.local.get("lastRecording", async (data) => {
     const events = data.lastRecording || [];
     steps = events.length;
@@ -136,18 +137,15 @@ document.getElementById("export").onclick = async () => {
         body: JSON.stringify(payload)
       });
 
-      if (!res.ok) {
-        throw new Error(`API error ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`API error ${res.status}`);
 
       setStatus("Uploaded to backend");
-
     } catch (err) {
       console.error(err);
       setStatus("Upload failed");
     }
 
-    /* Optional local download for backup */
+    // Local backup download
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
       type: "application/json"
     });
@@ -159,3 +157,17 @@ document.getElementById("export").onclick = async () => {
     });
   });
 };
+
+/* ---------- FUTURE WIRES (SAFE NO-OPS) ---------- */
+
+document.getElementById("convert")?.addEventListener("click", () => {
+  setStatus("Convert step coming next");
+});
+
+document.getElementById("run")?.addEventListener("click", () => {
+  setStatus("Run step coming next");
+});
+
+document.getElementById("dashboard")?.addEventListener("click", () => {
+  chrome.tabs.create({ url: "http://localhost:5173" });
+});

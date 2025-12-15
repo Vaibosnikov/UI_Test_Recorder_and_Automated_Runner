@@ -1,9 +1,3 @@
-/**
- * recorder.js (MV3 SAFE)
- * No imports. Fully self-contained.
- * Injects overlay and records events reliably.
- */
-
 let recording = false;
 let events = [];
 let overlayEl = null;
@@ -75,18 +69,46 @@ function record(type, payload) {
   save();
 }
 
-document.addEventListener("click", (e) => {
-  if (!recording) return;
-  record("click", { selector: getSelector(e.target) });
-}, true);
+/* ---------- Events ---------- */
+document.addEventListener(
+  "click",
+  (e) => {
+    if (!recording) return;
 
-document.addEventListener("input", (e) => {
+    record("click", {
+      selector: getSelector(e.target),
+      assert: "visible"
+    });
+  },
+  true
+);
+
+document.addEventListener(
+  "input",
+  (e) => {
+    if (!recording) return;
+
+    record("fill", {
+      selector: getSelector(e.target),
+      value: e.target.value
+    });
+  },
+  true
+);
+
+/* ---------- Navigation Assertion ---------- */
+let lastUrl = location.href;
+setInterval(() => {
   if (!recording) return;
-  record("fill", {
-    selector: getSelector(e.target),
-    value: e.target.value
-  });
-}, true);
+
+  if (location.href !== lastUrl) {
+    record("navigate", {
+      url: location.href,
+      assert: "url"
+    });
+    lastUrl = location.href;
+  }
+}, 500);
 
 /* ---------- Messages ---------- */
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {

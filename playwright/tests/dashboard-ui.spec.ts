@@ -2,37 +2,43 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * This spec relies on playwright.config.ts -> use.baseURL
- * CI sets BASE_URL = http://127.0.0.1:5000
+ * UI smoke + light E2E coverage.
  *
- * IMPORTANT: Ensure the UI is served from the same origin as BASE_URL.
- * If the UI is currently only available on a separate dev server (e.g., :5173),
- * this spec will fail unless you either:
- *  - start the frontend in CI, or
- *  - serve the built UI from the backend on :5000, or
- *  - temporarily skip @ui tests with --grep-invert @ui.
+ * Relies on playwright.config.ts -> use.baseURL
+ * CI should ensure the UI is reachable at BASE_URL.
  */
 
 test.describe('@ui Dashboard UI smoke tests', () => {
-  test('Dashboard loads and shows header', async ({ page }) => {
-    // Navigate to the root (or change to '/dashboard' if that's your route)
+  test('Dashboard loads and shows main header', async ({ page }) => {
     const res = await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    // If server not up, res may be undefined -> keep assertion tolerant but informative
-    expect(res?.ok() ?? false, 'UI root should load successfully').toBeTruthy();
+    // Fail fast if the app itself is unreachable
+    expect(
+      res?.ok() ?? false,
+      'UI root should load successfully'
+    ).toBeTruthy();
 
-    await expect(page.getByText('TestCraft Dashboard')).toHaveCount(1);
+    // Prefer role-based selector for main heading
+    await expect(
+      page.getByRole('heading', { name: /testcraft dashboard/i })
+    ).toBeVisible();
   });
 
-  test('Recent Test Runs section present and table loads', async ({ page }) => {
-    await page.goto('/');
+  test('Recent Test Runs section present and table renders', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.getByText('Recent Test Runs')).toHaveCount(1);
+    // Section heading should exist (don’t assume uniqueness)
+    await expect(
+      page.getByRole('heading', { name: /recent test runs/i })
+    ).toBeVisible();
 
-    // Give the UI a small buffer for data/mock rendering
-    await page.waitForTimeout(500);
+    // Wait for table to appear instead of using timeouts
+    const table = page.getByRole('table');
+    await expect(table, 'Recent Test Runs table should render').toBeVisible();
 
-    // Check table header exists (prefer role/locator when available)
-    await expect(page.locator('th:has-text("ID")')).toHaveCount(1);
+    // Validate at least one expected column header
+    await expect(
+      table.getByRole('columnheader', { name: /id/i })
+    ).toBeVisible();
   });
 });

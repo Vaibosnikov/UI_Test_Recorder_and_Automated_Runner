@@ -3,6 +3,10 @@
  * Stable Playwright spec generator (timeouts + waits added)
  */
 
+import fs from "fs";
+import path from "path";
+import { compareScreenshots } from "../scripts/visual-diff";
+
 function escapeDQ(value) {
   return String(value).replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
 }
@@ -97,3 +101,16 @@ export function generatePlaywrightSpec(recording) {
 
   return lines.join("\n");
 }
+  const screenshotPath = "results/current.png";
+  const baselinePath = "results/baseline.png";
+  const diffPath = "results/diff.png";
+
+  await page.screenshot({ path: screenshotPath, fullPage: true });
+
+  const result = compareScreenshots(
+    baselinePath,
+    screenshotPath,
+    diffPath
+  );
+
+  console.log("Visual diff result:", result);

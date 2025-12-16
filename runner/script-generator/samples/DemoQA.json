@@ -1,0 +1,265 @@
+{
+  "name": "Recorded Flow (TestCraft)",
+  "description": "Auto-pushed from TestCraft Recorder",
+  "baseUrl": "http://localhost:5173",
+  "steps": [
+    {
+      "assert": "visible",
+      "selector": "div:nth-of-type(1)",
+      "ts": 1765904427643,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#item-0",
+      "ts": 1765904428706,
+      "type": "click"
+    },
+    {
+      "assert": "url",
+      "ts": 1765904429040,
+      "type": "navigate",
+      "url": "https://demoqa.com/text-box"
+    },
+    {
+      "assert": "visible",
+      "selector": "#userName",
+      "ts": 1765904430242,
+      "type": "click"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1765904430915,
+      "type": "fill",
+      "value": "s"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1765904431054,
+      "type": "fill",
+      "value": "sf"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1765904431190,
+      "type": "fill",
+      "value": "sfs"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1765904431238,
+      "type": "fill",
+      "value": "sfsr"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1765904431352,
+      "type": "fill",
+      "value": "sfsrg"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1765904431437,
+      "type": "fill",
+      "value": "sfsrgd"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1765904431440,
+      "type": "fill",
+      "value": "sfsrgdr"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1765904431595,
+      "type": "fill",
+      "value": "sfsrgdrg"
+    },
+    {
+      "assert": "visible",
+      "selector": "#userEmail",
+      "ts": 1765904432056,
+      "type": "click"
+    },
+    {
+      "selector": "#userEmail",
+      "ts": 1765904432091,
+      "type": "fill",
+      "value": "g"
+    },
+    {
+      "selector": "#userEmail",
+      "ts": 1765904432203,
+      "type": "fill",
+      "value": "gd"
+    },
+    {
+      "selector": "#userEmail",
+      "ts": 1765904432206,
+      "type": "fill",
+      "value": "gds"
+    },
+    {
+      "selector": "#userEmail",
+      "ts": 1765904432314,
+      "type": "fill",
+      "value": "gdsg"
+    },
+    {
+      "selector": "#userEmail",
+      "ts": 1765904432427,
+      "type": "fill",
+      "value": "gdsgr"
+    },
+    {
+      "selector": "#userEmail",
+      "ts": 1765904432472,
+      "type": "fill",
+      "value": "gdsgrd"
+    },
+    {
+      "selector": "#userEmail",
+      "ts": 1765904432474,
+      "type": "fill",
+      "value": "gdsgrdf"
+    },
+    {
+      "selector": "#userEmail",
+      "ts": 1765904432562,
+      "type": "fill",
+      "value": "gdsgrdfg"
+    },
+    {
+      "assert": "visible",
+      "selector": "#currentAddress",
+      "ts": 1765904433080,
+      "type": "click"
+    },
+    {
+      "selector": "#currentAddress",
+      "ts": 1765904433126,
+      "type": "fill",
+      "value": "g"
+    },
+    {
+      "selector": "#currentAddress",
+      "ts": 1765904433129,
+      "type": "fill",
+      "value": "gd"
+    },
+    {
+      "selector": "#currentAddress",
+      "ts": 1765904433214,
+      "type": "fill",
+      "value": "gdx"
+    },
+    {
+      "selector": "#currentAddress",
+      "ts": 1765904433305,
+      "type": "fill",
+      "value": "gdxd"
+    },
+    {
+      "selector": "#currentAddress",
+      "ts": 1765904433309,
+      "type": "fill",
+      "value": "gdxdf"
+    },
+    {
+      "selector": "#currentAddress",
+      "ts": 1765904433484,
+      "type": "fill",
+      "value": "gdxdfb"
+    },
+    {
+      "selector": "#currentAddress",
+      "ts": 1765904433553,
+      "type": "fill",
+      "value": "gdxdfbd"
+    },
+    {
+      "selector": "#currentAddress",
+      "ts": 1765904433573,
+      "type": "fill",
+      "value": "gdxdfbdf"
+    },
+    {
+      "assert": "visible",
+      "selector": "#item-4",
+      "ts": 1765904434199,
+      "type": "click"
+    },
+    {
+      "assert": "url",
+      "ts": 1765904434536,
+      "type": "navigate",
+      "url": "https://demoqa.com/buttons"
+    },
+    {
+      "assert": "visible",
+      "selector": "#HA3XW",
+      "ts": 1765904438061,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#doubleClickBtn",
+      "ts": 1765904439373,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#doubleClickBtn",
+      "ts": 1765904439502,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "span:nth-of-type(1)",
+      "ts": 1765904442916,
+      "type": "click"
+    },
+    {
+      "assert": "url",
+      "ts": 1765904443042,
+      "type": "navigate",
+      "url": "https://demoqa.com/checkbox"
+    },
+    {
+      "assert": "visible",
+      "selector": "svg:nth-of-type(1)",
+      "ts": 1765904444547,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#tree-node-home",
+      "ts": 1765904444548,
+      "type": "click"
+    },
+    {
+      "selector": "#tree-node-home",
+      "ts": 1765904444551,
+      "type": "fill",
+      "value": "on"
+    },
+    {
+      "assert": "visible",
+      "selector": "svg:nth-of-type(1)",
+      "ts": 1765904445019,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#tree-node-home",
+      "ts": 1765904445020,
+      "type": "click"
+    },
+    {
+      "selector": "#tree-node-home",
+      "ts": 1765904445022,
+      "type": "fill",
+      "value": "on"
+    }
+  ]
+}

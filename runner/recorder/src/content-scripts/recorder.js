@@ -1,6 +1,6 @@
 /**
  * recorder.js (MV3 SAFE)
- * Self-contained recorder with default assertions
+ * Smart selector strategy + assertions
  */
 
 let recording = false;
@@ -55,76 +55,89 @@ function hideOverlay() {
   overlayEl = null;
 }
 
-/* ---------- Selector ---------- */
-function getSelector(el) {
-  if (!el) return "";
-  if (el.id) return "#" + el.id;
-  if (el.getAttribute?.("data-testid")) {
-    return `[data-testid="${el.getAttribute("data-testid")}"]`;
+/* ---------- SMART SELECTOR ---------- */
+function getBestSelector(el) {
+  if (!el || el.nodeType !== 1) return "";
+
+  // 1️⃣ data-testid
+  const testId = el.getAttribute("data-testid");
+  if (testId) return `[data-testid="${testId}"]`;
+
+  // 2️⃣ id
+  if (el.id) return `#${el.id}`;
+
+  // 3️⃣ name
+  const name = el.getAttribute("name");
+  if (name) return `[name="${name}"]`;
+
+  // 4️⃣ aria-label
+  const aria = el.getAttribute("aria-label");
+  if (aria) return `[aria-label="${aria}"]`;
+
+  // 5️⃣ role + text (Playwright compatible)
+  const role = el.getAttribute("role");
+  const text = el.innerText?.trim();
+  if (role && text && text.length < 40) {
+    return `role=${role}>>text=${text}`;
   }
-  return el.tagName.toLowerCase();
+
+  // 6️⃣ fallback: tag + nth-of-type
+  const tag = el.tagName.toLowerCase();
+  if (!el.parentElement) return tag;
+
+  const siblings = Array.from(el.parentElement.children).filter(
+    (e) => e.tagName === el.tagName
+  );
+  const index = siblings.indexOf(el) + 1;
+  return `${tag}:nth-of-type(${index})`;
 }
 
-/* ---------- Storage ---------- */
+/* ---------- Recorder ---------- */
 function save() {
   chrome.storage.local.set({ lastRecording: events });
 }
 
 function record(type, payload) {
-  events.push({
-    type,
-    ...payload,
-    ts: Date.now()
-  });
+  events.push({ type, ...payload, ts: Date.now() });
   save();
 }
 
-/* ---------- Click (ASSERT: visible) ---------- */
+/* ---------- Events ---------- */
 document.addEventListener(
   "click",
   (e) => {
     if (!recording) return;
 
-    const selector = getSelector(e.target);
-
     record("click", {
-      selector,
-      assert: {
-        type: "visible",
-        target: selector
-      }
+      selector: getBestSelector(e.target),
+      assert: "visible"
     });
   },
   true
 );
 
-/* ---------- Input ---------- */
 document.addEventListener(
   "input",
   (e) => {
     if (!recording) return;
 
     record("fill", {
-      selector: getSelector(e.target),
+      selector: getBestSelector(e.target),
       value: e.target.value
     });
   },
   true
 );
 
-/* ---------- Navigation (ASSERT: url) ---------- */
+/* ---------- Navigation ---------- */
 let lastUrl = location.href;
-
 setInterval(() => {
   if (!recording) return;
 
   if (location.href !== lastUrl) {
     record("navigate", {
       url: location.href,
-      assert: {
-        type: "url",
-        value: location.href
-      }
+      assert: "url"
     });
     lastUrl = location.href;
   }

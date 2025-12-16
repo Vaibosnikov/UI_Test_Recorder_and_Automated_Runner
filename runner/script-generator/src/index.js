@@ -1,111 +1,84 @@
 ﻿/**
  * index.js
- * Stable Playwright spec generator
- * - Auto waits
- * - Navigation safety
- * - Timeout hardened
- * - Alert handling
+ * Stable Playwright spec generator (timeouts + waits + safety)
  */
 
-function escapeDQ(value) {
-  return String(value).replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
+function escDQ(v) {
+  return String(v).replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
+}
+function escSQ(v) {
+  return String(v).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
-function escapeSQ(value) {
-  return String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-}
-
-/**
- * Builds Playwright lines for a single step
- */
-function buildStepLines(step, baseUrlExpr) {
-  const lines = [];
-  if (!step || !step.type) return lines;
+function buildStep(step, baseUrlExpr) {
+  const out = [];
+  if (!step || !step.type) return out;
 
   switch (step.type) {
     case "navigate": {
       const url = step.url || "/";
-      const isAbsolute = /^https?:\/\//i.test(url);
-
-      if (isAbsolute) {
-        lines.push(
-          `  await page.goto('${escapeSQ(url)}', { waitUntil: 'domcontentloaded', timeout: 30000 });`
-        );
-      } else {
-        lines.push(
-          `  await page.goto(${baseUrlExpr} + '${escapeSQ(url)}', { waitUntil: 'domcontentloaded', timeout: 30000 });`
-        );
-      }
+      const abs = /^https?:\/\//i.test(url);
+      out.push(
+        abs
+          ? `  await page.goto('${escSQ(url)}', { waitUntil: 'domcontentloaded' });`
+          : `  await page.goto(${baseUrlExpr} + '${escSQ(url)}', { waitUntil: 'domcontentloaded' });`
+      );
+      out.push(`  await page.waitForLoadState('networkidle');`);
       break;
     }
 
     case "click": {
-      const selector = `"${escapeDQ(step.selector || "")}"`;
-      lines.push(
-        `  await page.waitForSelector(${selector}, { state: 'visible', timeout: 15000 });`
-      );
-      lines.push(`  await page.click(${selector});`);
+      if (!step.selector) break;
+      const s = `"${escDQ(step.selector)}"`;
+      out.push(`  await page.waitForSelector(${s}, { state: 'visible', timeout: 15000 });`);
+      out.push(`  await page.click(${s});`);
       break;
     }
 
     case "fill": {
-      const selector = `"${escapeDQ(step.selector || "")}"`;
-      const value = `"${escapeDQ(step.value || "")}"`;
-      lines.push(
-        `  await page.waitForSelector(${selector}, { state: 'attached', timeout: 15000 });`
-      );
-      lines.push(`  await page.fill(${selector}, ${value});`);
+      if (!step.selector) break;
+      const s = `"${escDQ(step.selector)}"`;
+      const v = `"${escDQ(step.value || "")}"`;
+      out.push(`  await page.waitForSelector(${s}, { state: 'attached', timeout: 15000 });`);
+      out.push(`  await page.fill(${s}, ${v});`);
       break;
     }
 
     case "assertText": {
-      const selector = `"${escapeDQ(step.selector || "")}"`;
-      const value = `"${escapeDQ(step.value || "")}"`;
-      lines.push(
-        `  await expect(page.locator(${selector})).toHaveText(${value});`
-      );
+      const s = `"${escDQ(step.selector)}"`;
+      const v = `"${escDQ(step.value || "")}"`;
+      out.push(`  await expect(page.locator(${s})).toHaveText(${v});`);
       break;
     }
-
-    default:
-      lines.push(`  // ⚠ Unsupported step type: ${JSON.stringify(step)}`);
   }
 
-  return lines;
+  return out;
 }
 
-/**
- * Generates Playwright spec (.spec.ts)
- */
 export function generatePlaywrightSpec(recording) {
-  const rec = recording || {};
-  const name = rec.name || "Generated Flow";
-  const baseUrl = rec.baseUrl || "http://localhost:5173";
+  const name = recording?.name || "Recorded Flow";
+  const baseUrl = recording?.baseUrl || "http://localhost:5173";
+  const steps = Array.isArray(recording?.steps) ? recording.steps : [];
 
-  const steps = Array.isArray(rec.steps) ? rec.steps : [];
-  const baseUrlExpr = `process.env.BASE_URL || "${escapeDQ(baseUrl)}"`;
+  const baseExpr = `process.env.BASE_URL || "${escDQ(baseUrl)}"`;
 
   const lines = [];
-
   lines.push(`import { test, expect } from "@playwright/test";`);
-  lines.push("");
-  lines.push(`test("${escapeSQ(name)}", async ({ page }) => {`);
-  lines.push(`  page.on("dialog", async d => await d.accept());`);
+  lines.push(``);
+  lines.push(`test("${escSQ(name)}", async ({ page }) => {`);
+  lines.push(`  page.on('dialog', d => d.accept());`);
 
-  // Ensure initial navigation
   if (!steps.length || steps[0].type !== "navigate") {
-    lines.push(
-      `  await page.goto(${baseUrlExpr}, { waitUntil: 'domcontentloaded', timeout: 30000 });`
-    );
+    lines.push(`  await page.goto(${baseExpr}, { waitUntil: 'domcontentloaded' });`);
+    lines.push(`  await page.waitForLoadState('networkidle');`);
   }
 
   for (const step of steps) {
-    const stepLines = buildStepLines(step, baseUrlExpr);
-    for (const l of stepLines) lines.push(l);
+    for (const l of buildStep(step, baseExpr)) lines.push(l);
   }
 
-  lines.push("});");
-  lines.push("");
+  lines.push(`});`);
+  lines.push(``);
 
   return lines.join("\n");
 }

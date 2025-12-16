@@ -1,11 +1,11 @@
 ﻿/**
  * index.js
- * Stable Playwright spec generator (timeouts + waits added)
+ * Stable Playwright spec generator
+ * - Auto waits
+ * - Navigation safety
+ * - Timeout hardened
+ * - Alert handling
  */
-
-import fs from "fs";
-import path from "path";
-import { compareScreenshots } from "../scripts/visual-diff";
 
 function escapeDQ(value) {
   return String(value).replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
@@ -15,6 +15,9 @@ function escapeSQ(value) {
   return String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
+/**
+ * Builds Playwright lines for a single step
+ */
 function buildStepLines(step, baseUrlExpr) {
   const lines = [];
   if (!step || !step.type) return lines;
@@ -65,26 +68,31 @@ function buildStepLines(step, baseUrlExpr) {
     }
 
     default:
-      lines.push(`  // Unsupported step type: ${step.type}`);
+      lines.push(`  // ⚠ Unsupported step type: ${JSON.stringify(step)}`);
   }
 
   return lines;
 }
 
+/**
+ * Generates Playwright spec (.spec.ts)
+ */
 export function generatePlaywrightSpec(recording) {
   const rec = recording || {};
   const name = rec.name || "Generated Flow";
   const baseUrl = rec.baseUrl || "http://localhost:5173";
 
-  const baseUrlExpr = `process.env.BASE_URL || "${escapeDQ(baseUrl)}"`;
   const steps = Array.isArray(rec.steps) ? rec.steps : [];
+  const baseUrlExpr = `process.env.BASE_URL || "${escapeDQ(baseUrl)}"`;
 
   const lines = [];
+
   lines.push(`import { test, expect } from "@playwright/test";`);
   lines.push("");
   lines.push(`test("${escapeSQ(name)}", async ({ page }) => {`);
+  lines.push(`  page.on("dialog", async d => await d.accept());`);
 
-  // Ensure first navigation
+  // Ensure initial navigation
   if (!steps.length || steps[0].type !== "navigate") {
     lines.push(
       `  await page.goto(${baseUrlExpr}, { waitUntil: 'domcontentloaded', timeout: 30000 });`
@@ -101,16 +109,3 @@ export function generatePlaywrightSpec(recording) {
 
   return lines.join("\n");
 }
-  const screenshotPath = "results/current.png";
-  const baselinePath = "results/baseline.png";
-  const diffPath = "results/diff.png";
-
-  await page.screenshot({ path: screenshotPath, fullPage: true });
-
-  const result = compareScreenshots(
-    baselinePath,
-    screenshotPath,
-    diffPath
-  );
-
-  console.log("Visual diff result:", result);

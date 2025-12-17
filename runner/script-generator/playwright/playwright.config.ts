@@ -1,20 +1,32 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-  testDir: './generated',
-  timeout: 60000,
-  retries: 0,
+  timeout: 90_000,
+
+  testDir: "./generated",
+
+  reporter: [
+    ["list"],
+    ["html", { open: "never" }]
+  ],
 
   use: {
     headless: false,
     viewport: { width: 1280, height: 800 },
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
-    trace: 'on-first-retry',
+    ignoreHTTPSErrors: true,
+
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
+    trace: "on-first-retry",
+
+    actionTimeout: 15_000,
+    navigationTimeout: 30_000
   },
 
-  reporter: [
-    ['list'],
-    ['html', { open: 'never' }]
-  ],
+  projects: [
+    {
+      name: "Chromium",
+      use: { ...devices["Desktop Chrome"] }
+    }
+  ]
 });

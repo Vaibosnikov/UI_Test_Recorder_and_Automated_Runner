@@ -8,7 +8,15 @@ const recordText = document.getElementById("recordText");
 const errorEl = document.getElementById("error");
 const themeBtn = document.getElementById("themeToggle");
 
+// Existing endpoint (used by Export)
 const API_ENDPOINT = "http://localhost:5000/v1/tests";
+
+//  NEW: Convert endpoint (backend generator)
+const CONVERT_ENDPOINT = "http://localhost:5000/v1/recordings/run";
+
+//  NEW: Report endpoint
+const REPORT_ENDPOINT = "http://localhost:5000/v1/reports/playwright";
+
 
 /* ---------- Icons ---------- */
 
@@ -108,7 +116,7 @@ document.getElementById("stop").onclick = () => {
   });
 };
 
-/* ---------- AUTO PUSH + EXPORT ---------- */
+/* ---------- EXPORT (unchanged) ---------- */
 
 document.getElementById("export").onclick = () => {
   chrome.storage.local.get("lastRecording", async (data) => {
@@ -158,15 +166,91 @@ document.getElementById("export").onclick = () => {
   });
 };
 
-/* ---------- FUTURE WIRES (SAFE NO-OPS) ---------- */
+/* ---------- ✅ CONVERT TO TEST (FIXED) ---------- */
 
 document.getElementById("convert")?.addEventListener("click", () => {
-  setStatus("Convert step coming next");
+  chrome.storage.local.get("lastRecording", async (data) => {
+    const events = data.lastRecording || [];
+    steps = events.length;
+    updateCounter();
+
+    if (!events.length) {
+      setStatus("No steps recorded");
+      return;
+    }
+
+    const payload = {
+      recording: {
+        name: "Recorded Flow (TestCraft)",
+        description: "Auto-pushed from TestCraft Recorder",
+        baseUrl: "http://localhost:5173",
+        steps: events
+      }
+    };
+
+    try {
+      setStatus("Converting to test…");
+
+      const res = await fetch(CONVERT_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error(`API error ${res.status}`);
+
+      const result = await res.json();
+      setStatus(`Test generated: ${result.spec}`);
+    } catch (err) {
+      console.error(err);
+      setStatus("Convert failed");
+    }
+  });
 });
 
-document.getElementById("run")?.addEventListener("click", () => {
-  setStatus("Run step coming next");
+document.getElementById("run")?.addEventListener("click", async () => {
+  try {
+    setStatus("Running tests…");
+
+    const res = await fetch(
+      "http://localhost:5000/v1/recordings/run-tests",
+      { method: "POST" }
+    );
+
+    if (!res.ok) {
+      throw new Error(`API error ${res.status}`);
+    }
+
+    setStatus("Test run completed");
+  } catch (err) {
+    console.error(err);
+    setStatus("Test run failed");
+  }
 });
+
+/* ---------- View Playwright Report ---------- */
+
+document.getElementById("report")?.addEventListener("click", async () => {
+  try {
+    setStatus("Opening Playwright report…");
+
+    const res = await fetch(REPORT_ENDPOINT, {
+      method: "POST"
+    });
+
+    if (!res.ok) {
+      throw new Error(`API error ${res.status}`);
+    }
+
+    setStatus("Playwright report opened");
+  } catch (err) {
+    console.error(err);
+    setStatus("Failed to open report");
+  }
+});
+
+
+/* ---------- Dashboard ---------- */
 
 document.getElementById("dashboard")?.addEventListener("click", () => {
   chrome.tabs.create({ url: "http://localhost:5173" });

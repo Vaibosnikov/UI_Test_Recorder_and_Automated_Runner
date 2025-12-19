@@ -1,9 +1,12 @@
-name: CI Pipeline
+name: TestCraft – Playwright CI Template
+
+# TestCraft CI Template
+# This workflow demonstrates how TestCraft-generated Playwright tests
+# can be executed in a GitHub Actions CI environment.
 
 on:
   push:
-    branches:
-      - '**'
+    branches: [ main, dev ]
   pull_request:
     types: [opened, synchronize, reopened]
 

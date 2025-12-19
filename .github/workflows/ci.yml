@@ -18,10 +18,9 @@ jobs:
 
     env:
       CI: true
-      # Backend API port
       PORT: 5000
-      # Must match Playwright config webServer.url (uses preview on 4173)
       BASE_URL: http://127.0.0.1:4173
+      API_BASE_URL: http://127.0.0.1:5000
 
     steps:
       - name: Checkout code
@@ -33,37 +32,40 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      # Install root deps (if you have a root package.json)
-      - name: Install root deps
+      # ------------------------
+      # Root dependencies
+      # ------------------------
+      - name: Install root dependencies
         run: npm ci
         shell: bash
 
-      - name: Diagnostic versions and folders
+      - name: Diagnostic versions
         run: |
           set -euxo pipefail
           node -v
           npm -v
           npx playwright --version || true
-          ls -la
-          npm ls @playwright/test || true
         shell: bash
 
+      # ------------------------
+      # Playwright browsers
+      # ------------------------
       - name: Install Playwright browsers (with OS deps)
         run: npx playwright install --with-deps
         shell: bash
 
       # ------------------------
-      # Frontend deps (needed so Playwright build+preview works)
+      # Frontend dependencies (required for build + preview)
       # ------------------------
-      - name: Install frontend deps
+      - name: Install frontend dependencies
         working-directory: runner/web
         run: npm ci
         shell: bash
 
       # ------------------------
-      # Backend API (port 5000) - keep only if tests need API
+      # Backend API
       # ------------------------
-      - name: Install backend API deps
+      - name: Install backend API dependencies
         working-directory: runner/api
         run: npm ci
         shell: bash
@@ -73,28 +75,20 @@ jobs:
         run: |
           set -euxo pipefail
           (cd runner/api && npm run dev > ../api-server.log 2>&1 & echo $! > ../api.pid)
-          # Prefer health endpoint; otherwise fall back to port root
           npx --yes wait-on --timeout 300000 "http-get://127.0.0.1:${PORT}/health" || \
           npx --yes wait-on --timeout 300000 "http-get://127.0.0.1:${PORT}"
           curl -i "http://127.0.0.1:${PORT}/health" || true
         shell: bash
 
       # ------------------------
-      # Playwright test run
+      # Playwright tests
+      # Frontend is started automatically via playwright.config.ts webServer
       # ------------------------
-      # DO NOT start frontend in YAML. Playwright webServer will run:
-      # npm --prefix runner/web run build && npm --prefix runner/web run preview -- --port 4173 --strictPort --host 127.0.0.1
-      # from playwright/playwright.config.ts
-
       - name: List discovered tests
         run: npx playwright test --config=playwright/playwright.config.ts --list
         shell: bash
 
       - name: Run Playwright tests (Chromium)
-        env:
-          BASE_URL: http://127.0.0.1:4173
-          # Ensure Playwright uses its webServer from config (not strictly required if defined)
-          PLAYWRIGHT_START_WEB_SERVER: '1'
         run: |
           set -euxo pipefail
           npx playwright test \
@@ -115,7 +109,6 @@ jobs:
             REPORT_DIR="playwright/playwright-report"
           fi
           echo "REPORT_DIR=$REPORT_DIR" >> "$GITHUB_ENV"
-          echo "Resolved REPORT_DIR=$REPORT_DIR"
           ls -la "$REPORT_DIR" || true
         shell: bash
 
@@ -128,7 +121,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-      - name: Upload test results (screenshots, traces, videos)
+      - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -139,20 +132,22 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Upload server logs
+      - name: Upload backend logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: server-logs
+          name: backend-logs
           path: |
             api-server.log
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Stop servers
+      # ------------------------
+      # Cleanup
+      # ------------------------
+      - name: Stop backend server
         if: always()
         run: |
           set -euxo pipefail
           if [ -f "api.pid" ]; then kill -9 "$(cat api.pid)" || true; fi
-          pkill -f "runner/api" || true
         shell: bash

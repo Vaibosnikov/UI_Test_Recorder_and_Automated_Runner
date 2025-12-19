@@ -16,7 +16,7 @@ export default defineConfig({
 
   webServer: {
     // Build then preview, targeting the web subfolder
-    command: 'npm --prefix runner/web run build && npm --prefix runner/web run preview -- --port 4173 --strictPort --host 127.0.0.1',
+    command: 'npm --prefix ../runner/web run build && npm --prefix ../runner/web run preview -- --port 4173 --strictPort --host 127.0.0.1',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000

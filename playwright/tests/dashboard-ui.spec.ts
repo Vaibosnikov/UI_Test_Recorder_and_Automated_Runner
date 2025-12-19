@@ -18,7 +18,7 @@ test.describe('@ui Dashboard UI smoke tests', () => {
       'UI root should load successfully'
     ).toBeTruthy();
 
-    // Prefer role-based selector for main heading
+    // Main dashboard heading
     await expect(
       page.getByRole('heading', { name: /testcraft dashboard/i })
     ).toBeVisible();
@@ -27,18 +27,21 @@ test.describe('@ui Dashboard UI smoke tests', () => {
   test('Recent Test Runs section present and table renders', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    // Section heading should exist (don’t assume uniqueness)
-    await expect(
-      page.getByRole('heading', { name: /recent test runs/i })
-    ).toBeVisible();
+    // Explicitly pick the first "Recent Test Runs" heading (strict-mode safe)
+    const sectionHeading = page
+      .getByRole('heading', { name: 'Recent Test Runs' })
+      .first();
 
-    // Wait for table to appear instead of using timeouts
-    const table = page.getByRole('table');
-    await expect(table, 'Recent Test Runs table should render').toBeVisible();
+    await expect(sectionHeading).toBeVisible();
 
-    // Validate at least one expected column header
+    // Scope the table to the same section to avoid strict-mode violations
+    const table = sectionHeading
+      .locator('..')
+      .getByRole('table');
+
     await expect(
-      table.getByRole('columnheader', { name: /id/i })
+      table,
+      'Recent Test Runs table should render'
     ).toBeVisible();
   });
 });

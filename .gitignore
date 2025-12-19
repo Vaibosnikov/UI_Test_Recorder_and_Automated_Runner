@@ -1,0 +1,13 @@
+# Playwright artifacts
+playwright-report/
+test-results/
+playwright/.playwright-artifacts/
+
+# Frontend build output
+runner/web/dist/
+
+# Node
+node_modules/
+
+# OS noise
+.DS_Store

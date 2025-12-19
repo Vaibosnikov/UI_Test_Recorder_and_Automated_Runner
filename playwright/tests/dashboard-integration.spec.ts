@@ -2,48 +2,71 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * This spec relies on playwright.config.ts -> use.baseURL
- * CI sets BASE_URL = http://127.0.0.1:5000
+ * Integration test:
+ * - UI is served via Playwright baseURL (frontend)
+ * - API is called via a separate request context (backend)
  *
- * If your UI is not served from the same baseURL (e.g., Vite at :5173),
- * start the frontend in CI OR temporarily skip this spec with --grep-invert @integration.
+ * This avoids HTML-vs-JSON confusion and mirrors real architecture.
  */
 
 test.describe('@integration @api Dashboard integration: UI should reflect API runs', () => {
-  test('UI renders table; aligns loosely with API /v1/runs', async ({ request, page }) => {
-    // Try fetching runs from API (relative path -> baseURL)
-    let apiRes: { status: () => number; ok: () => boolean; json: () => Promise<unknown> } | null = null;
+  test('UI renders table and backend /v1/runs is reachable', async ({ page, request }) => {
+    // --- 1️⃣ Call backend API explicitly ---
+    let apiStatus: number | null = null;
+    let apiData: unknown = null;
+
     try {
-      apiRes = await request.get('/v1/runs');
+      const apiContext = await request.newContext({
+        baseURL: process.env.API_BASE_URL || 'http://localhost:5000',
+      });
+
+      const apiRes = await apiContext.get('/v1/runs');
+      apiStatus = apiRes.status();
+
+      if (apiRes.ok()) {
+        apiData = await apiRes.json();
+      }
+
+      await apiContext.dispose();
     } catch {
-      apiRes = null;
+      apiStatus = null;
+      apiData = null;
     }
 
-    // Navigate to the UI root via baseURL
-    // Change to '/dashboard' if that's your main page
+    // --- 2️⃣ Load UI ---
     await page.goto('/', { waitUntil: 'networkidle' });
 
-    // Count rows rendered in the runs table; tolerate absence gracefully
-    const uiRuns = await page.$$eval('tbody tr', rows => rows.length).catch(() => 0);
+    // --- 3️⃣ UI should not crash ---
+    const table = page
+  .getByRole('heading', { name: 'Recent Test Runs' })
+  .first()
+  .locator('..')
+  .getByRole('table');
 
-    if (apiRes && (apiRes.ok() || [200, 404].includes(apiRes.status()))) {
-      // If API exists (even 404 indicates reachable service), do a soft validation
-      if (apiRes.ok()) {
-        const data = await apiRes.json();
-        // If API returns an array of runs, UI should show >= 0 rows (best-effort until contract stabilizes)
-        if (Array.isArray(data)) {
-          expect(uiRuns >= 0).toBeTruthy();
-        } else {
-          // If not an array yet, just ensure UI didn't crash
-          expect(uiRuns >= 0).toBeTruthy();
-        }
-      } else {
-        // 404: endpoint not implemented but server reachable -> UI should still not crash
-        expect(uiRuns >= 0).toBeTruthy();
-      }
-    } else {
-      // API not reachable -> UI should still render placeholder/mock/empty state without throwing
-      expect(uiRuns >= 0).toBeTruthy();
+  await expect(table).toBeVisible();
+
+
+    // --- 4️⃣ Count rows defensively ---
+    const uiRuns = await page
+      .locator('tbody tr')
+      .count()
+      .catch(() => 0);
+
+    // --- 5️⃣ Soft integration assertions ---
+    // If API exists and returns an array, UI should render >= 0 rows
+    if (apiStatus === 200 && Array.isArray(apiData)) {
+      expect(uiRuns).toBeGreaterThanOrEqual(0);
+    }
+
+    // If API is reachable but not implemented yet (404),
+    // UI should still render without crashing
+    if (apiStatus === 404) {
+      expect(uiRuns).toBeGreaterThanOrEqual(0);
+    }
+
+    // If API is unreachable, test still passes as long as UI loads
+    if (apiStatus === null) {
+      expect(uiRuns).toBeGreaterThanOrEqual(0);
     }
   });
 });

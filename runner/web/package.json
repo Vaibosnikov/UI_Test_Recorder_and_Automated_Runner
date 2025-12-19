@@ -6,9 +6,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite dev --port 5173 --strictPort --host 127.0.0.1",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --port 4173 --strictPort --host 127.0.0.1",
     "test": "playwright test"
   },
   "keywords": [],

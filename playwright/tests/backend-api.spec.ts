@@ -1,13 +1,17 @@
 // playwright/tests/backend-api.spec.ts
 import { test, expect } from '@playwright/test';
 
+// 🔑 THIS IS THE MISSING PIECE
+test.use({
+  baseURL: process.env.API_BASE_URL || 'http://localhost:5000',
+});
+
 test.describe('@api Backend API basic checks', () => {
   test('health endpoint returns 200 and ok JSON', async ({ request }) => {
     const res = await request.get('/health');
     expect(res.status(), 'Health endpoint should return 200').toBe(200);
 
     const body = await res.json();
-    // Optional: tighten this once stable
     expect(body).toMatchObject({ status: 'ok' });
     expect(typeof body.timestamp).toBe('string');
   });

@@ -3,19 +3,24 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - "**"
-  pull_request: {}
+      - '**'
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     env:
       CI: true
-      # Backend API port
       PORT: 5000
-      # Point Playwright to the FRONTEND UI (Vite) at 5173
-      BASE_URL: http://127.0.0.1:5173
+      BASE_URL: http://127.0.0.1:4173
+      API_BASE_URL: http://127.0.0.1:5000
 
     steps:
       - name: Checkout code
@@ -24,113 +29,88 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: '20'
+          cache: 'npm'
 
-      - name: Install root deps
+      # ------------------------
+      # Root dependencies
+      # ------------------------
+      - name: Install root dependencies
         run: npm ci
+        shell: bash
 
-      - name: Diagnostic versions and folders
+      - name: Diagnostic versions
         run: |
+          set -euxo pipefail
           node -v
           npm -v
-          ./node_modules/.bin/playwright --version || true
-          ls -la
-          ls -la playwright || true
-          npm ls @playwright/test || true
-
-      - name: Install Playwright browsers
-        run: ./node_modules/.bin/playwright install --with-deps
+          npx playwright --version || true
+        shell: bash
 
       # ------------------------
-      # Backend API (port 5000)
+      # Playwright browsers
       # ------------------------
-      - name: Install backend API deps
+      - name: Install Playwright browsers (with OS deps)
+        run: npx playwright install --with-deps
+        shell: bash
+
+      # ------------------------
+      # Frontend dependencies (required for build + preview)
+      # ------------------------
+      - name: Install frontend dependencies
+        working-directory: runner/web
+        run: npm ci
+        shell: bash
+
+      # ------------------------
+      # Backend API
+      # ------------------------
+      - name: Install backend API dependencies
         working-directory: runner/api
         run: npm ci
+        shell: bash
 
       - name: Start backend API and wait
         timeout-minutes: 5
         run: |
-          (cd runner/api && npm run dev > ../api-server.log 2>&1) &
-          # Prefer health endpoint; if not available yet, fall back to port
-          npx --yes wait-on "http-get://127.0.0.1:${PORT}/health" || npx --yes wait-on "http://127.0.0.1:${PORT}"
-          # Probe but do not fail here
-          curl -sS "http://127.0.0.1:${PORT}/health" || true
+          set -euxo pipefail
+          (cd runner/api && npm run dev > ../api-server.log 2>&1 & echo $! > ../api.pid)
+          npx --yes wait-on --timeout 300000 "http-get://127.0.0.1:${PORT}/health" || \
+          npx --yes wait-on --timeout 300000 "http-get://127.0.0.1:${PORT}"
+          curl -i "http://127.0.0.1:${PORT}/health" || true
+        shell: bash
 
       # ------------------------
-      # Frontend UI (Vite, port 5173)
-      # ------------------------
-      - name: Install frontend deps
-        working-directory: runner/web
-        run: npm ci
-
-      # Choose ONE of the following:
-      # Option A: Vite dev server (fast, fine for CI)
-      - name: Start frontend (Vite dev) and wait
-        timeout-minutes: 5
-        run: |
-          (cd runner/web && npm run dev > ../ui-server.log 2>&1) &
-          npx --yes wait-on "http-get://127.0.0.1:5173"
-
-          
-      - name: Diagnose Vite server
-        if: always()
-        run: |
-          echo "Netstat for ports:"
-          ss -lntp | (grep -E ':5173|:5000' || true)
-          echo "Probe Vite root:"
-          curl -i "http://127.0.0.1:5173/" || true
-          echo "Tail last 200 lines of UI log:"
-          tail -n 200 ui-server.log || true
-
-
-      # Option B: Production-like (build + preview)
-      # Uncomment these two steps and comment the dev step above if you prefer preview
-      # - name: Build frontend (Vite)
-      #   working-directory: runner/web
-      #   run: npm run build
-      #
-      # - name: Preview frontend (Vite) and wait
-      #   timeout-minutes: 5
-      #   run: |
-      #     (cd runner/web && npx vite preview --port 5173 > ../ui-server.log 2>&1) &
-      #     npx --yes wait-on "http-get://127.0.0.1:5173"
-
-      - name: Probe UI routes
-        run: |
-          echo "GET /"
-          curl -i "http://127.0.0.1:5173/" || true
-          echo "GET /dashboard"
-          curl -i "http://127.0.0.1:5173/dashboard" || true
-
-      # ------------------------
-      # Playwright test run
+      # Playwright tests
+      # Frontend is started automatically via playwright.config.ts webServer
       # ------------------------
       - name: List discovered tests
-        run: ./node_modules/.bin/playwright test --config=playwright/playwright.config.ts --list
+        run: npx playwright test --config=playwright/playwright.config.ts --list
+        shell: bash
 
       - name: Run Playwright tests (Chromium)
         run: |
-          ./node_modules/.bin/playwright test \
+          set -euxo pipefail
+          npx playwright test \
             --config=playwright/playwright.config.ts \
-            --project=chromium \
+            --project=Chromium \
             --reporter=html,line
+        shell: bash
 
       # ------------------------
       # Artifacts
       # ------------------------
-      # Detect where Playwright put the report (repo root vs under playwright/)
       - name: Locate HTML report directory
         if: always()
         run: |
+          set -euxo pipefail
           REPORT_DIR="playwright-report"
           if [ ! -d "$REPORT_DIR" ] && [ -d "playwright/playwright-report" ]; then
             REPORT_DIR="playwright/playwright-report"
           fi
           echo "REPORT_DIR=$REPORT_DIR" >> "$GITHUB_ENV"
-          echo "Resolved REPORT_DIR=$REPORT_DIR"
           ls -la "$REPORT_DIR" || true
+        shell: bash
 
       - name: Upload Playwright HTML report
         if: always()
@@ -141,28 +121,33 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-      - name: Upload test results
+      - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: test-results
+          path: |
+            test-results
+            playwright/.playwright-artifacts
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Upload server logs
+      - name: Upload backend logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: server-logs
+          name: backend-logs
           path: |
             api-server.log
-            ui-server.log
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Stop servers
+      # ------------------------
+      # Cleanup
+      # ------------------------
+      - name: Stop backend server
         if: always()
         run: |
-          pkill -f "runner/api" || true
-          pkill -f "runner/web" || true
+          set -euxo pipefail
+          if [ -f "api.pid" ]; then kill -9 "$(cat api.pid)" || true; fi
+        shell: bash

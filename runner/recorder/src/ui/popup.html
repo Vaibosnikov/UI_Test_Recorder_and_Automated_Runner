@@ -16,6 +16,7 @@
       --blue: #3b82f6;
       --purple: #8b5cf6;
       --cyan: #06b6d4;
+      --amber: #f59e0b;
     }
 
     [data-theme="light"] {
@@ -147,6 +148,11 @@
       color: var(--cyan);
     }
 
+    .btn-report {
+      border: 1px solid var(--amber);
+      color: var(--amber);
+    }
+
     .btn-dashboard {
       border: 1px dashed var(--muted);
       color: var(--muted);
@@ -214,6 +220,11 @@
 
     <button id="run" class="btn btn-run">
       ▶ Run Test
+    </button>
+
+    <!-- ✅ NEW BUTTON -->
+    <button id="report" class="btn btn-report">
+      🧪 Open Playwright Report
     </button>
 
     <button id="dashboard" class="btn btn-dashboard">

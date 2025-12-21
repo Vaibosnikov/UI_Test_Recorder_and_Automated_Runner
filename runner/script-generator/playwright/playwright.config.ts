@@ -5,9 +5,13 @@ export default defineConfig({
   // Global configuration
   // ---------------------------------
   timeout: 90_000,
+<<<<<<< HEAD
   retries: 0,
 
   // All generated specs live here
+=======
+  retries: 1,
+>>>>>>> 5ba95c7fc1d786d05a991e513179205deb15d6a9
   testDir: "./generated",
 
   // All artifacts (screenshots, videos, traces, JSON)
@@ -19,11 +23,19 @@ export default defineConfig({
   reporter: [
     ["list"],
 
+<<<<<<< HEAD
     // Human readable report
     ["html", { open: "never", outputFolder: "playwright-report" }],
 
     // Dashboard + analytics input
     ["json", { outputFile: "results/results.json" }]
+=======
+    // ✅ JSON report for TestCraft processing
+    ["json", { outputFile: "results/playwright-results.json" }],
+
+    // ✅ Human-friendly HTML report
+    ["html", { open: "never", outputFolder: "playwright-report" }]
+>>>>>>> 5ba95c7fc1d786d05a991e513179205deb15d6a9
   ],
 
   // ---------------------------------

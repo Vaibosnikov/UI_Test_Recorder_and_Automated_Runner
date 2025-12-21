@@ -371,4 +371,8 @@ TestCraft is not intended to replace:
 | Vaishnavi Tiwari | Automation Engineer | Recorder logic, Playwright script generation |
 | Saiyada Anshra Afzal | DevOps Engineer | CI/CD pipelines, environment orchestration, one-command startup |
 
+<<<<<<< HEAD
 ---
+=======
+---
+>>>>>>> 5ba95c7fc1d786d05a991e513179205deb15d6a9

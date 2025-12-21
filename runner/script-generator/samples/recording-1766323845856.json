@@ -1,0 +1,119 @@
+{
+  "name": "Recorded Flow (TestCraft)",
+  "description": "Auto-pushed from TestCraft Recorder",
+  "baseUrl": "http://localhost:5173",
+  "steps": [
+    {
+      "assert": "url",
+      "ts": 1766323822178,
+      "type": "navigate",
+      "url": "https://shop.polymer-project.org/"
+    },
+    {
+      "assert": "visible",
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323822688,
+      "type": "click"
+    },
+    {
+      "assert": "url",
+      "ts": 1766323823184,
+      "type": "navigate",
+      "url": "https://shop.polymer-project.org/list/mens_outerwear"
+    },
+    {
+      "assert": "visible",
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323823231,
+      "type": "click"
+    },
+    {
+      "assert": "url",
+      "ts": 1766323823675,
+      "type": "navigate",
+      "url": "https://shop.polymer-project.org/list/ladies_outerwear"
+    },
+    {
+      "assert": "visible",
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323825174,
+      "type": "click"
+    },
+    {
+      "assert": "url",
+      "ts": 1766323825186,
+      "type": "navigate",
+      "url": "https://shop.polymer-project.org/detail/ladies_outerwear/Ladies+Modern+Stretch+Full+Zip"
+    },
+    {
+      "assert": "visible",
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323826278,
+      "type": "click"
+    },
+    {
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323827229,
+      "type": "fill"
+    },
+    {
+      "assert": "visible",
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323827230,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323828060,
+      "type": "click"
+    },
+    {
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323828772,
+      "type": "fill"
+    },
+    {
+      "assert": "visible",
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323828773,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323830468,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323832739,
+      "type": "click"
+    },
+    {
+      "assert": "url",
+      "ts": 1766323833180,
+      "type": "navigate",
+      "url": "https://shop.polymer-project.org/cart"
+    },
+    {
+      "assert": "visible",
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323836504,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "shop-app:nth-of-type(1)",
+      "ts": 1766323837728,
+      "type": "click"
+    },
+    {
+      "assert": "url",
+      "ts": 1766323838175,
+      "type": "navigate",
+      "url": "https://shop.polymer-project.org/checkout"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Recorder Output Schema",
+  "type": "object",
+  "required": ["id", "name", "steps"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "project_id": { "type": "integer" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "priority": { "type": "string" },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["order", "action", "selector"],
+        "properties": {
+          "order": { "type": "integer" },
+          "action": { "type": "string" },
+          "selector": { "type": "string" },
+          "value": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

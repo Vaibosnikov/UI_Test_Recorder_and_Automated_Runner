@@ -1,0 +1,25 @@
+﻿{
+  "manifest_version": 3,
+  "name": "TestCraft Recorder",
+  "version": "0.1.0",
+  "description": "UI interaction recorder for TestCraft",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "downloads"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_popup": "src/ui/popup.html"
+  },
+  "background": {
+    "service_worker": "src/background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content-scripts/recorder.js"]
+    }
+  ]
+}

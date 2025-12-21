@@ -1,0 +1,49 @@
+{
+  "name": "Recorded Flow (TestCraft)",
+  "description": "Auto-pushed from TestCraft Recorder",
+  "baseUrl": "http://localhost:5173",
+  "steps": [
+    {
+      "assert": "visible",
+      "selector": "div:nth-of-type(4)",
+      "ts": 1766292559529,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "path:nth-of-type(1)",
+      "ts": 1766292560606,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#item-4",
+      "ts": 1766292562222,
+      "type": "click"
+    },
+    {
+      "assert": "url",
+      "ts": 1766292562569,
+      "type": "navigate",
+      "url": "https://demoqa.com/buttons"
+    },
+    {
+      "assert": "visible",
+      "selector": "#doubleClickBtn",
+      "ts": 1766292564291,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#doubleClickBtn",
+      "ts": 1766292568641,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#doubleClickBtn",
+      "ts": 1766292568858,
+      "type": "click"
+    }
+  ]
+}

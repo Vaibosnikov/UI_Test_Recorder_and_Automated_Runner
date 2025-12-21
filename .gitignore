@@ -1,0 +1,31 @@
+# Playwright artifacts
+playwright-report/
+test-results/
+playwright/.playwright-artifacts/
+
+# Frontend build output
+runner/web/dist/
+
+# Node
+node_modules/
+
+# OS noise
+.DS_Store
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Playwright
+playwright-report/
+test-results/
+
+# Generated tests
+runner/script-generator/playwright/generated/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env

@@ -1,0 +1,115 @@
+{
+  "name": "Recorded Flow (TestCraft)",
+  "description": "Auto-pushed from TestCraft Recorder",
+  "baseUrl": "http://localhost:5173",
+  "steps": [
+    {
+      "assert": "visible",
+      "selector": "#doubleClickBtn",
+      "ts": 1766318667464,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#doubleClickBtn",
+      "ts": 1766318667757,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#HF3fj",
+      "ts": 1766318670203,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#item-1",
+      "ts": 1766318671532,
+      "type": "click"
+    },
+    {
+      "assert": "url",
+      "ts": 1766318672207,
+      "type": "navigate",
+      "url": "https://demoqa.com/checkbox"
+    },
+    {
+      "assert": "visible",
+      "selector": "svg:nth-of-type(1)",
+      "ts": 1766318674577,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#tree-node-home",
+      "ts": 1766318674579,
+      "type": "click"
+    },
+    {
+      "selector": "#tree-node-home",
+      "ts": 1766318674586,
+      "type": "fill",
+      "value": "on"
+    },
+    {
+      "assert": "visible",
+      "selector": "path:nth-of-type(1)",
+      "ts": 1766318676136,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "path:nth-of-type(1)",
+      "ts": 1766318677807,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#tree-node-desktop",
+      "ts": 1766318677808,
+      "type": "click"
+    },
+    {
+      "selector": "#tree-node-desktop",
+      "ts": 1766318677817,
+      "type": "fill",
+      "value": "on"
+    },
+    {
+      "assert": "visible",
+      "selector": "svg:nth-of-type(1)",
+      "ts": 1766318678472,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#tree-node-notes",
+      "ts": 1766318678473,
+      "type": "click"
+    },
+    {
+      "selector": "#tree-node-notes",
+      "ts": 1766318678476,
+      "type": "fill",
+      "value": "on"
+    },
+    {
+      "assert": "visible",
+      "selector": "svg:nth-of-type(1)",
+      "ts": 1766318679239,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#tree-node-commands",
+      "ts": 1766318679240,
+      "type": "click"
+    },
+    {
+      "selector": "#tree-node-commands",
+      "ts": 1766318679243,
+      "type": "fill",
+      "value": "on"
+    }
+  ]
+}

@@ -1,72 +1,74 @@
 ﻿import { execSync } from "child_process";
-import path from "path";
 import fs from "fs";
+import path from "path";
 import { fileURLToPath } from "url";
-import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
+import { PNG } from "pngjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// project root = playwright/
-const PLAYWRIGHT_ROOT = path.resolve(__dirname, "..");
+// Root = playwright/
+const ROOT = path.resolve(__dirname, "..");
 
-const specArg = process.argv[2];
-
-if (!specArg) {
-  console.error("Usage: node scripts/run-single-test.js <spec-path>");
-  process.exit(1);
-}
-
-const specPath = path.resolve(PLAYWRIGHT_ROOT, specArg);
-const configPath = path.join(PLAYWRIGHT_ROOT, "playwright.config.ts");
-
-// ---------- Visual paths ----------
-const VISUAL_ROOT = path.join(PLAYWRIGHT_ROOT, "results", "visual");
+// ---------- Visual folders ----------
+const VISUAL_ROOT = path.join(ROOT, "visual");
 const BASELINE_DIR = path.join(VISUAL_ROOT, "baseline");
 const CURRENT_DIR = path.join(VISUAL_ROOT, "current");
 const DIFF_DIR = path.join(VISUAL_ROOT, "diff");
 
-// ensure dirs
-[BASELINE_DIR, CURRENT_DIR, DIFF_DIR].forEach((dir) =>
+// Ensure dirs exist
+[BASELINE_DIR, CURRENT_DIR, DIFF_DIR].forEach(dir =>
   fs.mkdirSync(dir, { recursive: true })
 );
 
-const testName = path.basename(specPath, ".spec.ts");
-const baselineImg = path.join(BASELINE_DIR, `${testName}.png`);
-const currentImg = path.join(CURRENT_DIR, `${testName}.png`);
-const diffImg = path.join(DIFF_DIR, `${testName}.png`);
+// ---------- Run Playwright ----------
+console.log("▶ Running Playwright tests...");
+execSync("npx playwright test", {
+  cwd: ROOT,
+  stdio: "inherit"
+});
 
-console.log("Running Playwright test:", specPath);
+// ---------- Find latest screenshot ----------
+const resultsDir = path.join(ROOT, "results");
 
-// ---------- Run test ----------
-try {
-  execSync(
-    `npx playwright test "${specPath}" --config "${configPath}"`,
-    {
-      cwd: PLAYWRIGHT_ROOT,
-      stdio: "inherit"
+function findLatestScreenshot(dir) {
+  let latest = null;
+  let latestTime = 0;
+
+  function walk(folder) {
+    for (const file of fs.readdirSync(folder)) {
+      const full = path.join(folder, file);
+      const stat = fs.statSync(full);
+
+      if (stat.isDirectory()) walk(full);
+      else if (file.endsWith(".png") && stat.mtimeMs > latestTime) {
+        latest = full;
+        latestTime = stat.mtimeMs;
+      }
     }
-  );
-} catch (err) {
-  console.error("Test execution failed");
+  }
+
+  walk(dir);
+  return latest;
 }
 
-// ---------- Screenshot handling ----------
-const playwrightOutput = path.join(
-  PLAYWRIGHT_ROOT,
-  "results",
-  testName,
-  "test-finished.png"
-);
+const latestScreenshot = findLatestScreenshot(resultsDir);
 
-// fallback: take latest screenshot
-if (fs.existsSync(playwrightOutput)) {
-  fs.copyFileSync(playwrightOutput, currentImg);
-} else {
-  console.warn("⚠ No screenshot found from test run");
+if (!latestScreenshot) {
+  console.log("⚠ No screenshots found. Visual diff skipped.");
+  process.exit(0);
 }
 
+const name = path.basename(latestScreenshot);
+const baselineImg = path.join(BASELINE_DIR, name);
+const currentImg = path.join(CURRENT_DIR, name);
+const diffImg = path.join(DIFF_DIR, name);
+
+// Copy current
+fs.copyFileSync(latestScreenshot, currentImg);
+
+// ---------- Baseline logic ----------
 if (!fs.existsSync(baselineImg)) {
   fs.copyFileSync(currentImg, baselineImg);
   console.log("🟢 Baseline created:", baselineImg);
@@ -92,8 +94,8 @@ const mismatchedPixels = pixelmatch(
 fs.writeFileSync(diffImg, PNG.sync.write(diff));
 
 if (mismatchedPixels > 0) {
-  console.log(`🔴 Visual differences found: ${mismatchedPixels} pixels`);
-  console.log("Diff image:", diffImg);
+  console.log(`🔴 Visual regression detected: ${mismatchedPixels} pixels`);
+  console.log("Diff:", diffImg);
 } else {
   console.log("🟢 No visual differences detected");
 }

@@ -4,25 +4,20 @@
   "private": true,
   "description": "Playwright runner for TestCraft – executes specs, captures screenshots and performs visual regression.",
   "type": "module",
-
   "scripts": {
     "test": "npx playwright test",
     "test:all": "npx playwright test",
-
     "run:single": "node scripts/run-single-test.js",
     "run:baseline": "node scripts/run-single-test.js --baseline",
     "run:visual": "node scripts/run-single-test.js --visual",
-
     "report": "npx playwright show-report"
   },
-
   "devDependencies": {
     "@playwright/test": "^1.48.0",
     "@types/node": "^22.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.0"
   },
-
   "dependencies": {
     "pixelmatch": "^7.1.0",
     "pngjs": "^7.0.0"

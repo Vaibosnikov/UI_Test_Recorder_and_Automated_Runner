@@ -15,6 +15,7 @@
   "devDependencies": {
     "@playwright/test": "^1.56.1",
     "@types/node": "^24.10.1",
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "ts-node": "^10.9.2"
   }
 }

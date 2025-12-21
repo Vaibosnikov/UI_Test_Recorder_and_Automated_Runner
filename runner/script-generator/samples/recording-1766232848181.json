@@ -1,0 +1,85 @@
+{
+  "name": "Recorded Flow (TestCraft)",
+  "description": "Auto-pushed from TestCraft Recorder",
+  "baseUrl": "http://localhost:5173",
+  "steps": [
+    {
+      "assert": "visible",
+      "selector": "h5:nth-of-type(1)",
+      "ts": 1766232797458,
+      "type": "click"
+    },
+    {
+      "assert": "url",
+      "ts": 1766232797913,
+      "type": "navigate",
+      "url": "https://demoqa.com/forms"
+    },
+    {
+      "assert": "visible",
+      "selector": "div:nth-of-type(1)",
+      "ts": 1766232799150,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "div:nth-of-type(1)",
+      "ts": 1766232800616,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "div:nth-of-type(2)",
+      "ts": 1766232805398,
+      "type": "click"
+    },
+    {
+      "assert": "visible",
+      "selector": "#item-0",
+      "ts": 1766232806453,
+      "type": "click"
+    },
+    {
+      "assert": "url",
+      "ts": 1766232806911,
+      "type": "navigate",
+      "url": "https://demoqa.com/text-box"
+    },
+    {
+      "assert": "visible",
+      "selector": "#userName",
+      "ts": 1766232808613,
+      "type": "click"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1766232808946,
+      "type": "fill",
+      "value": "s"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1766232809033,
+      "type": "fill",
+      "value": "sa"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1766232809162,
+      "type": "fill",
+      "value": "sai"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1766232809363,
+      "type": "fill",
+      "value": "saiy"
+    },
+    {
+      "selector": "#userName",
+      "ts": 1766232809452,
+      "type": "fill",
+      "value": "saiya"
+    }
+  ]
+}

@@ -3,13 +3,18 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   // ---------- Global ----------
   timeout: 90_000,
-  retries: 0,
+  retries: 1,
   testDir: "./generated",
   outputDir: "./results",
 
   // ---------- Reporters ----------
   reporter: [
     ["list"],
+
+    // ✅ JSON report for TestCraft processing
+    ["json", { outputFile: "results/playwright-results.json" }],
+
+    // ✅ Human-friendly HTML report
     ["html", { open: "never", outputFolder: "playwright-report" }]
   ],
 

@@ -1,0 +1,25 @@
+{
+  "name": "TestCraft Recording Sample",
+  "version": "1.0",
+  "timestamp": 1730000000000,
+  "events": [
+    {
+      "type": "click",
+      "timestamp": 100,
+      "target": "#login-button",
+      "value": null,
+      "text": "Login",
+      "x": 150,
+      "y": 300
+    },
+    {
+      "type": "input",
+      "timestamp": 500,
+      "target": "#username",
+      "value": "testuser",
+      "text": null,
+      "x": 200,
+      "y": 100
+    }
+  ]
+}

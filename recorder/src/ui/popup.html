@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TestCraft Recorder</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>TestCraft Recorder</h1>
+    <p class="description">Record user interactions and export to JSON</p>
+
+    <div class="status">
+      <span id="status-indicator" class="status-indicator"></span>
+      <span id="status-text">Not Recording</span>
+    </div>
+
+    <div class="controls">
+      <button id="start-btn" class="btn btn-primary">Start Recording</button>
+      <button id="stop-btn" class="btn btn-secondary" disabled>Stop Recording</button>
+    </div>
+
+    <div class="actions">
+      <button id="export-btn" class="btn btn-success">Export JSON</button>
+      <button id="clear-btn" class="btn btn-danger">Clear</button>
+    </div>
+
+    <div class="info">
+      <p>Events captured: <span id="event-count">0</span></p>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

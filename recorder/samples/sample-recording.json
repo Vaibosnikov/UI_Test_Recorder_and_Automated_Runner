@@ -1,0 +1,44 @@
+{
+  "name": "Sample E-commerce Checkout Flow",
+  "version": "1.0",
+  "timestamp": 1730000000000,
+  "description": "Records a complete checkout flow for testing",
+  "events": [
+    {
+      "type": "click",
+      "timestamp": 100,
+      "target": "#add-to-cart-btn",
+      "value": null,
+      "text": "Add to Cart",
+      "x": 400,
+      "y": 500
+    },
+    {
+      "type": "click",
+      "timestamp": 1500,
+      "target": "#checkout-btn",
+      "value": null,
+      "text": "Checkout",
+      "x": 450,
+      "y": 50
+    },
+    {
+      "type": "input",
+      "timestamp": 3000,
+      "target": "#email-input",
+      "value": "test@example.com",
+      "text": null,
+      "x": 300,
+      "y": 200
+    },
+    {
+      "type": "click",
+      "timestamp": 5000,
+      "target": "#submit-order",
+      "value": null,
+      "text": "Place Order",
+      "x": 400,
+      "y": 600
+    }
+  ]
+}

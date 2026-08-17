@@ -1,0 +1,18 @@
+{
+  "name": "testcraft-recorder",
+  "version": "1.0.0",
+  "description": "Chrome extension for recording user interactions and exporting to TestCraft JSON format",
+  "main": "src/background/service-worker.js",
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [
+    "chrome-extension",
+    "test-recorder",
+    "testcraft",
+    "playwright"
+  ],
+  "author": "Vaibhav Sharma",
+  "license": "MIT",
+  "type": "module"
+}

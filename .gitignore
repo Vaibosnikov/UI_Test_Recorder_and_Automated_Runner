@@ -1,31 +1,34 @@
-# Playwright artifacts
-playwright-report/
-test-results/
-playwright/.playwright-artifacts/
-
-# Frontend build output
-runner/web/dist/
-
-# Node
+# Dependencies
 node_modules/
+.pnpm-store/
 
-# OS noise
-.DS_Store
-# Node
-node_modules/
-npm-debug.log*
-yarn-error.log*
+# Environment variables
+.env
+.env.local
+.env.*.local
 
-# Playwright
-playwright-report/
-test-results/
+# Build outputs
+dist/
+build/
+out/
+*.log
 
-# Generated tests
-runner/script-generator/playwright/generated/
-
-# OS
+# OS files
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Env
-.env
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test artifacts
+coverage/
+test-results/
+blob-report/
+
+# Temporary files
+*.tmp
+*.temp

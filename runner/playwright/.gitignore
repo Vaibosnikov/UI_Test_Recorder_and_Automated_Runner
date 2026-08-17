@@ -1,0 +1,19 @@
+# Test results
+results/
+test-results/
+playwright-report/
+blob-report/
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

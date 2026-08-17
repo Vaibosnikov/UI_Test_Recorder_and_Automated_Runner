@@ -1,0 +1,21 @@
+{
+  "name": "testcraft-playwright-runner",
+  "version": "1.0.0",
+  "description": "Playwright test runner for TestCraft with backend integration",
+  "main": "run-tests.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug"
+  },
+  "keywords": [
+    "playwright",
+    "test-runner",
+    "testcraft"
+  ],
+  "author": "Vaibhav Sharma",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}

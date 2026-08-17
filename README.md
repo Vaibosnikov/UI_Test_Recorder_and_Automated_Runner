@@ -13,7 +13,7 @@ TestCraft is a production-ready test automation platform that records user inter
 |-----------|-------------|----------|
 | **Recorder** | Chrome extension that captures user actions and exports to JSON | `recorder/` |
 | **Script Generator** | CLI tool that converts recorded JSON to Playwright specs | `runner/script-generator/` |
-| **Runner Engine** | Playwright-based test execution with result tracking | `runner/` |
+| **Playwright Runner** | Test execution engine with backend reporting | `runner/playwright/` |
 | **Dashboard** | React-based UI for visualizing test runs and results | `runner/web/` |
 | **API Server** | Node.js backend for managing tests, runs, and results | `runner/api/` |
 
@@ -47,6 +47,11 @@ npm install
 # Install recorder dependencies
 cd ../../recorder
 npm install
+
+# Setup Playwright runner
+cd ../runner/playwright
+chmod +x setup.sh  # On Mac/Linux
+./setup.sh         # On Windows: setup.bat
 ```
 
 ### Running the Platform
@@ -65,6 +70,11 @@ npm install
    - Open `chrome://extensions/`
    - Enable "Developer mode"
    - Click "Load unpacked" and select the `recorder/` folder
+
+4. **Run Playwright tests** (from `runner/playwright/`):
+   ```bash
+   node run-tests.js
+   ```
 
 ## Documentation
 

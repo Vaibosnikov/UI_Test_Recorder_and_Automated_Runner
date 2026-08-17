@@ -1,4 +1,0 @@
-﻿[
-  { "type": "click", "selector": "[data-testid='email-input']" },
-  { "type": "fill", "selector": "[data-testid='email-input']", "value": "demo@test.com" }
-]

@@ -1,0 +1,13 @@
+﻿[
+  {
+    "url": "https://example.com",
+    "actions": [
+      { "type": "navigate", "url": "https://example.com" },
+      { "type": "click", "selector": "button#submit" },
+      { "type": "type", "selector": "input#name", "value": "Test" }
+    ],
+    "assertions": [
+      { "type": "visible", "selector": "button#submit" }
+    ]
+  }
+]

@@ -1,16 +1,10 @@
-#!/usr/bin/env node
-
-/**
- * TestCraft Playwright Runner
- * Executes Playwright tests and uploads results to backend API
- */
-
-const { execSync } = require('child_process');
 const path = require('path');
+const { execSync } = require('child_process');
 const fs = require('fs');
 
-// Default to port 5000 (TestCraft backend default)
+// --- Configuration ---
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:5000';
+const TEST_DIR = path.join(__dirname, 'tests');
 const RESULTS_DIR = path.join(__dirname, 'results');
 
 // Ensure results directory exists
@@ -18,117 +12,57 @@ if (!fs.existsSync(RESULTS_DIR)) {
   fs.mkdirSync(RESULTS_DIR, { recursive: true });
 }
 
-console.log('🚀 TestCraft Playwright Runner');
-console.log('================================');
-console.log(`API Base URL: ${API_BASE_URL}`);
-console.log(`Results Directory: ${RESULTS_DIR}`);
-console.log('');
+// --- Helper Functions ---
 
-// Check if node_modules exists
-const nodeModulesPath = path.join(__dirname, 'node_modules');
-if (!fs.existsSync(nodeModulesPath)) {
-  console.error('❌ node_modules not found!');
-  console.error('');
-  console.error('Please run setup first:');
-  console.error('  npm install');
-  console.error('  npx playwright install --with-deps');
-  console.error('');
-  process.exit(1);
-}
-
-// Determine which tests to run
-const testFile = process.argv[2];
-const testArgs = testFile ? testFile : '';
-
-console.log(`▶️  Running Playwright tests: ${testArgs || 'all tests'}`);
-console.log('');
-
-// NOTE: We do NOT pass --reporter=json here because playwright.config.ts
-// already defines the JSON reporter with outputFile: 'results/results.json'.
-// Passing --reporter on the command line OVERRIDES the config and breaks
-// the configured output path (Playwright then only writes .last-run.json).
-const playwrightCmd = `npx playwright test ${testArgs}`;
-console.log(`Executing: ${playwrightCmd}`);
-console.log('');
-
-try {
-  execSync(playwrightCmd, {
-    cwd: __dirname,
-    stdio: 'inherit',
-    env: { 
-      ...process.env, 
-      NODE_ENV: 'test',
-      // Ensure local node_modules is in PATH
-      PATH: `${path.join(__dirname, 'node_modules', '.bin')}:${process.env.PATH}`
-    }
-  });
-} catch (error) {
-  // Playwright exits with code 1 if any tests fail - that's OK, we still want to upload results
-  console.log('');
-  console.log('⚠️  Some tests failed (this is expected for integration tests without full stack running)');
-}
-
-console.log('');
-console.log('✅ Playwright tests completed');
-
-// Check if results file exists
-const resultsFile = path.join(RESULTS_DIR, 'results.json');
-if (fs.existsSync(resultsFile)) {
-  console.log(`📄 Results written to: ${resultsFile}`);
-  
-  // Upload results to backend (even if tests failed)
-  uploadResults(resultsFile);
-} else {
-  console.log(`⚠️  No results file found at: ${resultsFile}`);
-  console.log('Checking results directory contents:');
+function runCommand(command, description) {
+  console.log(`\n${description}`);
+  console.log(`Executing: ${command}\n`);
   try {
-    const files = fs.readdirSync(RESULTS_DIR);
-    files.forEach(f => console.log(`  - ${f}`));
-  } catch (e) {
-    console.log('  (results directory is empty or unreadable)');
-  }
-}
-
-/**
- * Upload test results to backend API
- * @param {string} resultsFile - Path to JSON results file
- */
-function uploadResults(resultsFile) {
-  console.log('');
-  console.log('📤 Uploading results to backend...');
-  
-  try {
-    const resultsData = fs.readFileSync(resultsFile, 'utf8');
-    const results = JSON.parse(resultsData);
-    
-    // Format results for backend
-    const payload = {
-      runId: `run_${Date.now()}`,
-      timestamp: new Date().toISOString(),
-      testDir: 'playwright/tests',
-      totalTests: results.tests?.length || results.suites?.length || 0,
-      passed: results.stats?.expected || 0,
-      failed: results.stats?.unexpected || 0,
-      skipped: results.stats?.skipped || 0,
-      duration: results.stats?.duration || 0,
-      results: results.suites || [],
-      rawResults: results
-    };
-    
-    // POST to backend (Windows-compatible curl)
-    const uploadCmd = `curl -X POST ${API_BASE_URL}/v1/runs ^
-      -H "Content-Type: application/json" ^
-      -d "${JSON.stringify(payload).replace(/"/g, '\"')}"`;
-    
-    console.log(`Executing: ${uploadCmd}`);
-    const response = execSync(uploadCmd, { encoding: 'utf8' });
-    console.log('✅ Results uploaded successfully');
-    console.log(response);
-    
+    execSync(command, { stdio: 'inherit', cwd: __dirname });
+    return true;
   } catch (error) {
-    console.error('⚠️  Failed to upload results');
-    console.error(error.message);
-    console.error('');
-    console.error(`Make sure the backend API is running at: ${API_BASE_URL}`);
+    console.warn(`⚠️  ${description} failed (this is expected for integration tests without full stack running)`);
+    return false;
   }
 }
+
+function uploadResults() {
+  const resultsPath = path.join(RESULTS_DIR, 'results.json');
+  if (!fs.existsSync(resultsPath)) {
+    console.log('\n📄 No results file found to upload');
+    return;
+  }
+
+  // Read the full results and write to a separate payload file for upload
+  const payload = fs.readFileSync(resultsPath, 'utf8');
+  const payloadPath = path.join(RESULTS_DIR, 'payload.json');
+  fs.writeFileSync(payloadPath, payload, 'utf8');
+
+  console.log('\n📤 Uploading results to backend...');
+  
+  // Use file-based upload to avoid Windows command-line length limits
+  const uploadCmd = `curl -X POST ${API_BASE_URL}/v1/runs ^
+      -H "Content-Type: application/json" ^
+      -d "@${payloadPath}"`;
+  
+  try {
+    execSync(uploadCmd, { stdio: 'inherit', cwd: __dirname });
+    console.log('\n✅ Results uploaded successfully');
+  } catch (error) {
+    console.log('\n⚠️  Failed to upload results');
+  }
+}
+
+// --- Main Execution ---
+
+console.log('▶️  Running Playwright tests: all tests\n');
+
+// Run Playwright tests
+const playwrightCmd = 'npx playwright test ';
+const success = runCommand(playwrightCmd, 'Running Playwright tests');
+
+// Upload results to backend
+uploadResults();
+
+console.log('\n✅ Playwright tests completed');
+console.log(`📄 Results written to: ${RESULTS_DIR}\n`);

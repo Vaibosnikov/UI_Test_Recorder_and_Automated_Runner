@@ -23,20 +23,40 @@ console.log(`API Base URL: ${API_BASE_URL}`);
 console.log(`Results Directory: ${RESULTS_DIR}`);
 console.log('');
 
+// Check if node_modules exists
+const nodeModulesPath = path.join(__dirname, 'node_modules');
+if (!fs.existsSync(nodeModulesPath)) {
+  console.error('❌ node_modules not found!');
+  console.error('');
+  console.error('Please run setup first:');
+  console.error('  npm install');
+  console.error('  npx playwright install --with-deps');
+  console.error('');
+  process.exit(1);
+}
+
 // Determine which tests to run
 const testFile = process.argv[2];
-const testArgs = testFile ? `tests/${testFile}` : 'tests/';
+const testArgs = testFile ? testFile : '';
 
 try {
-  console.log(`▶️  Running Playwright tests: ${testArgs}`);
+  console.log(`▶️  Running Playwright tests: ${testArgs || 'all tests'}`);
   console.log('');
   
-  // Run Playwright tests with JSON reporter
+  // Use local Playwright installation
   const playwrightCmd = `npx playwright test ${testArgs} --reporter=json --output=${RESULTS_DIR}`;
+  console.log(`Executing: ${playwrightCmd}`);
+  console.log('');
+  
   execSync(playwrightCmd, {
     cwd: __dirname,
     stdio: 'inherit',
-    env: { ...process.env, NODE_ENV: 'test' }
+    env: { 
+      ...process.env, 
+      NODE_ENV: 'test',
+      // Ensure local node_modules is in PATH
+      PATH: `${path.join(__dirname, 'node_modules', '.bin')}:${process.env.PATH}`
+    }
   });
   
   console.log('');
@@ -56,6 +76,11 @@ try {
 } catch (error) {
   console.error('❌ Test execution failed');
   console.error(error.message);
+  console.error('');
+  console.error('Troubleshooting:');
+  console.error('  1. Make sure you ran: npm install');
+  console.error('  2. Make sure you ran: npx playwright install --with-deps');
+  console.error('  3. Check that tests/ directory exists and contains .spec.ts files');
   process.exit(1);
 }
 
@@ -86,9 +111,9 @@ function uploadResults(resultsFile) {
     };
     
     // POST to backend
-    const uploadCmd = `curl -X POST ${API_BASE_URL}/v1/runs \\
-      -H "Content-Type: application/json" \\
-      -d '${JSON.stringify(payload)}'`;
+    const uploadCmd = `curl -X POST ${API_BASE_URL}/v1/runs ^
+      -H "Content-Type: application/json" ^
+      -d "${JSON.stringify(payload).replace(/"/g, '\"')}"`;
     
     console.log(`Executing: ${uploadCmd}`);
     const response = execSync(uploadCmd, { encoding: 'utf8' });
@@ -98,5 +123,7 @@ function uploadResults(resultsFile) {
   } catch (error) {
     console.error('⚠️  Failed to upload results');
     console.error(error.message);
+    console.error('');
+    console.error('Make sure the backend API is running at:', API_BASE_URL);
   }
 }

@@ -9,7 +9,8 @@ const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
+// Default to port 5000 (TestCraft backend default)
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:5000';
 const RESULTS_DIR = path.join(__dirname, 'results');
 
 // Ensure results directory exists
@@ -110,7 +111,7 @@ function uploadResults(resultsFile) {
       rawResults: results
     };
     
-    // POST to backend
+    // POST to backend (Windows-compatible curl)
     const uploadCmd = `curl -X POST ${API_BASE_URL}/v1/runs ^
       -H "Content-Type: application/json" ^
       -d "${JSON.stringify(payload).replace(/"/g, '\"')}"`;
@@ -124,6 +125,6 @@ function uploadResults(resultsFile) {
     console.error('⚠️  Failed to upload results');
     console.error(error.message);
     console.error('');
-    console.error('Make sure the backend API is running at:', API_BASE_URL);
+    console.error(`Make sure the backend API is running at: ${API_BASE_URL}`);
   }
 }

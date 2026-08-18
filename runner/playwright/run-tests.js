@@ -43,12 +43,13 @@ const testArgs = testFile ? testFile : '';
 console.log(`▶️  Running Playwright tests: ${testArgs || 'all tests'}`);
 console.log('');
 
-// Use local Playwright installation
-const playwrightCmd = `npx playwright test ${testArgs} --reporter=json --output=${RESULTS_DIR}`;
+// NOTE: We do NOT pass --reporter=json here because playwright.config.ts
+// already defines the JSON reporter with outputFile: 'results/results.json'.
+// Passing --reporter on the command line OVERRIDES the config and breaks
+// the configured output path (Playwright then only writes .last-run.json).
+const playwrightCmd = `npx playwright test ${testArgs}`;
 console.log(`Executing: ${playwrightCmd}`);
 console.log('');
-
-let testsPassed = true;
 
 try {
   execSync(playwrightCmd, {
@@ -65,7 +66,6 @@ try {
   // Playwright exits with code 1 if any tests fail - that's OK, we still want to upload results
   console.log('');
   console.log('⚠️  Some tests failed (this is expected for integration tests without full stack running)');
-  testsPassed = false;
 }
 
 console.log('');
@@ -79,7 +79,14 @@ if (fs.existsSync(resultsFile)) {
   // Upload results to backend (even if tests failed)
   uploadResults(resultsFile);
 } else {
-  console.log('⚠️  No results file generated');
+  console.log(`⚠️  No results file found at: ${resultsFile}`);
+  console.log('Checking results directory contents:');
+  try {
+    const files = fs.readdirSync(RESULTS_DIR);
+    files.forEach(f => console.log(`  - ${f}`));
+  } catch (e) {
+    console.log('  (results directory is empty or unreadable)');
+  }
 }
 
 /**
@@ -99,12 +106,12 @@ function uploadResults(resultsFile) {
       runId: `run_${Date.now()}`,
       timestamp: new Date().toISOString(),
       testDir: 'playwright/tests',
-      totalTests: results.tests?.length || 0,
-      passed: results.tests?.filter(t => t.status === 'passed').length || 0,
-      failed: results.tests?.filter(t => t.status === 'failed').length || 0,
-      skipped: results.tests?.filter(t => t.status === 'skipped').length || 0,
-      duration: results.duration || 0,
-      results: results.tests || [],
+      totalTests: results.tests?.length || results.suites?.length || 0,
+      passed: results.stats?.expected || 0,
+      failed: results.stats?.unexpected || 0,
+      skipped: results.stats?.skipped || 0,
+      duration: results.stats?.duration || 0,
+      results: results.suites || [],
       rawResults: results
     };
     

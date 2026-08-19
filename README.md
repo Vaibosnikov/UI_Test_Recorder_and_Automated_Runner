@@ -36,7 +36,8 @@ TestCraft is a Chrome extension that records user interactions and generates Pla
    - Perform actions, then **Stop Recording**
 
 4. **Generate and run a test**
-   - Click **Generate Script**, save the `.spec.ts` into `runner/playwright/tests/`
+   - Option A (API): Click **Generate Script** in the popup, save the `.spec.ts` into `runner/playwright/tests/`
+   - Option B (CLI): Export JSON, then run `node scripts/generate-from-recording.js recording.json`
    - Start the dashboard: `cd runner/web && npm run dev`
    - Run tests: `node runner/playwright/run-tests.js`
 

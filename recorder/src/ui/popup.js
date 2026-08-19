@@ -20,6 +20,7 @@ let capturedEvents = [];
 let lastFocusedElement = null;
 const themeKey = 'testcraft-theme';
 const onboardingKey = 'testcraft-onboarding-complete';
+const stateKey = 'testcraft-state';
 
 function getStorage(key) {
   return new Promise((resolve) => chrome.storage.local.get([key], (value) => resolve(value[key])));
@@ -78,15 +79,53 @@ function renderEvents() {
     return item;
   }));
 }
-chrome.runtime.onMessage.addListener((message) => { if (message.type === 'RECORDED_EVENT') { capturedEvents.push(message.event); renderEvents(); } });
+
+function updateUIForRecordingState(isRecording) {
+  if (isRecording) {
+    startBtn.classList.add('recording-active');
+    startBtn.setAttribute('aria-pressed', 'true');
+    updateStatus('Recording is active', 'warning');
+  } else {
+    startBtn.classList.remove('recording-active');
+    startBtn.setAttribute('aria-pressed', 'false');
+    updateStatus('API connected and ready', 'success');
+  }
+}
+
+getStorage(stateKey).then((state) => {
+  capturedEvents = state?.events || [];
+  renderEvents();
+  checkApiStatus();
+  updateUIForRecordingState(!!state?.isRecording);
+});
+
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === 'RECORDED_EVENT') {
+    capturedEvents.push(message.event);
+    renderEvents();
+    setStorage({ [stateKey]: { isRecording: true, events: capturedEvents } });
+  } else if (message.type === 'STATE_CHANGED') {
+    updateUIForRecordingState(!!message.isRecording);
+    if (!message.isRecording) {
+      capturedEvents = message.events || [];
+      renderEvents();
+    }
+  }
+});
+
 startBtn.addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   chrome.tabs.sendMessage(tab.id, { type: 'START_RECORDING' });
-  capturedEvents = []; renderEvents(); updateStatus('Recording is active', 'warning');
+  capturedEvents = [];
+  renderEvents();
+  updateUIForRecordingState(true);
+  setStorage({ [stateKey]: { isRecording: true, events: [] } });
 });
 stopBtn.addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  chrome.tabs.sendMessage(tab.id, { type: 'STOP_RECORDING' }); updateStatus('Recording stopped', 'warning');
+  chrome.tabs.sendMessage(tab.id, { type: 'STOP_RECORDING' });
+  updateUIForRecordingState(false);
+  setStorage({ [stateKey]: { isRecording: false, events: capturedEvents } });
 });
 exportBtn.addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(capturedEvents, null, 2)], { type: 'application/json' });
@@ -112,5 +151,3 @@ generateScriptBtn.addEventListener('click', async () => {
     link.href = url; link.download = `test-${Date.now()}.spec.ts`; link.click(); URL.revokeObjectURL(url); updateStatus('Playwright script downloaded', 'success');
   } catch (error) { console.error(error); updateStatus('Unable to generate the script', 'error'); }
 });
-renderEvents();
-checkApiStatus();

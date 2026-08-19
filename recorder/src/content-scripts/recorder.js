@@ -1,80 +1,74 @@
-// TestCraft Recorder - Content Script
-// Captures user interactions and sends to background script
+(() => {
+  let isRecording = false;
+  let capturedEvents = [];
+  const stateKey = 'testcraft-state';
 
-class TestRecorder {
-  constructor() {
-    this.isRecording = false;
-    this.events = [];
-    this.startTime = null;
-    this.setupEventListeners();
-  }
-
-  setupEventListeners() {
-    // Listen for messages from popup
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      if (message.type === 'START_RECORDING') {
-        this.startRecording();
-        sendResponse({ status: 'started' });
-      } else if (message.type === 'STOP_RECORDING') {
-        const events = this.stopRecording();
-        sendResponse({ status: 'stopped', events });
-      } else if (message.type === 'GET_RECORDING_STATE') {
-        sendResponse({ isRecording: this.isRecording });
-      }
-      return true; // Keep message channel open for async response
-    });
-  }
-
-  startRecording() {
-    this.isRecording = true;
-    this.events = [];
-    this.startTime = Date.now();
-    console.log('TestCraft: Recording started');
-  }
-
-  stopRecording() {
-    this.isRecording = false;
-    const events = [...this.events];
-    this.events = [];
-    console.log('TestCraft: Recording stopped, captured', events.length, 'events');
-    return events;
-  }
-
-  captureEvent(event) {
-    if (!this.isRecording) return;
-
-    const recordedEvent = {
-      type: event.type,
-      timestamp: Date.now() - this.startTime,
-      target: this.getSelector(event.target),
-      value: event.target.value || null,
-      text: event.target.textContent?.slice(0, 100) || null,
-      x: event.clientX || 0,
-      y: event.clientY || 0
-    };
-
-    this.events.push(recordedEvent);
-    console.log('TestCraft: Captured event', recordedEvent);
-  }
-
-  getSelector(element) {
-    if (element.id) {
-      return '#' + element.id;
+  function getSelector(el) {
+    if (el.id) return `#${el.id}`;
+    if (el.className && typeof el.className === 'string' && el.className.trim()) {
+      const cls = el.className.trim().split(/\s+/).slice(0, 2).join('.');
+      return `${el.tagName.toLowerCase()}.${cls}`;
     }
-    if (element.className && typeof element.className === 'string') {
-      return element.tagName.toLowerCase() + '.' + element.className.split(' ').join('.');
+    return el.tagName.toLowerCase();
+  }
+
+  function captureEvent(type, target) {
+    const event = { type, selector: getSelector(target), timestamp: Date.now() };
+    capturedEvents.push(event);
+    chrome.runtime.sendMessage({ type: 'RECORDED_EVENT', event });
+    chrome.storage.local.set({ [stateKey]: { isRecording: true, events: capturedEvents } });
+  }
+
+  function handleClick(event) {
+    if (!isRecording) return;
+    captureEvent('click', event.target);
+  }
+
+  function handleInput(event) {
+    if (!isRecording) return;
+    if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+      captureEvent('input', event.target);
     }
-    return element.tagName.toLowerCase();
   }
 
-  setupEventListeners() {
-    document.addEventListener('click', (e) => this.captureEvent(e), true);
-    document.addEventListener('change', (e) => this.captureEvent(e), true);
-    document.addEventListener('input', (e) => this.captureEvent(e), true);
-    document.addEventListener('keydown', (e) => this.captureEvent(e), true);
+  function handleNavigate() {
+    if (!isRecording) return;
+    captureEvent('navigate', document.documentElement);
   }
-}
 
-// Initialize recorder
-const recorder = new TestRecorder();
-console.log('TestCraft Recorder initialized');
+  async function restoreState() {
+    const state = await new Promise((resolve) => chrome.storage.local.get([stateKey], (v) => resolve(v[stateKey])));
+    if (state?.isRecording) {
+      isRecording = true;
+      capturedEvents = state.events || [];
+    }
+  }
+
+  async function startRecording() {
+    isRecording = true;
+    capturedEvents = [];
+    document.addEventListener('click', handleClick, true);
+    document.addEventListener('input', handleInput, true);
+    window.addEventListener('popstate', handleNavigate);
+    window.addEventListener('hashchange', handleNavigate);
+    chrome.storage.local.set({ [stateKey]: { isRecording: true, events: [] } });
+    chrome.runtime.sendMessage({ type: 'STATE_CHANGED', isRecording: true, events: [] });
+  }
+
+  async function stopRecording() {
+    isRecording = false;
+    document.removeEventListener('click', handleClick, true);
+    document.removeEventListener('input', handleInput, true);
+    window.removeEventListener('popstate', handleNavigate);
+    window.removeEventListener('hashchange', handleNavigate);
+    chrome.storage.local.set({ [stateKey]: { isRecording: false, events: capturedEvents } });
+    chrome.runtime.sendMessage({ type: 'STATE_CHANGED', isRecording: false, events: capturedEvents });
+  }
+
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === 'START_RECORDING') startRecording();
+    if (message.type === 'STOP_RECORDING') stopRecording();
+  });
+
+  restoreState();
+})();

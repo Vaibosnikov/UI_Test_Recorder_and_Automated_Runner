@@ -1,92 +1,74 @@
-# TestCraft - UI Test Recorder & Automated Runner
+# TestCraft
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Playwright](https://img.shields.io/badge/Playwright-Test%20Automation-blue)](https://playwright.dev)
+> Record once, run anywhere — AI-powered test automation for modern web apps.
 
-## What is TestCraft?
+## Overview
 
-TestCraft is a production-ready test automation platform that records user interactions in the browser and automatically converts them into executable Playwright test scripts. Built for QA teams and developers who want to eliminate manual test script writing.
+TestCraft is a Chrome extension that records user interactions and generates Playwright scripts that run across browsers and CI environments.
 
 ## Core Components
 
-| Component | Description | Location |
-|-----------|-------------|----------|
-| **Recorder** | Chrome extension that captures user actions and exports to JSON | `recorder/` |
-| **Script Generator** | CLI tool that converts recorded JSON to Playwright specs | `runner/script-generator/` |
-| **Playwright Runner** | Test execution engine with backend reporting | `runner/playwright/` |
-| **Dashboard** | React-based UI for visualizing test runs and results | `runner/web/` |
-| **API Server** | Node.js backend for managing tests, runs, and results | `runner/api/` |
+| Component | Description |
+| --- | --- |
+| **Chrome Extension** | Records user actions and exports them as structured test data |
+| **Dashboard** | Visualizes test runs, pass/fail trends, and performance metrics |
+| **Backend API** | Stores test runs and provides endpoints for the dashboard and recorder |
+| **Playwright Runner** | Executes generated scripts and reports results back to the API |
 
-## Quick Start
+## Local Development
 
 ### Prerequisites
-- Node.js 18+
-- PostgreSQL 14+
-- Chrome/Chromium browser
 
-### Installation
+- Node.js 20+
+- npm
+- A Chromium-based browser (for the Chrome extension)
+
+### Start the Backend API
 
 ```bash
-# Clone the repository
-git clone https://github.com/Vaibosnikov/UI_Test_Recorder_and_Automated_Runner.git
-cd UI_Test_Recorder_and_Automated_Runner
-
-# Install API dependencies
 cd runner/api
 npm install
-cp .env.example .env  # Configure your environment variables
-
-# Install web dashboard dependencies
-cd ../web
-npm install
-
-# Install script generator dependencies
-cd ../script-generator
-npm install
-
-# Install recorder dependencies
-cd ../../recorder
-npm install
-
-# Setup Playwright runner
-cd ../runner/playwright
-chmod +x setup.sh  # On Mac/Linux
-./setup.sh         # On Windows: setup.bat
+npm run dev
 ```
 
-### Running the Platform
+The API runs on **http://localhost:5000**.
 
-1. **Start the API server** (from `runner/api/`):
-   ```bash
-   npm run dev
-   ```
+### Start the Dashboard
 
-2. **Start the dashboard** (from `runner/web/`):
-   ```bash
-   npm run dev
-   ```
+```bash
+cd runner/web
+npm install
+npm run dev
+```
 
-3. **Load the recorder extension** in Chrome:
-   - Open `chrome://extensions/`
-   - Enable "Developer mode"
-   - Click "Load unpacked" and select the `recorder/` folder
+The dashboard runs on **http://localhost:5173**.
 
-4. **Run Playwright tests** (from `runner/playwright/`):
-   ```bash
-   node run-tests.js
-   ```
+### Run Playwright Tests
 
-## Documentation
+Ensure both the API and dashboard are running, then:
 
-- [Architecture Overview](docs/architecture.md)
-- [API Reference](docs/api-reference.md)
-- [Setup Guide](docs/setup.md)
-- [Contributing Guidelines](CONTRIBUTING.md)
+```bash
+cd C:\Users\v-sharmavaib\UI_Test_Recorder_and_Automated_Runner
+node runner/playwright/run-tests.js
+```
+
+Expected output: **15 passed** with results uploaded to the API.
+
+### Troubleshooting
+
+- **API port conflict**: Ensure nothing else is using port 5000, or set `PORT=5001` and update `API_BASE_URL` accordingly.
+- **Dashboard not loading**: Confirm the API is running and reachable at `http://localhost:5000/v1/runs`.
+- **Test failures**: Check that both API and dashboard are up before running tests.
+
+## CI
+
+TestCraft includes a GitHub Actions workflow (`.github/workflows/ci.yml`) that:
+
+- Installs dependencies for API, web, and Playwright
+- Starts API and web servers
+- Runs the Playwright test suite
+- Uploads results as an artifact
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
-
-## Contact
-
-For questions or support, open an issue or reach out via the repository discussions.
+MIT

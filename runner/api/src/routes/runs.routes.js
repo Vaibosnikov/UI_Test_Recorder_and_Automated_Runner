@@ -1,64 +1,34 @@
-// Mock routes for runs
+const express = require('express');
+const router = express.Router();
 
-const mockRuns = [
-  {
-    id: 1,
-    test_id: 1,
-    status: "passed",
-    environment: "local",
-    branch: "dev",
-    commit_hash: "abc123",
-    duration_ms: 1500,
-    started_at: new Date().toISOString(),
-    finished_at: new Date().toISOString()
-  },
-  {
-    id: 2,
-    test_id: 1,
-    status: "failed",
-    environment: "local",
-    branch: "dev",
-    commit_hash: "def456",
-    duration_ms: 1800,
-    started_at: new Date().toISOString(),
-    finished_at: new Date().toISOString()
-  }
-];
+let runsStore = [];
 
-export function registerRunsRoutes(app) {
-  // GET /v1/runs - list runs (mock)
-  app.get("/v1/runs", (req, res) => {
-    res.json({
-      data: mockRuns
-    });
-  });
+// POST /v1/runs - accept test run results from Playwright runner
+router.post('/', (req, res) => {
+  const body = req.body || {};
 
-  // POST /v1/runs - create new run (in-memory for now)
-  app.post("/v1/runs", (req, res) => {
-    const { test_id, status, environment, branch, commit_hash, duration_ms } = req.body || {};
-    if (!test_id || !status) {
-      return res
-        .status(400)
-        .json({ error: "test_id and status are required" });
-    }
+  // Accept both minimal envelope and full Playwright report
+  const testId = body.test_id || 'playwright-smoke';
+  const status = body.status || (body.rawResults?.stats?.unexpected === 0 ? 'passed' : 'failed');
 
-    const newRun = {
-      id: mockRuns.length + 1,
-      test_id,
-      status,
-      environment: environment || "local",
-      branch: branch || "dev",
-      commit_hash: commit_hash || null,
-      duration_ms: duration_ms || null,
-      started_at: new Date().toISOString(),
-      finished_at: new Date().toISOString()
-    };
+  const runRecord = {
+    test_id: testId,
+    status,
+    total: body.total,
+    passed: body.passed,
+    failed: body.failed,
+    duration_ms: body.duration_ms,
+    timestamp: body.timestamp || new Date().toISOString(),
+    raw: body,
+  };
 
-    mockRuns.push(newRun);
+  runsStore.push(runRecord);
+  res.json({ ok: true, id: runsStore.length - 1, test_id: testId, status });
+});
 
-    res.status(201).json({
-      message: "Run created (mock only)",
-      data: newRun
-    });
-  });
-}
+// GET /v1/runs - return stored runs
+router.get('/', (req, res) => {
+  res.json(runsStore);
+});
+
+module.exports = router;

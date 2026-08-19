@@ -33,18 +33,27 @@ function uploadResults() {
     return;
   }
 
-  // Read the full results and write to a separate payload file for upload
-  const payload = fs.readFileSync(resultsPath, 'utf8');
+  const raw = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
+  const stats = raw.stats || raw.rawResults?.stats || {};
+
+  const payload = {
+    test_id: 'playwright-smoke',
+    status: (stats.unexpected || 0) === 0 ? 'passed' : 'failed',
+    total: (stats.expected || 0) + (stats.unexpected || 0),
+    passed: stats.expected || 0,
+    failed: stats.unexpected || 0,
+    duration_ms: stats.duration || 0,
+    timestamp: new Date(stats.startTime || Date.now()).toISOString(),
+  };
+
   const payloadPath = path.join(RESULTS_DIR, 'payload.json');
-  fs.writeFileSync(payloadPath, payload, 'utf8');
+  fs.writeFileSync(payloadPath, JSON.stringify(payload, null, 2), 'utf8');
 
   console.log('\n📤 Uploading results to backend...');
-  
-  // Use file-based upload to avoid Windows command-line length limits
   const uploadCmd = `curl -X POST ${API_BASE_URL}/v1/runs ^
       -H "Content-Type: application/json" ^
       -d "@${payloadPath}"`;
-  
+
   try {
     execSync(uploadCmd, { stdio: 'inherit', cwd: __dirname });
     console.log('\n✅ Results uploaded successfully');

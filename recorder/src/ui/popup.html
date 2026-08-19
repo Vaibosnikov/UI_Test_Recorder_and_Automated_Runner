@@ -1,36 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>TestCraft Recorder</title>
-  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>TestCraft Recorder</h1>
-    <p class="description">Record user interactions and export to JSON</p>
+  <h1>TestCraft Recorder</h1>
 
-    <div class="status">
-      <span id="status-indicator" class="status-indicator"></span>
-      <span id="status-text">Not Recording</span>
-    </div>
-
-    <div class="controls">
-      <button id="start-btn" class="btn btn-primary">Start Recording</button>
-      <button id="stop-btn" class="btn btn-secondary" disabled>Stop Recording</button>
-    </div>
-
-    <div class="actions">
-      <button id="export-btn" class="btn btn-success">Export JSON</button>
-      <button id="clear-btn" class="btn btn-danger">Clear</button>
-    </div>
-
-    <div class="info">
-      <p>Events captured: <span id="event-count">0</span></p>
-    </div>
+  <div class="controls">
+    <button id="start-recording">Start Recording</button>
+    <button id="stop-recording">Stop Recording</button>
   </div>
 
-  <script src="popup.js"></script>
+  <div class="actions">
+    <button id="export-recording">Export JSON</button>
+    <button id="run-tests">Run Tests</button>
+    <button id="generate-script">Generate Script</button>
+  </div>
+
+  <div id="status">Idle</div>
+
+  <h3>Events</h3>
+  <ul id="events-list"></ul>
+
+  <script type="module" src="popup.js"></script>
 </body>
 </html>

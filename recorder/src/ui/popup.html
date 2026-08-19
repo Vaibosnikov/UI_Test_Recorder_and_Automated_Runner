@@ -2,27 +2,232 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TestCraft Recorder</title>
-  <link rel="stylesheet" href="popup.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 380px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8f9fc;
+      color: #1f2937;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      padding: 20px 16px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      background: #eef2ff;
+      color: #4f46e5;
+    }
+
+    .status-badge.success {
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    .status-badge.error {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .status-badge.warning {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 14px 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .btn-icon {
+      font-size: 18px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #4f46e5;
+      border: 2px solid #e0e7ff;
+    }
+
+    .btn-secondary:hover {
+      border-color: #6366f1;
+      background: #eef2ff;
+    }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+
+    .btn-success {
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    .btn-success:hover {
+      background: #a7f3d0;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .events-container {
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .events-list {
+      list-style: none;
+    }
+
+    .events-list li {
+      padding: 8px 10px;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 12px;
+      color: #374151;
+    }
+
+    .events-list li:last-child {
+      border-bottom: none;
+    }
+
+    .events-list li::before {
+      content: '•';
+      color: #6366f1;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 20px;
+      color: #9ca3af;
+      font-size: 12px;
+    }
+  </style>
 </head>
 <body>
-  <h1>TestCraft Recorder</h1>
-
-  <div class="controls">
-    <button id="start-recording">Start Recording</button>
-    <button id="stop-recording">Stop Recording</button>
+  <div class="header">
+    <h1>🎬 TestCraft Recorder</h1>
+    <p>Record & automate your UI tests</p>
   </div>
 
-  <div class="actions">
-    <button id="export-recording">Export JSON</button>
-    <button id="run-tests">Run Tests</button>
-    <button id="generate-script">Generate Script</button>
+  <div class="content">
+    <div id="status" class="status-badge">
+      <span>⟳</span>
+      <span>Checking API...</span>
+    </div>
+
+    <div class="btn-grid">
+      <button id="start-recording" class="btn btn-primary">
+        <span class="btn-icon">⏺</span>
+        <span>Start</span>
+      </button>
+      <button id="stop-recording" class="btn btn-danger">
+        <span class="btn-icon">⏹</span>
+        <span>Stop</span>
+      </button>
+    </div>
+
+    <div class="btn-grid">
+      <button id="generate-script" class="btn btn-success">
+        <span class="btn-icon">⚡</span>
+        <span>Generate Script</span>
+      </button>
+      <button id="run-tests" class="btn btn-secondary">
+        <span class="btn-icon">▶</span>
+        <span>Run Tests</span>
+      </button>
+    </div>
+
+    <button id="export-recording" class="btn btn-secondary" style="width: 100%; margin-bottom: 16px;">
+      <span class="btn-icon">📥</span>
+      <span>Export Recording</span>
+    </button>
+
+    <div class="section-title">Captured Events</div>
+    <div class="events-container">
+      <ul id="events-list" class="events-list">
+        <li class="empty-state">No events recorded yet</li>
+      </ul>
+    </div>
   </div>
-
-  <div id="status">Idle</div>
-
-  <h3>Events</h3>
-  <ul id="events-list"></ul>
 
   <script type="module" src="popup.js"></script>
 </body>

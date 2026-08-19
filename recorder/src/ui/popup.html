@@ -11,46 +11,140 @@
       box-sizing: border-box;
     }
 
+    :root {
+      --bg-primary: #f8f9fc;
+      --bg-secondary: #ffffff;
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      --border-color: #e5e7eb;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+      --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      --gradient-danger: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+      --status-bg: #eef2ff;
+      --status-text: #4f46e5;
+      --event-bg: #f9fafb;
+      --event-border: #f3f4f6;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border-color: #334155;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+      --status-bg: #1e1b4b;
+      --status-text: #818cf8;
+      --event-bg: #1e293b;
+      --event-border: #334155;
+    }
+
     body {
-      width: 380px;
+      width: 400px;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f8f9fc;
-      color: #1f2937;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
     }
 
     .header {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      background: var(--gradient-primary);
       color: white;
-      padding: 20px 16px;
-      text-align: center;
+      padding: 24px 20px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .header h1 {
-      font-size: 20px;
-      font-weight: 700;
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -10%;
+      width: 150px;
+      height: 150px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .header-info h1 {
+      font-size: 22px;
+      font-weight: 800;
       margin-bottom: 4px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .header p {
-      font-size: 12px;
-      opacity: 0.9;
+    .header-info p {
+      font-size: 13px;
+      opacity: 0.95;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
     }
 
     .content {
-      padding: 16px;
+      padding: 20px;
     }
 
     .status-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
+      gap: 8px;
+      padding: 8px 14px;
       border-radius: 999px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
-      margin-bottom: 16px;
-      background: #eef2ff;
-      color: #4f46e5;
+      margin-bottom: 20px;
+      background: var(--status-bg);
+      color: var(--status-text);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
     }
 
     .status-badge.success {
@@ -58,9 +152,19 @@
       color: #059669;
     }
 
+    [data-theme="dark"] .status-badge.success {
+      background: #064e3b;
+      color: #6ee7b7;
+    }
+
     .status-badge.error {
       background: #fee2e2;
       color: #dc2626;
+    }
+
+    [data-theme="dark"] .status-badge.error {
+      background: #450a0a;
+      color: #fca5a5;
     }
 
     .status-badge.warning {
@@ -68,11 +172,16 @@
       color: #d97706;
     }
 
+    [data-theme="dark"] .status-badge.warning {
+      background: #451a03;
+      color: #fcd34d;
+    }
+
     .btn-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
     .btn {
@@ -80,76 +189,117 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 14px 12px;
+      gap: 8px;
+      padding: 16px 14px;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s ease;
+    }
+
+    .btn:hover::before {
+      transform: translateX(100%);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
     }
 
     .btn-icon {
-      font-size: 18px;
+      font-size: 20px;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      background: var(--gradient-primary);
       color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
 
     .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
     }
 
     .btn-secondary {
-      background: white;
-      color: #4f46e5;
-      border: 2px solid #e0e7ff;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 2px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
     }
 
     .btn-secondary:hover {
       border-color: #6366f1;
-      background: #eef2ff;
+      background: var(--status-bg);
     }
 
     .btn-danger {
-      background: #fee2e2;
-      color: #dc2626;
+      background: var(--gradient-danger);
+      color: white;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
 
     .btn-danger:hover {
-      background: #fecaca;
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
     }
 
     .btn-success {
-      background: #d1fae5;
-      color: #059669;
+      background: var(--gradient-success);
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
     .btn-success:hover {
-      background: #a7f3d0;
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
     }
 
     .section-title {
       font-size: 12px;
       font-weight: 700;
-      color: #6b7280;
+      color: var(--text-secondary);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
+      letter-spacing: 0.6px;
     }
 
     .events-container {
-      background: white;
-      border-radius: 12px;
-      padding: 12px;
-      border: 1px solid #e5e7eb;
-      max-height: 200px;
+      background: var(--bg-secondary);
+      border-radius: 14px;
+      padding: 14px;
+      border: 1px solid var(--border-color);
+      max-height: 220px;
       overflow-y: auto;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+
+    .events-container:hover {
+      box-shadow: var(--shadow-md);
     }
 
     .events-list {
@@ -157,10 +307,17 @@
     }
 
     .events-list li {
-      padding: 8px 10px;
-      border-bottom: 1px solid #f3f4f6;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--event-border);
       font-size: 12px;
-      color: #374151;
+      color: var(--text-primary);
+      border-radius: 8px;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .events-list li:hover {
+      background: var(--status-bg);
     }
 
     .events-list li:last-child {
@@ -168,24 +325,193 @@
     }
 
     .events-list li::before {
-      content: '•';
+      content: '●';
       color: #6366f1;
-      font-weight: bold;
-      margin-right: 8px;
+      font-size: 6px;
+      margin-right: 10px;
+      vertical-align: middle;
     }
 
     .empty-state {
       text-align: center;
-      padding: 20px;
-      color: #9ca3af;
+      padding: 24px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .empty-state-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+
+    /* Tooltip */
+    .tooltip-container {
+      position: relative;
+    }
+
+    .tooltip {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 280px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: var(--shadow-lg);
+      z-index: 100;
+      display: none;
+      animation: slideDown 0.2s ease;
+    }
+
+    .tooltip.show {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tooltip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .tooltip-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .tooltip-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .tooltip-close:hover {
+      color: var(--text-primary);
+    }
+
+    .tooltip-steps {
+      list-style: none;
+    }
+
+    .tooltip-step {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
       font-size: 12px;
+      color: var(--text-primary);
+    }
+
+    .tooltip-step:last-child {
+      margin-bottom: 0;
+    }
+
+    .step-number {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step-text {
+      padding-top: 2px;
+      line-height: 1.4;
+    }
+
+    /* Scrollbar */
+    .events-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .events-container::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+      border-radius: 3px;
+    }
+
+    .events-container::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+
+    .events-container::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>🎬 TestCraft Recorder</h1>
-    <p>Record & automate your UI tests</p>
+    <div class="header-content">
+      <div class="header-info">
+        <h1>🎬 TestCraft</h1>
+        <p>Record & automate UI tests</p>
+      </div>
+      <div class="header-actions">
+        <button id="theme-toggle" class="icon-btn" title="Toggle theme">
+          🌙
+        </button>
+        <div class="tooltip-container">
+          <button id="help-btn" class="icon-btn" title="How to use">
+            ❓
+          </button>
+          <div id="tooltip" class="tooltip">
+            <div class="tooltip-header">
+              <span class="tooltip-title">How to Use</span>
+              <button id="tooltip-close" class="tooltip-close">&times;</button>
+            </div>
+            <ol class="tooltip-steps">
+              <li class="tooltip-step">
+                <span class="step-number">1</span>
+                <span class="step-text">Open the website you want to test</span>
+              </li>
+              <li class="tooltip-step">
+                <span class="step-number">2</span>
+                <span class="step-text">Click <strong>Start</strong> to begin recording</span>
+              </li>
+              <li class="tooltip-step">
+                <span class="step-number">3</span>
+                <span class="step-text">Perform your test actions on the page</span>
+              </li>
+              <li class="tooltip-step">
+                <span class="step-number">4</span>
+                <span class="step-text">Click <strong>Stop</strong> when done</span>
+              </li>
+              <li class="tooltip-step">
+                <span class="step-number">5</span>
+                <span class="step-text">Click <strong>Generate Script</strong> to download Playwright test</span>
+              </li>
+              <li class="tooltip-step">
+                <span class="step-number">6</span>
+                <span class="step-text">Run tests via the dashboard or CLI</span>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="content">
@@ -197,7 +523,7 @@
     <div class="btn-grid">
       <button id="start-recording" class="btn btn-primary">
         <span class="btn-icon">⏺</span>
-        <span>Start</span>
+        <span>Start Recording</span>
       </button>
       <button id="stop-recording" class="btn btn-danger">
         <span class="btn-icon">⏹</span>
@@ -216,15 +542,21 @@
       </button>
     </div>
 
-    <button id="export-recording" class="btn btn-secondary" style="width: 100%; margin-bottom: 16px;">
+    <button id="export-recording" class="btn btn-secondary btn-full" style="margin-bottom: 20px;">
       <span class="btn-icon">📥</span>
-      <span>Export Recording</span>
+      <span>Export Recording (JSON)</span>
     </button>
 
-    <div class="section-title">Captured Events</div>
+    <div class="section-header">
+      <span class="section-title">Captured Events</span>
+      <span id="event-count" style="font-size: 11px; color: var(--text-secondary);">0 events</span>
+    </div>
     <div class="events-container">
       <ul id="events-list" class="events-list">
-        <li class="empty-state">No events recorded yet</li>
+        <li class="empty-state">
+          <div class="empty-state-icon">🎯</div>
+          <div>No events recorded yet<br>Start recording to capture actions</div>
+        </li>
       </ul>
     </div>
   </div>

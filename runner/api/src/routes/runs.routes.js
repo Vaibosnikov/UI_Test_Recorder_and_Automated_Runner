@@ -1,4 +1,5 @@
-const express = require('express');
+import express from 'express';
+
 const router = express.Router();
 
 let runsStore = [];
@@ -31,4 +32,6 @@ router.get('/', (req, res) => {
   res.json(runsStore);
 });
 
-module.exports = router;
+export function registerRunsRoutes(app) {
+  app.use('/v1/runs', router);
+}

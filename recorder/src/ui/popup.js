@@ -11,6 +11,26 @@ const eventsList = document.getElementById('events-list');
 let isRecording = false;
 let capturedEvents = [];
 
+// API status indicator
+async function checkApiStatus() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/v1/runs`, { method: 'GET' });
+    if (res.ok) {
+      status.textContent = 'API connected ✓';
+      status.style.color = 'green';
+    } else {
+      status.textContent = 'API unreachable';
+      status.style.color = 'red';
+    }
+  } catch (err) {
+    status.textContent = 'API unreachable';
+    status.style.color = 'red';
+  }
+}
+
+// Check on load
+checkApiStatus();
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'RECORDED_EVENT') {
     capturedEvents.push(message.event);
@@ -24,6 +44,7 @@ startBtn.addEventListener('click', async () => {
   isRecording = true;
   capturedEvents = [];
   status.textContent = 'Recording...';
+  status.style.color = 'orange';
   renderEvents();
 });
 
@@ -32,6 +53,7 @@ stopBtn.addEventListener('click', async () => {
   chrome.tabs.sendMessage(tab.id, { type: 'STOP_RECORDING' });
   isRecording = false;
   status.textContent = 'Stopped';
+  status.style.color = 'black';
 });
 
 exportBtn.addEventListener('click', () => {
@@ -46,7 +68,15 @@ exportBtn.addEventListener('click', () => {
 });
 
 runTestsBtn.addEventListener('click', async () => {
+  await checkApiStatus();
+  if (status.textContent.includes('unreachable')) {
+    status.textContent = 'API unreachable - start backend first';
+    status.style.color = 'red';
+    return;
+  }
+
   status.textContent = 'Running tests...';
+  status.style.color = 'orange';
   try {
     const payload = {
       test_id: 'extension-recording',
@@ -67,14 +97,24 @@ runTestsBtn.addEventListener('click', async () => {
 
     const result = await res.json();
     status.textContent = result.ok ? 'Tests run successfully' : 'Tests failed';
+    status.style.color = result.ok ? 'green' : 'red';
   } catch (err) {
     console.error(err);
     status.textContent = 'Error running tests';
+    status.style.color = 'red';
   }
 });
 
 generateScriptBtn.addEventListener('click', async () => {
+  await checkApiStatus();
+  if (status.textContent.includes('unreachable')) {
+    status.textContent = 'API unreachable - start backend first';
+    status.style.color = 'red';
+    return;
+  }
+
   status.textContent = 'Generating script...';
+  status.style.color = 'orange';
   try {
     const res = await fetch(`${API_BASE_URL}/v1/generate-script`, {
       method: 'POST',
@@ -91,9 +131,11 @@ generateScriptBtn.addEventListener('click', async () => {
     a.click();
     URL.revokeObjectURL(url);
     status.textContent = 'Script generated';
+    status.style.color = 'green';
   } catch (err) {
     console.error(err);
     status.textContent = 'Error generating script';
+    status.style.color = 'red';
   }
 });
 

@@ -7,25 +7,65 @@ const runTestsBtn = document.getElementById('run-tests');
 const generateScriptBtn = document.getElementById('generate-script');
 const status = document.getElementById('status');
 const eventsList = document.getElementById('events-list');
+const eventCount = document.getElementById('event-count');
+const themeToggle = document.getElementById('theme-toggle');
+const helpBtn = document.getElementById('help-btn');
+const tooltip = document.getElementById('tooltip');
+const tooltipClose = document.getElementById('tooltip-close');
 
 let isRecording = false;
 let capturedEvents = [];
+
+// Theme toggle
+const savedTheme = localStorage.getItem('theme') || 'light';
+document.body.setAttribute('data-theme', savedTheme);
+updateThemeIcon(savedTheme);
+
+themeToggle.addEventListener('click', () => {
+  const currentTheme = document.body.getAttribute('data-theme') || 'light';
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  document.body.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateThemeIcon(newTheme);
+});
+
+function updateThemeIcon(theme) {
+  themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
+}
+
+// Tooltip
+helpBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  tooltip.classList.toggle('show');
+});
+
+tooltipClose.addEventListener('click', () => {
+  tooltip.classList.remove('show');
+});
+
+document.addEventListener('click', (e) => {
+  if (!tooltip.contains(e.target) && e.target !== helpBtn) {
+    tooltip.classList.remove('show');
+  }
+});
 
 // API status indicator
 async function checkApiStatus() {
   try {
     const res = await fetch(`${API_BASE_URL}/v1/runs`, { method: 'GET' });
     if (res.ok) {
-      status.textContent = 'API connected ✓';
-      status.style.color = 'green';
+      updateStatus('API connected ✓', 'success');
     } else {
-      status.textContent = 'API unreachable';
-      status.style.color = 'red';
+      updateStatus('API unreachable', 'error');
     }
   } catch (err) {
-    status.textContent = 'API unreachable';
-    status.style.color = 'red';
+    updateStatus('API unreachable', 'error');
   }
+}
+
+function updateStatus(text, type) {
+  status.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✗' : '⟳'}</span><span>${text}</span>`;
+  status.className = `status-badge ${type}`;
 }
 
 // Check on load
@@ -43,8 +83,7 @@ startBtn.addEventListener('click', async () => {
   chrome.tabs.sendMessage(tab.id, { type: 'START_RECORDING' });
   isRecording = true;
   capturedEvents = [];
-  status.textContent = 'Recording...';
-  status.style.color = 'orange';
+  updateStatus('Recording...', 'warning');
   renderEvents();
 });
 
@@ -52,8 +91,7 @@ stopBtn.addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   chrome.tabs.sendMessage(tab.id, { type: 'STOP_RECORDING' });
   isRecording = false;
-  status.textContent = 'Stopped';
-  status.style.color = 'black';
+  updateStatus('Stopped', 'warning');
 });
 
 exportBtn.addEventListener('click', () => {
@@ -70,13 +108,11 @@ exportBtn.addEventListener('click', () => {
 runTestsBtn.addEventListener('click', async () => {
   await checkApiStatus();
   if (status.textContent.includes('unreachable')) {
-    status.textContent = 'API unreachable - start backend first';
-    status.style.color = 'red';
+    updateStatus('API unreachable - start backend first', 'error');
     return;
   }
 
-  status.textContent = 'Running tests...';
-  status.style.color = 'orange';
+  updateStatus('Running tests...', 'warning');
   try {
     const payload = {
       test_id: 'extension-recording',
@@ -96,25 +132,21 @@ runTestsBtn.addEventListener('click', async () => {
     });
 
     const result = await res.json();
-    status.textContent = result.ok ? 'Tests run successfully' : 'Tests failed';
-    status.style.color = result.ok ? 'green' : 'red';
+    updateStatus(result.ok ? 'Tests run successfully' : 'Tests failed', result.ok ? 'success' : 'error');
   } catch (err) {
     console.error(err);
-    status.textContent = 'Error running tests';
-    status.style.color = 'red';
+    updateStatus('Error running tests', 'error');
   }
 });
 
 generateScriptBtn.addEventListener('click', async () => {
   await checkApiStatus();
   if (status.textContent.includes('unreachable')) {
-    status.textContent = 'API unreachable - start backend first';
-    status.style.color = 'red';
+    updateStatus('API unreachable - start backend first', 'error');
     return;
   }
 
-  status.textContent = 'Generating script...';
-  status.style.color = 'orange';
+  updateStatus('Generating script...', 'warning');
   try {
     const res = await fetch(`${API_BASE_URL}/v1/generate-script`, {
       method: 'POST',
@@ -130,17 +162,28 @@ generateScriptBtn.addEventListener('click', async () => {
     a.download = `test-${Date.now()}.spec.ts`;
     a.click();
     URL.revokeObjectURL(url);
-    status.textContent = 'Script generated';
-    status.style.color = 'green';
+    updateStatus('Script generated', 'success');
   } catch (err) {
     console.error(err);
-    status.textContent = 'Error generating script';
-    status.style.color = 'red';
+    updateStatus('Error generating script', 'error');
   }
 });
 
 function renderEvents() {
+  if (capturedEvents.length === 0) {
+    eventsList.innerHTML = `
+      <li class="empty-state">
+        <div class="empty-state-icon">🎯</div>
+        <div>No events recorded yet<br>Start recording to capture actions</div>
+      </li>
+    `;
+    eventCount.textContent = '0 events';
+    return;
+  }
+
   eventsList.innerHTML = capturedEvents
     .map((e) => `<li>${e.type} - ${e.selector || e.url || ''}</li>`)
     .join('');
+  
+  eventCount.textContent = `${capturedEvents.length} event${capturedEvents.length !== 1 ? 's' : ''}`;
 }

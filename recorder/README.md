@@ -1,67 +1,65 @@
-# TestCraft Recorder
+# TestCraft Recorder (Chrome Extension)
 
-Chrome extension (Manifest V3) that captures user interactions in the browser and exports them to JSON format for use with TestCraft's script generator.
+Chrome extension that records user interactions and generates Playwright tests.
 
-## Features
-
-- Captures clicks, typing, navigation, and form submissions
-- Exports to TestCraft-compatible JSON format
-- Custom selector support
-- Wait condition configuration
-
-## Installation
+## Load the Extension (Development)
 
 1. Open Chrome and navigate to `chrome://extensions/`
-2. Enable "Developer mode" (toggle in top-right)
-3. Click "Load unpacked"
-4. Select this `recorder/` folder
-5. The TestCraft icon should appear in your toolbar
+2. Enable **Developer mode** (top right)
+3. Click **Load unpacked**
+4. Select the `recorder/` directory from this repo
 
-## Usage
+The TestCraft icon should appear in your extensions toolbar.
 
-1. Click the TestCraft icon to open the recorder popup
-2. Click "Start Recording"
-3. Interact with your web application
-4. Click "Stop Recording"
-5. Click "Export" to download the JSON file
+## Record and Run Tests (E2E)
 
-## File Structure
+### 1. Start the Backend API
 
-```
-recorder/
-├── manifest.json          # Extension configuration
-├── src/
-│   ├── background/
-│   │   ├── background.js
-│   │   └── service-worker.js
-│   ├── content-scripts/
-│   │   ├── overlay.js
-│   │   └── recorder.js
-│   ├── icons/
-│   │   └── icon*.png
-│   ├── ui/
-│   │   ├── popup.html
-│   │   ├── popup.css
-│   │   └── popup.js
-│   └── utils/
-│       ├── exporter.js
-│       └── selector.js
-└── samples/
-    └── *.json
+```bash
+cd runner/api
+npm install
+npm run dev
 ```
 
-## Development
+The API runs on **http://localhost:5000**.
 
-### Debugging
+### 2. Open the Extension Popup
 
-- **Service Worker**: Open `chrome://extensions/`, click "Service Worker" under the extension
-- **Popup**: Right-click the extension icon → "Inspect popup"
-- **Content Scripts**: Open DevTools on any page → Console tab
+1. Navigate to any web page you want to test
+2. Click the TestCraft extension icon
+3. Click **Start Recording**
+4. Perform actions (click, type, navigate)
+5. Click **Stop Recording**
 
-### Testing
+### 3. Generate a Playwright Script
 
-Use the sample recordings in `samples/` to verify the script generator compatibility.
+1. In the popup, click **Generate Script**
+2. A `.spec.ts` file will download
+3. Save it into `runner/playwright/tests/` (e.g. `recorded-extension.spec.ts`)
 
-## License
+### 4. Run the Test
 
-MIT License
+Ensure the API and dashboard are running, then:
+
+```bash
+cd C:\Users\v-sharmavaib\UI_Test_Recorder_and_Automated_Runner
+node runner/playwright/run-tests.js
+```
+
+Your recorded test will run as part of the suite.
+
+## Configuration
+
+The extension uses `recorder/src/config.js` to configure the backend URL:
+
+```js
+export const API_BASE_URL = 'http://localhost:5000';
+```
+
+Change this if your API runs on a different host/port.
+
+## Troubleshooting
+
+- **Generate Script fails**: Ensure the API is running and reachable at `http://localhost:5000/v1/generate-script`.
+- **Run Tests fails**: Check that both API and dashboard are up, and the extension's `API_BASE_URL` matches.
+- **Events not showing**: Reload the extension and the target page, then try recording again.

@@ -14,14 +14,8 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content/recorder.js"],
+      "js": ["src/content-scripts/recorder.js"],
       "run_at": "document_end"
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["content/highlight-overlay.js"],
-      "matches": ["<all_urls>"]
     }
   ]
 }

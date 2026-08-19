@@ -32,6 +32,34 @@ router.get('/', (req, res) => {
   res.json(runsStore);
 });
 
+// POST /v1/generate-script - convert recorded events to Playwright code
+router.post('/generate-script', (req, res) => {
+  const { events = [] } = req.body;
+
+  const lines = [
+    "import { test, expect } from '@playwright/test';",
+    '',
+    "test('Extension recording', async ({ page }) => {",
+  ];
+
+  for (const e of events) {
+    if (e.type === 'navigate' && e.url) {
+      lines.push(`  await page.goto('${e.url}');`);
+    } else if (e.type === 'click' && e.selector) {
+      lines.push(`  await page.click('${e.selector}');`);
+    } else if (e.type === 'type' && e.selector && e.value) {
+      lines.push(`  await page.fill('${e.selector}', '${e.value.replace(/'/g, "\\'")}');`);
+    } else if (e.type === 'assert' && e.selector) {
+      lines.push(`  await expect(page.locator('${e.selector}')).toBeVisible();`);
+    }
+  }
+
+  lines.push('});');
+  lines.push('');
+
+  res.type('text/plain').send(lines.join('\n'));
+});
+
 export function registerRunsRoutes(app) {
   app.use('/v1/runs', router);
 }

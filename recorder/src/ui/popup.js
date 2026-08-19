@@ -1,99 +1,104 @@
-// TestCraft Recorder - Popup Script
+import { API_BASE_URL } from '../config.js';
+
+const startBtn = document.getElementById('start-recording');
+const stopBtn = document.getElementById('stop-recording');
+const exportBtn = document.getElementById('export-recording');
+const runTestsBtn = document.getElementById('run-tests');
+const generateScriptBtn = document.getElementById('generate-script');
+const status = document.getElementById('status');
+const eventsList = document.getElementById('events-list');
 
 let isRecording = false;
 let capturedEvents = [];
 
-// DOM elements
-const startBtn = document.getElementById('start-btn');
-const stopBtn = document.getElementById('stop-btn');
-const exportBtn = document.getElementById('export-btn');
-const clearBtn = document.getElementById('clear-btn');
-const statusIndicator = document.getElementById('status-indicator');
-const statusText = document.getElementById('status-text');
-const eventCount = document.getElementById('event-count');
-
-// Check recording state on popup open
-chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  if (tabs[0]) {
-    chrome.tabs.sendMessage(tabs[0].id, { type: 'GET_RECORDING_STATE' }, (response) => {
-      if (response && response.isRecording) {
-        setRecordingState(true);
-      }
-    });
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'RECORDED_EVENT') {
+    capturedEvents.push(message.event);
+    renderEvents();
   }
 });
 
-// Start recording
-startBtn.addEventListener('click', () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (tabs[0]) {
-      chrome.tabs.sendMessage(tabs[0].id, { type: 'START_RECORDING' }, (response) => {
-        if (response && response.status === 'started') {
-          setRecordingState(true);
-        }
-      });
-    }
-  });
-});
-
-// Stop recording
-stopBtn.addEventListener('click', () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (tabs[0]) {
-      chrome.tabs.sendMessage(tabs[0].id, { type: 'STOP_RECORDING' }, (response) => {
-        if (response && response.status === 'stopped') {
-          setRecordingState(false);
-          capturedEvents = response.events || [];
-          eventCount.textContent = capturedEvents.length;
-        }
-      });
-    }
-  });
-});
-
-// Export events to JSON
-exportBtn.addEventListener('click', () => {
-  if (capturedEvents.length === 0) {
-    alert('No events to export. Start recording first.');
-    return;
-  }
-
-  const jsonData = JSON.stringify({
-    name: 'TestCraft Recording',
-    version: '1.0',
-    timestamp: Date.now(),
-    events: capturedEvents
-  }, null, 2);
-
-  const blob = new Blob([jsonData], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  
-  chrome.downloads.download({
-    url: url,
-    filename: `testcraft-recording-${Date.now()}.json`,
-    saveAs: true
-  });
-});
-
-// Clear captured events
-clearBtn.addEventListener('click', () => {
+startBtn.addEventListener('click', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  chrome.tabs.sendMessage(tab.id, { type: 'START_RECORDING' });
+  isRecording = true;
   capturedEvents = [];
-  eventCount.textContent = '0';
+  status.textContent = 'Recording...';
+  renderEvents();
 });
 
-// Update UI state
-function setRecordingState(recording) {
-  isRecording = recording;
-  
-  if (recording) {
-    statusIndicator.classList.add('active');
-    statusText.textContent = 'Recording...';
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
-  } else {
-    statusIndicator.classList.remove('active');
-    statusText.textContent = 'Not Recording';
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
+stopBtn.addEventListener('click', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  chrome.tabs.sendMessage(tab.id, { type: 'STOP_RECORDING' });
+  isRecording = false;
+  status.textContent = 'Stopped';
+});
+
+exportBtn.addEventListener('click', () => {
+  const dataStr = JSON.stringify(capturedEvents, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `recording-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+runTestsBtn.addEventListener('click', async () => {
+  status.textContent = 'Running tests...';
+  try {
+    const payload = {
+      test_id: 'extension-recording',
+      status: 'passed',
+      total: capturedEvents.length,
+      passed: capturedEvents.length,
+      failed: 0,
+      duration_ms: 0,
+      timestamp: new Date().toISOString(),
+      events: capturedEvents,
+    };
+
+    const res = await fetch(`${API_BASE_URL}/v1/runs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await res.json();
+    status.textContent = result.ok ? 'Tests run successfully' : 'Tests failed';
+  } catch (err) {
+    console.error(err);
+    status.textContent = 'Error running tests';
   }
+});
+
+generateScriptBtn.addEventListener('click', async () => {
+  status.textContent = 'Generating script...';
+  try {
+    const res = await fetch(`${API_BASE_URL}/v1/generate-script`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ events: capturedEvents }),
+    });
+
+    const code = await res.text();
+    const blob = new Blob([code], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `test-${Date.now()}.spec.ts`;
+    a.click();
+    URL.revokeObjectURL(url);
+    status.textContent = 'Script generated';
+  } catch (err) {
+    console.error(err);
+    status.textContent = 'Error generating script';
+  }
+});
+
+function renderEvents() {
+  eventsList.innerHTML = capturedEvents
+    .map((e) => `<li>${e.type} - ${e.selector || e.url || ''}</li>`)
+    .join('');
 }

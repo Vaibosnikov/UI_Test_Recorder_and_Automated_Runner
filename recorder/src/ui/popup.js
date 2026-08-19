@@ -10,68 +10,97 @@ const eventsList = document.getElementById('events-list');
 const eventCount = document.getElementById('event-count');
 const themeToggle = document.getElementById('theme-toggle');
 const helpBtn = document.getElementById('help-btn');
-const tooltip = document.getElementById('tooltip');
-const tooltipClose = document.getElementById('tooltip-close');
+const helpDialog = document.getElementById('help-dialog');
+const helpClose = document.getElementById('help-close');
 
-let isRecording = false;
 let capturedEvents = [];
+let lastFocusedElement = null;
 
-// Theme toggle
-const savedTheme = localStorage.getItem('theme') || 'light';
-document.body.setAttribute('data-theme', savedTheme);
-updateThemeIcon(savedTheme);
-
-themeToggle.addEventListener('click', () => {
-  const currentTheme = document.body.getAttribute('data-theme') || 'light';
-  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-  document.body.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-  updateThemeIcon(newTheme);
-});
-
-function updateThemeIcon(theme) {
-  themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
-}
-
-// Tooltip
-helpBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  tooltip.classList.toggle('show');
-});
-
-tooltipClose.addEventListener('click', () => {
-  tooltip.classList.remove('show');
-});
-
-document.addEventListener('click', (e) => {
-  if (!tooltip.contains(e.target) && e.target !== helpBtn) {
-    tooltip.classList.remove('show');
+const themeKey = 'testcraft-theme';
+const getStoredTheme = () => new Promise((resolve) => {
+  if (chrome?.storage?.local) {
+    chrome.storage.local.get([themeKey], (value) => resolve(value[themeKey] || 'light'));
+  } else {
+    resolve(localStorage.getItem(themeKey) || 'light');
   }
 });
 
-// API status indicator
+function setStoredTheme(theme) {
+  if (chrome?.storage?.local) {
+    chrome.storage.local.set({ [themeKey]: theme });
+  } else {
+    localStorage.setItem(themeKey, theme);
+  }
+}
+
+function applyTheme(theme) {
+  document.body.dataset.theme = theme;
+  const isDark = theme === 'dark';
+  themeToggle.textContent = isDark ? '☀' : '◐';
+  themeToggle.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+  themeToggle.title = isDark ? 'Switch to light theme' : 'Switch to dark theme';
+}
+
+getStoredTheme().then(applyTheme);
+themeToggle.addEventListener('click', () => {
+  const nextTheme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(nextTheme);
+  setStoredTheme(nextTheme);
+});
+
+function openHelp() {
+  lastFocusedElement = document.activeElement;
+  helpDialog.classList.add('show');
+  helpClose.focus();
+}
+
+function closeHelp() {
+  helpDialog.classList.remove('show');
+  lastFocusedElement?.focus();
+}
+
+helpBtn.addEventListener('click', openHelp);
+helpClose.addEventListener('click', closeHelp);
+helpDialog.addEventListener('click', (event) => {
+  if (event.target === helpDialog) closeHelp();
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && helpDialog.classList.contains('show')) closeHelp();
+});
+
+function updateStatus(message, state = '') {
+  status.className = `status ${state}`.trim();
+  status.innerHTML = '<span class="status-dot" aria-hidden="true"></span><span></span>';
+  status.lastElementChild.textContent = message;
+}
+
 async function checkApiStatus() {
   try {
-    const res = await fetch(`${API_BASE_URL}/v1/runs`, { method: 'GET' });
-    if (res.ok) {
-      updateStatus('API connected ✓', 'success');
-    } else {
-      updateStatus('API unreachable', 'error');
-    }
-  } catch (err) {
-    updateStatus('API unreachable', 'error');
+    const response = await fetch(`${API_BASE_URL}/v1/runs`, { method: 'GET' });
+    updateStatus(response.ok ? 'API connected and ready' : 'API is unavailable', response.ok ? 'success' : 'error');
+    return response.ok;
+  } catch {
+    updateStatus('API is unavailable', 'error');
+    return false;
   }
 }
 
-function updateStatus(text, type) {
-  status.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✗' : '⟳'}</span><span>${text}</span>`;
-  status.className = `status-badge ${type}`;
+function renderEvents() {
+  eventCount.textContent = `${capturedEvents.length} event${capturedEvents.length === 1 ? '' : 's'}`;
+  if (!capturedEvents.length) {
+    eventsList.innerHTML = '<li class="empty"><span class="empty-icon" aria-hidden="true">◎</span>No events yet. Start recording to capture your test flow.</li>';
+    return;
+  }
+
+  eventsList.replaceChildren(...capturedEvents.map((event) => {
+    const item = document.createElement('li');
+    const target = event.selector || event.url || 'page action';
+    item.textContent = `${event.type || 'action'} — ${target}`;
+    return item;
+  }));
 }
 
-// Check on load
-checkApiStatus();
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message) => {
   if (message.type === 'RECORDED_EVENT') {
     capturedEvents.push(message.event);
     renderEvents();
@@ -81,109 +110,76 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 startBtn.addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   chrome.tabs.sendMessage(tab.id, { type: 'START_RECORDING' });
-  isRecording = true;
   capturedEvents = [];
-  updateStatus('Recording...', 'warning');
   renderEvents();
+  updateStatus('Recording is active', 'warning');
 });
 
 stopBtn.addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   chrome.tabs.sendMessage(tab.id, { type: 'STOP_RECORDING' });
-  isRecording = false;
-  updateStatus('Stopped', 'warning');
+  updateStatus('Recording stopped', 'warning');
 });
 
 exportBtn.addEventListener('click', () => {
-  const dataStr = JSON.stringify(capturedEvents, null, 2);
-  const blob = new Blob([dataStr], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify(capturedEvents, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `recording-${Date.now()}.json`;
-  a.click();
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `recording-${Date.now()}.json`;
+  link.click();
   URL.revokeObjectURL(url);
 });
 
 runTestsBtn.addEventListener('click', async () => {
-  await checkApiStatus();
-  if (status.textContent.includes('unreachable')) {
-    updateStatus('API unreachable - start backend first', 'error');
+  if (!(await checkApiStatus())) {
+    updateStatus('Start the backend before running tests', 'error');
     return;
   }
 
-  updateStatus('Running tests...', 'warning');
+  updateStatus('Running tests…', 'warning');
   try {
     const payload = {
-      test_id: 'extension-recording',
-      status: 'passed',
-      total: capturedEvents.length,
-      passed: capturedEvents.length,
-      failed: 0,
-      duration_ms: 0,
-      timestamp: new Date().toISOString(),
-      events: capturedEvents,
+      test_id: 'extension-recording', status: 'passed', total: capturedEvents.length,
+      passed: capturedEvents.length, failed: 0, duration_ms: 0,
+      timestamp: new Date().toISOString(), events: capturedEvents,
     };
-
-    const res = await fetch(`${API_BASE_URL}/v1/runs`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    const response = await fetch(`${API_BASE_URL}/v1/runs`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
     });
-
-    const result = await res.json();
-    updateStatus(result.ok ? 'Tests run successfully' : 'Tests failed', result.ok ? 'success' : 'error');
-  } catch (err) {
-    console.error(err);
-    updateStatus('Error running tests', 'error');
+    const result = await response.json();
+    updateStatus(result.ok ? 'Tests run successfully' : 'Tests could not be completed', result.ok ? 'success' : 'error');
+  } catch (error) {
+    console.error(error);
+    updateStatus('Unable to run tests', 'error');
   }
 });
 
 generateScriptBtn.addEventListener('click', async () => {
-  await checkApiStatus();
-  if (status.textContent.includes('unreachable')) {
-    updateStatus('API unreachable - start backend first', 'error');
+  if (!(await checkApiStatus())) {
+    updateStatus('Start the backend before generating a script', 'error');
     return;
   }
 
-  updateStatus('Generating script...', 'warning');
+  updateStatus('Generating Playwright script…', 'warning');
   try {
-    const res = await fetch(`${API_BASE_URL}/v1/generate-script`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ events: capturedEvents }),
+    const response = await fetch(`${API_BASE_URL}/v1/generate-script`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ events: capturedEvents }),
     });
-
-    const code = await res.text();
-    const blob = new Blob([code], { type: 'text/plain' });
+    if (!response.ok) throw new Error('Script generation failed');
+    const blob = new Blob([await response.text()], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `test-${Date.now()}.spec.ts`;
-    a.click();
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `test-${Date.now()}.spec.ts`;
+    link.click();
     URL.revokeObjectURL(url);
-    updateStatus('Script generated', 'success');
-  } catch (err) {
-    console.error(err);
-    updateStatus('Error generating script', 'error');
+    updateStatus('Playwright script downloaded', 'success');
+  } catch (error) {
+    console.error(error);
+    updateStatus('Unable to generate the script', 'error');
   }
 });
 
-function renderEvents() {
-  if (capturedEvents.length === 0) {
-    eventsList.innerHTML = `
-      <li class="empty-state">
-        <div class="empty-state-icon">🎯</div>
-        <div>No events recorded yet<br>Start recording to capture actions</div>
-      </li>
-    `;
-    eventCount.textContent = '0 events';
-    return;
-  }
-
-  eventsList.innerHTML = capturedEvents
-    .map((e) => `<li>${e.type} - ${e.selector || e.url || ''}</li>`)
-    .join('');
-  
-  eventCount.textContent = `${capturedEvents.length} event${capturedEvents.length !== 1 ? 's' : ''}`;
-}
+renderEvents();
+checkApiStatus();

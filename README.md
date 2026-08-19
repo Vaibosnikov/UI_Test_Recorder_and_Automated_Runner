@@ -15,6 +15,33 @@ TestCraft is a Chrome extension that records user interactions and generates Pla
 | **Backend API** | Stores test runs and provides endpoints for the dashboard and recorder |
 | **Playwright Runner** | Executes generated scripts and reports results back to the API |
 
+## Extension (E2E)
+
+### Quick Start
+
+1. **Load the extension**
+   - Open `chrome://extensions/`, enable Developer mode, click **Load unpacked**
+   - Select the `recorder/` directory
+
+2. **Start the backend**
+   ```bash
+   cd runner/api
+   npm install
+   npm run dev
+   ```
+
+3. **Record actions**
+   - Open any web page
+   - Click the TestCraft icon, then **Start Recording**
+   - Perform actions, then **Stop Recording**
+
+4. **Generate and run a test**
+   - Click **Generate Script**, save the `.spec.ts` into `runner/playwright/tests/`
+   - Start the dashboard: `cd runner/web && npm run dev`
+   - Run tests: `node runner/playwright/run-tests.js`
+
+See `recorder/README.md` for detailed instructions and troubleshooting.
+
 ## Local Development
 
 ### Prerequisites

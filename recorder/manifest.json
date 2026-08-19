@@ -2,34 +2,26 @@
   "manifest_version": 3,
   "name": "TestCraft Recorder",
   "version": "1.0.0",
-  "description": "Record user interactions and export to TestCraft JSON format",
-  "permissions": [
-    "activeTab",
-    "storage",
-    "downloads"
-  ],
+  "description": "Record UI interactions and generate Playwright tests",
+  "permissions": ["activeTab", "scripting", "storage"],
   "action": {
     "default_popup": "src/ui/popup.html",
-    "default_icon": {
-      "16": "src/icons/icon16.png",
-      "48": "src/icons/icon48.png",
-      "128": "src/icons/icon128.png"
-    }
-  },
-  "icons": {
-    "16": "src/icons/icon16.png",
-    "48": "src/icons/icon48.png",
-    "128": "src/icons/icon128.png"
+    "default_title": "TestCraft Recorder"
   },
   "background": {
-    "service_worker": "src/background/service-worker.js",
-    "type": "module"
+    "service_worker": "src/background/service-worker.js"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["src/content-scripts/recorder.js", "src/content-scripts/overlay.js"],
+      "js": ["content/recorder.js"],
       "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["content/highlight-overlay.js"],
+      "matches": ["<all_urls>"]
     }
   ]
 }

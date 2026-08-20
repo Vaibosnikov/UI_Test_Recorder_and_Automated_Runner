@@ -21,11 +21,11 @@ jobs:
 
       - name: Install API dependencies
         working-directory: runner/api
-        run: npm ci
+        run: npm install
 
       - name: Install Web dependency
         working-directory: runner/web
-        run: npm ci
+        run: npm install
 
       - name: Install Playwright dependency
         working-directory: runner/playwright

@@ -1,5 +1,5 @@
 // Popup script - handles UI interactions
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://testcraft-api-wv2q.onrender.com';
 
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');

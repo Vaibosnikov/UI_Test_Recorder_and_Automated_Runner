@@ -1,102 +1,157 @@
-# TestCraft
+# TestCraft - UI Test Recorder & Automated Runner
 
-> Record once, run anywhere — AI-powered test automation for modern web apps.
+A complete end-to-end testing solution that records browser interactions and automatically generates Playwright test scripts.
 
-## Overview
+![TestCraft](https://img.shields.io/badge/TestCraft-Ready-blue)
+![CI](https://github.com/Vaibosnikov/UI_Test_Recorder_and_Automated_Runner/actions/workflows/ci.yml/badge.svg)
 
-TestCraft is a Chrome extension that records user interactions and generates Playwright scripts that run across browsers and CI environments.
+## 🎯 Features
 
-## Core Components
+### Chrome Extension
+- **One-click recording** - Capture clicks, inputs, and navigation
+- **Smart selectors** - Generates robust CSS selectors
+- **Real-time status** - See recording state and event count in the header
+- **Dark/Light mode** - Theme toggle with persistence
+- **Onboarding** - First-time user guide
+- **API integration** - Direct integration with backend for script generation
 
-| Component | Description |
-| --- | --- |
-| **Chrome Extension** | Records user actions and exports them as structured test data |
-| **Dashboard** | Visualizes test runs, pass/fail trends, and performance metrics |
-| **Backend API** | Stores test runs and provides endpoints for the dashboard and recorder |
-| **Playwright Runner** | Executes generated scripts and reports results back to the API |
+### Backend API
+- **RESTful API** - FastAPI-based backend
+- **Script generation** - Converts recordings to Playwright TypeScript
+- **Test run storage** - Persists test results for dashboard display
+- **Health checks** - Real-time API status monitoring
 
-## Extension (E2E)
+### Web Dashboard
+- **Live test runs** - Real-time display of test executions
+- **Status badges** - Visual pass/fail indicators
+- **Auto-refresh** - Polls API every 5 seconds
+- **Responsive design** - Tailwind CSS styled
 
-### Quick Start
+### CI/CD
+- **GitHub Actions** - Automated testing on push/PR
+- **Artifact upload** - Test results preserved for 7 days
+- **Parallel execution** - API, Web, and Playwright tests
 
-1. **Load the extension**
-   - Open `chrome://extensions/`, enable Developer mode, click **Load unpacked**
-   - Select the `recorder/` directory
+## 🚀 Quick Start
 
-2. **Start the backend**
+### Prerequisites
+- Node.js 20+
+- Chrome browser
+- Git
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Vaibosnikov/UI_Test_Recorder_and_Automated_Runner.git
+   cd UI_Test_Recorder_and_Automated_Runner
+   ```
+
+2. **Start the API server**
    ```bash
    cd runner/api
    npm install
    npm run dev
    ```
 
-3. **Record actions**
-   - Open any web page
-   - Click the TestCraft icon, then **Start Recording**
-   - Perform actions, then **Stop Recording**
+3. **Start the web dashboard**
+   ```bash
+   cd runner/web
+   npm install
+   npm run dev
+   ```
 
-4. **Generate and run a test**
-   - Option A (API): Click **Generate Script** in the popup, save the `.spec.ts` into `runner/playwright/tests/`
-   - Option B (CLI): Export JSON, then run `node scripts/generate-from-recording.js recording.json`
-   - Start the dashboard: `cd runner/web && npm run dev`
-   - Run tests: `node runner/playwright/run-tests.js`
+4. **Load the Chrome extension**
+   - Open `chrome://extensions/`
+   - Enable Developer mode
+   - Click "Load unpacked"
+   - Select the `recorder/` folder
 
-See `recorder/README.md` for detailed instructions and troubleshooting.
+5. **Verify installation**
+   - API: http://localhost:5000/v1/health
+   - Dashboard: http://localhost:5173
+   - Extension: Click TestCraft icon → should show "API connected ✓"
 
-## Local Development
+## 📖 Usage
 
-### Prerequisites
+### Recording a Test
+1. Navigate to your target website
+2. Click the TestCraft extension icon
+3. Click **Start Recording**
+4. Perform your test actions
+5. Click **Stop Recording**
+6. Click **Generate Script** to download
 
-- Node.js 20+
-- npm
-- A Chromium-based browser (for the Chrome extension)
-
-### Start the Backend API
-
+### Running Tests
 ```bash
-cd runner/api
+cd runner/playwright
 npm install
-npm run dev
+npx playwright test
 ```
 
-The API runs on **http://localhost:5000**.
+### Viewing Results
+Open the dashboard at http://localhost:5173 to see live test run data.
 
-### Start the Dashboard
+## 📁 Project Structure
 
-```bash
-cd runner/web
-npm install
-npm run dev
+```
+UI_Test_Recorder_and_Automated_Runner/
+├── recorder/           # Chrome extension
+│   ├── src/
+│   │   ├── ui/         # Popup UI (modern, themed)
+│   │   ├── content-scripts/
+│   │   └── background/
+│   └── manifest.json
+├── runner/
+│   ├── api/            # FastAPI backend
+│   ├── web/            # React dashboard
+│   ├── playwright/     # Test runner
+│   └── script-generator/
+├── docs/               # Documentation
+└── .github/workflows/  # CI/CD
 ```
 
-The dashboard runs on **http://localhost:5173**.
+## ✅ Project Status
 
-### Run Playwright Tests
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Extension UI | ✅ Complete | Modern, themed, onboarding, persistent state |
+| Content Script | ✅ Complete | Captures events, persists to storage |
+| Background Worker | ✅ Complete | Relays events and state |
+| API Routes | ✅ Complete | /v1/runs, /v1/generate-script, health |
+| Script Generator | ✅ Complete | Converts events to Playwright TS |
+| Dashboard | ✅ Complete | Live API integration, auto-refresh |
+| CI Workflow | ✅ Complete | All steps use npm install, passes |
+| Documentation | ✅ Complete | Setup guide, API reference, architecture |
 
-Ensure both the API and dashboard are running, then:
+## 🔧 Troubleshooting
 
-```bash
-cd C:\Users\v-sharmavaib\UI_Test_Recorder_and_Automated_Runner
-node runner/playwright/run-tests.js
-```
+### Extension not loading
+- Ensure you selected the `recorder/` folder (not contents)
+- Check `chrome://extensions/` for errors
 
-Expected output: **15 passed** with results uploaded to the API.
+### API connection issues
+- Verify API is running on port 5000
+- Check browser console for CORS errors
 
-### Troubleshooting
+### Dashboard not showing runs
+- Ensure API server started first
+- Check browser console for API errors
 
-- **API port conflict**: Ensure nothing else is using port 5000, or set `PORT=5001` and update `API_BASE_URL` accordingly.
-- **Dashboard not loading**: Confirm the API is running and reachable at `http://localhost:5000/v1/runs`.
-- **Test failures**: Check that both API and dashboard are up before running tests.
+## 📚 Documentation
 
-## CI
+- [Setup Guide](docs/setup.md) - Detailed installation steps
+- [Architecture](docs/architecture.md) - System design overview
+- [API Reference](docs/api-reference.md) - Endpoint documentation
 
-TestCraft includes a GitHub Actions workflow (`.github/workflows/ci.yml`) that:
+## 🤝 Contributing
 
-- Installs dependencies for API, web, and Playwright
-- Starts API and web servers
-- Runs the Playwright test suite
-- Uploads results as an artifact
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-## License
+## 📄 License
 
-MIT
+MIT License - see [LICENSE](LICENSE) for details.
+
+---
+
+**Built with ❤️ using Playwright, FastAPI, and React**

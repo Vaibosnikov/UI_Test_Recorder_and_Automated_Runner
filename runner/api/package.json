@@ -1,14 +1,23 @@
 {
   "name": "testcraft-backend-api",
   "version": "0.1.0",
-  "description": "Backend API for TestCraft – UI Test Recorder & Automated Runner",
+  "description": "Backend API for TestCraft UI Test Recorder",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "dev": "node src/server.js"
+    "dev": "node src/server.js",
+    "start": "node src/server.js"
   },
+  "keywords": [
+    "testcraft",
+    "api",
+    "playwright",
+    "test-automation"
+  ],
+  "author": "Vaibhav Sharma",
+  "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2"
+    "express": "^4.21.2"
   }
 }

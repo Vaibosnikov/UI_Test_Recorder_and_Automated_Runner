@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 250px; padding: 15px; font-family: Arial, sans-serif; }
+    h2 { margin: 0 0 15px 0; font-size: 16px; }
+    button { width: 100%; padding: 10px; margin: 5px 0; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+    #startBtn { background: #4CAF50; color: white; }
+    #stopBtn { background: #f44336; color: white; }
+    #generateBtn { background: #2196F3; color: white; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    #status { margin-top: 10px; padding: 8px; border-radius: 4px; font-size: 12px; text-align: center; }
+    .status-idle { background: #e0e0e0; }
+    .status-recording { background: #ffcdd2; color: #c62828; }
+    .status-generating { background: #fff3e0; color: #e65100; }
+    .status-done { background: #c8e6c9; color: #2e7d32; }
+  </style>
+</head>
+<body>
+  <h2>🎬 UI Test Recorder</h2>
+  <button id="startBtn">Start Recording</button>
+  <button id="stopBtn" disabled>Stop Recording</button>
+  <button id="generateBtn" disabled>Generate Script</button>
+  <div id="status" class="status-idle">Ready</div>
+  <script src="popup.js"></script>
+</body>
+</html>

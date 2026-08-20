@@ -16,6 +16,7 @@ const onboarding = document.getElementById('onboarding');
 const onboardingDismiss = document.getElementById('onboarding-dismiss');
 const onboardingStart = document.getElementById('onboarding-start');
 const recordingBadge = document.getElementById('recording-badge');
+const recordingCount = document.getElementById('recording-count');
 
 let capturedEvents = [];
 let lastFocusedElement = null;
@@ -82,6 +83,7 @@ function renderEvents() {
 }
 
 function updateUIForRecordingState(isRecording) {
+  recordingBadge.hidden = !isRecording;
   recordingBadge.classList.toggle('show', isRecording);
   if (isRecording) {
     startBtn.classList.add('recording-active');
@@ -94,9 +96,14 @@ function updateUIForRecordingState(isRecording) {
   }
 }
 
+function updateRecordingCount() {
+  if (recordingCount) recordingCount.textContent = String(capturedEvents.length);
+}
+
 getStorage(stateKey).then((state) => {
   capturedEvents = state?.events || [];
   renderEvents();
+  updateRecordingCount();
   checkApiStatus();
   updateUIForRecordingState(!!state?.isRecording);
 });
@@ -105,12 +112,14 @@ chrome.runtime.onMessage.addListener((message) => {
   if (message.type === 'RECORDED_EVENT') {
     capturedEvents.push(message.event);
     renderEvents();
+    updateRecordingCount();
     setStorage({ [stateKey]: { isRecording: true, events: capturedEvents } });
   } else if (message.type === 'STATE_CHANGED') {
     updateUIForRecordingState(!!message.isRecording);
     if (!message.isRecording) {
       capturedEvents = message.events || [];
       renderEvents();
+      updateRecordingCount();
     }
   }
 });
@@ -120,6 +129,7 @@ startBtn.addEventListener('click', async () => {
   chrome.tabs.sendMessage(tab.id, { type: 'START_RECORDING' });
   capturedEvents = [];
   renderEvents();
+  updateRecordingCount();
   updateUIForRecordingState(true);
   setStorage({ [stateKey]: { isRecording: true, events: [] } });
 });

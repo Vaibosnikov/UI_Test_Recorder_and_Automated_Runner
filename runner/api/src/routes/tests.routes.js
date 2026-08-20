@@ -1,21 +1,32 @@
 import { Router } from 'express';
-import { generatePlaywrightScript } from '../../../script-generator/src/index.js';
 
 const router = Router();
+
+function generatePlaywrightScript(events) {
+  let script = `import { test, expect } from '@playwright/test';\n\n`;
+  script += `test('Recorded test', async ({ page }) => {\n`;
+  
+  for (const event of events) {
+    const selector = event.selector || event.target || 'body';
+    
+    if (event.type === 'click') {
+      script += `  await page.click('${selector}');\n`;
+    } else if (event.type === 'input' || event.type === 'type') {
+      const value = event.value || '';
+      script += `  await page.fill('${selector}', '${value}');\n`;
+    } else if (event.type === 'navigate') {
+      const url = event.url || 'about:blank';
+      script += `  await page.goto('${url}');\n`;
+    }
+  }
+  
+  script += `});\n`;
+  return script;
+}
 
 /**
  * POST /v1/generate-script
  * Generates a Playwright TypeScript test script from recorded events
- * 
- * Request body:
- * {
- *   "events": [
- *     { "type": "click", "selector": "#button" },
- *     { "type": "input", "selector": "#name", "value": "John" }
- *   ]
- * }
- * 
- * Response: Plain text TypeScript code
  */
 router.post('/generate-script', async (req, res) => {
   try {
@@ -27,10 +38,8 @@ router.post('/generate-script', async (req, res) => {
       });
     }
 
-    // Generate the Playwright script
     const script = generatePlaywrightScript(events);
     
-    // Return as plain text (not JSON)
     res.setHeader('Content-Type', 'text/plain');
     res.status(200).send(script);
   } catch (error) {

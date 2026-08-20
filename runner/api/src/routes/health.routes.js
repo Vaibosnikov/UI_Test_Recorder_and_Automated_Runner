@@ -1,16 +1,9 @@
-// Health-check routes
+import { Router } from 'express';
 
-export function registerHealthRoutes(app) {
-  app.get("/health", (req, res) => {
-    res.json({
-      status: "ok",
-      service: "TestCraft Backend API",
-      timestamp: new Date().toISOString()
-    });
-  });
+const router = Router();
 
-  // Optional root route
-  app.get("/", (req, res) => {
-    res.send("TestCraft Backend API is live 🚀");
-  });
-}
+router.get('/', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+export default router;

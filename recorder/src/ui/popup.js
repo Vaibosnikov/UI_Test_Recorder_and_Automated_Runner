@@ -7,33 +7,42 @@ const generateScriptBtn = document.getElementById('generate-script');
 const exportBtn = document.getElementById('export-json');
 const clearBtn = document.getElementById('clear-events');
 const statusEl = document.getElementById('status');
+const indicatorEl = document.getElementById('recording-indicator');
+const indicatorLabelEl = document.getElementById('recording-label');
 const eventCountEl = document.getElementById('event-count');
 const eventsListEl = document.getElementById('events-list');
 
 let capturedEvents = [];
 
-function updateStatus(message, kind) {
+function updateStatus(message, kind = '') {
   statusEl.textContent = message;
-  statusEl.className = `status ${kind || ''}`.trim();
+  statusEl.className = `status ${kind}`.trim();
+}
+
+function updateRecordingUI(isRecording) {
+  startBtn.disabled = isRecording;
+  stopBtn.disabled = !isRecording;
+  indicatorEl.classList.toggle('active', isRecording);
+  indicatorLabelEl.textContent = isRecording ? 'Recording is active' : 'Not recording';
 }
 
 function describeEvent(event) {
   if (event.type === 'navigate') return `Go to ${event.url}`;
-  if (event.type === 'click') return `Click ${event.selector}`;
-  if (event.type === 'fill') return `Fill ${event.selector} = ${event.masked ? '\u2022\u2022\u2022\u2022\u2022\u2022' : event.value}`;
+  if (event.type === 'click') return `Click ${event.selector || 'element'}`;
+  if (event.type === 'fill') return `Fill ${event.selector || 'field'} = ${event.masked ? '••••••' : event.value}`;
   return event.type || 'event';
 }
 
 function renderEvents() {
   eventCountEl.textContent = `${capturedEvents.length} event${capturedEvents.length === 1 ? '' : 's'}`;
-  generateScriptBtn.disabled = capturedEvents.length === 0;
-  runTestsBtn.disabled = capturedEvents.length === 0;
-  exportBtn.disabled = capturedEvents.length === 0;
-  clearBtn.disabled = capturedEvents.length === 0;
-
+  const hasEvents = capturedEvents.length > 0;
+  generateScriptBtn.disabled = !hasEvents;
+  runTestsBtn.disabled = !hasEvents;
+  exportBtn.disabled = !hasEvents;
+  clearBtn.disabled = !hasEvents;
   eventsListEl.innerHTML = '';
 
-  if (capturedEvents.length === 0) {
+  if (!hasEvents) {
     const empty = document.createElement('li');
     empty.className = 'empty-state';
     empty.textContent = 'No events captured yet. Click Start recording, then interact with the page.';
@@ -44,18 +53,18 @@ function renderEvents() {
   capturedEvents.forEach((event, index) => {
     const item = document.createElement('li');
     item.className = 'event-item';
-
     const meta = document.createElement('span');
     meta.className = 'event-meta';
     meta.textContent = describeEvent(event);
-
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = '✕';
     deleteBtn.title = 'Remove event';
-    deleteBtn.addEventListener('click', () => deleteEvent(index));
-
-    item.appendChild(meta);
-    item.appendChild(deleteBtn);
+    deleteBtn.addEventListener('click', async () => {
+      const response = await chrome.runtime.sendMessage({ type: 'DELETE_EVENT', index });
+      capturedEvents = response?.events || [];
+      renderEvents();
+    });
+    item.append(meta, deleteBtn);
     eventsListEl.appendChild(item);
   });
 }
@@ -66,38 +75,31 @@ async function refreshEvents() {
   renderEvents();
 }
 
-async function deleteEvent(index) {
-  const response = await chrome.runtime.sendMessage({ type: 'DELETE_EVENT', index });
-  capturedEvents = response?.events || [];
-  renderEvents();
-}
-
 async function checkApiHealth() {
   try {
-    const response = await fetch(`${API_BASE_URL}/v1/runs`, { method: 'GET' });
+    const response = await fetch(`${API_BASE_URL}/v1/runs`);
     updateStatus(response.ok ? 'API connected and ready' : 'API is unavailable', response.ok ? 'ok' : 'error');
-    return response.ok;
   } catch {
     updateStatus('API is unavailable', 'error');
-    return false;
   }
 }
 
-function updateRecordingUI(isRecording) {
-  startBtn.disabled = isRecording;
-  stopBtn.disabled = !isRecording;
-}
-
 startBtn.addEventListener('click', async () => {
-  await chrome.runtime.sendMessage({ type: 'START_RECORDING' });
-  updateRecordingUI(true);
-  await refreshEvents();
+  const response = await chrome.runtime.sendMessage({ type: 'START_RECORDING' });
+  if (response?.ok) {
+    updateRecordingUI(true);
+    updateStatus('Recording started', 'ok');
+    await refreshEvents();
+  }
 });
 
 stopBtn.addEventListener('click', async () => {
-  await chrome.runtime.sendMessage({ type: 'STOP_RECORDING' });
-  updateRecordingUI(false);
-  await refreshEvents();
+  const response = await chrome.runtime.sendMessage({ type: 'STOP_RECORDING' });
+  if (response?.ok) {
+    updateRecordingUI(false);
+    updateStatus('Recording stopped — ready to generate', 'ok');
+    await refreshEvents();
+  }
 });
 
 clearBtn.addEventListener('click', async () => {
@@ -106,56 +108,39 @@ clearBtn.addEventListener('click', async () => {
 });
 
 exportBtn.addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(capturedEvents, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(new Blob([JSON.stringify(capturedEvents, null, 2)], { type: 'application/json' }));
   chrome.downloads.download({ url, filename: 'testcraft-recording.json', saveAs: false });
 });
 
 runTestsBtn.addEventListener('click', async () => {
-  updateStatus('Sending run to API...', '');
+  updateStatus('Sending run to API...');
   try {
-    const response = await fetch(`${API_BASE_URL}/v1/runs`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ events: capturedEvents }),
-    });
-    if (!response.ok) throw new Error('Run request failed');
+    const response = await fetch(`${API_BASE_URL}/v1/runs`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ events: capturedEvents }) });
+    if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || `HTTP ${response.status}`);
     updateStatus('Run submitted', 'ok');
   } catch (error) {
-    console.error('Run tests error:', error);
-    updateStatus('Unable to submit run', 'error');
+    updateStatus(`Unable to submit run: ${error.message}`, 'error');
   }
 });
 
 generateScriptBtn.addEventListener('click', async () => {
-  updateStatus('Generating script...', '');
+  updateStatus('Generating script...');
   try {
-    const response = await fetch(`${API_BASE_URL}/v1/generate-script`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ events: capturedEvents }),
-    });
-
-    if (!response.ok) {
-      const body = await response.json().catch(() => ({}));
-      throw new Error(body.error || 'Script generation failed');
-    }
-
-    const data = await response.json();
-    const blob = new Blob([data.script], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
+    const response = await fetch(`${API_BASE_URL}/v1/generate-script`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ events: capturedEvents }) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.script) throw new Error(data.error || `HTTP ${response.status}`);
+    const url = URL.createObjectURL(new Blob([data.script], { type: 'text/plain' }));
     chrome.downloads.download({ url, filename: 'generated-test.spec.ts', saveAs: false });
-
     updateStatus('Playwright script downloaded', 'ok');
   } catch (error) {
     console.error('Generation error:', error);
-    updateStatus('Unable to generate the script', 'error');
+    updateStatus(`Unable to generate: ${error.message}`, 'error');
   }
 });
 
 (async () => {
   const state = await chrome.runtime.sendMessage({ type: 'GET_STATE' });
-  updateRecordingUI(state?.isRecording || false);
+  updateRecordingUI(Boolean(state?.isRecording));
   await refreshEvents();
   await checkApiHealth();
 })();

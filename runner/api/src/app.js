@@ -1,46 +1,16 @@
-// Builds and configures the Express app
+import express from 'express';
+import cors from 'cors';
+import healthRoutes from './routes/health.routes.js';
+import runsRoutes from './routes/runs.routes.js';
+import testsRoutes from './routes/tests.routes.js';
 
-import express from "express";
-import { registerCors } from "./plugins/cors.js";
+const app = express();
 
-import { registerHealthRoutes } from "./routes/health.routes.js";
-import { registerTestsRoutes } from "./routes/tests.routes.js";
-import { registerRunsRoutes } from "./routes/runs.routes.js";
+app.use(cors());
+app.use(express.json());
 
-import { runRecording, runTests, openPlaywrightReport } from "./routes/recordings.js";
+app.use('/v1', healthRoutes);
+app.use('/v1', runsRoutes);
+app.use('/v1', testsRoutes);
 
-export function createApp() {
-  const app = express();
-
-  // ----------------------------
-  // Core middleware
-  // ----------------------------
-  app.use(express.json());
-
-  // ----------------------------
-  // CORS (must be before routes)
-  // ----------------------------
-  registerCors(app);
-
-  // ----------------------------
-  // Routes
-  // ----------------------------
-  registerHealthRoutes(app);
-  registerTestsRoutes(app);
-  registerRunsRoutes(app);
-
-  // ----------------------------
-  // Recorder → Runner bridge
-  // ----------------------------
-
-  // Convert recording → Playwright spec
-  app.post("/v1/recordings/run", runRecording);
-
-  // Run generated Playwright tests
-  app.post("/v1/recordings/run-tests", runTests);
-
-  // Open Playwright HTML report
-  app.post("/v1/reports/playwright", openPlaywrightReport); 
-
-  return app;
-}
+export default app;

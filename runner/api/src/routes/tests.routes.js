@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { generatePlaywrightScript } from '../../script-generator/src/index.js';
+import { generatePlaywrightScript } from '@testcraft/script-generator';
 
 const router = Router();
 

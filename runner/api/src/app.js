@@ -9,8 +9,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/v1', healthRoutes);
-app.use('/v1', runsRoutes);
-app.use('/v1', testsRoutes);
+app.use('/v1/health', healthRoutes);
+app.use('/v1/runs', runsRoutes);
+app.use('/v1/generate-script', testsRoutes);
 
 export default app;

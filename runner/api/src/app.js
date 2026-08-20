@@ -3,26 +3,26 @@ import cors from 'cors';
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Generate script endpoint
+// The recorder uses this route to verify API availability.
+app.get('/v1/runs', (req, res) => {
+  res.json({ status: 'ok', runs: [] });
+});
+
 app.post('/generate', (req, res) => {
   const { actions } = req.body;
-  
+
   if (!actions || !Array.isArray(actions)) {
     return res.status(400).json({ error: 'Invalid actions array' });
   }
 
-  // Generate Playwright TypeScript test
   const testCode = generatePlaywrightTest(actions);
-  
   res.json({ script: testCode });
 });
 

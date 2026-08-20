@@ -14,32 +14,67 @@ app.get('/v1/runs', (req, res) => {
   res.json({ status: 'ok', runs: [] });
 });
 
+app.post('/v1/runs', (req, res) => {
+  const { events } = req.body || {};
+  if (!Array.isArray(events)) {
+    return res.status(400).json({ error: 'events must be an array' });
+  }
+  return res.status(201).json({ status: 'accepted', eventCount: events.length });
+});
+
 app.post('/v1/generate-script', (req, res) => {
-  const { events } = req.body;
+  const { events } = req.body || {};
 
   if (!Array.isArray(events) || events.length === 0) {
     return res.status(400).json({ error: 'At least one recorded event is required' });
   }
 
-  return res.json({ script: generatePlaywrightTest(events) });
+  try {
+    return res.json({ script: generatePlaywrightTest(events) });
+  } catch (error) {
+    console.error('Script generation failed:', error);
+    return res.status(500).json({ error: 'Failed to generate script' });
+  }
 });
 
 app.post('/generate', (req, res) => {
-  const { actions } = req.body;
+  const { actions } = req.body || {};
 
   if (!Array.isArray(actions) || actions.length === 0) {
     return res.status(400).json({ error: 'At least one recorded action is required' });
   }
 
-  return res.json({ script: generatePlaywrightTest(actions) });
+  try {
+    return res.json({ script: generatePlaywrightTest(actions) });
+  } catch (error) {
+    console.error('Script generation failed:', error);
+    return res.status(500).json({ error: 'Failed to generate script' });
+  }
+});
+
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not found' });
 });
 
 function escapeText(value = '') {
-  return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, '\\n');
+  return String(value)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\r?\n/g, '\\n');
 }
 
 function selectorFor(event) {
-  return event.selector || event.target?.selector || event.cssSelector || event.element?.selector || '';
+  return (
+    event.selector ||
+    event.target?.selector ||
+    event.cssSelector ||
+    event.element?.selector ||
+    ''
+  );
+}
+
+function isMasked(event) {
+  return Boolean(event.masked);
 }
 
 function generatePlaywrightTest(events) {
@@ -63,8 +98,13 @@ function generatePlaywrightTest(events) {
     } else if ((type === 'click' || type === 'pointerdown') && selector) {
       lines.push(`  await page.locator('${escapeText(selector)}').click();`);
     } else if ((type === 'input' || type === 'fill' || type === 'change') && selector) {
-      const value = event.value ?? event.target?.value ?? '';
-      lines.push(`  await page.locator('${escapeText(selector)}').fill('${escapeText(value)}');`);
+      if (isMasked(event)) {
+        lines.push(`  // Sensitive value redacted for '${escapeText(selector)}'`);
+        lines.push(`  await page.locator('${escapeText(selector)}').fill(process.env.TEST_SECRET_VALUE || '');`);
+      } else {
+        const value = event.value ?? event.target?.value ?? '';
+        lines.push(`  await page.locator('${escapeText(selector)}').fill('${escapeText(value)}');`);
+      }
     } else if ((type === 'assert' || type === 'visible') && selector) {
       lines.push(`  await expect(page.locator('${escapeText(selector)}')).toBeVisible();`);
     }

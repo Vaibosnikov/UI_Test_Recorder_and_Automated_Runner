@@ -15,6 +15,7 @@ const helpClose = document.getElementById('help-close');
 const onboarding = document.getElementById('onboarding');
 const onboardingDismiss = document.getElementById('onboarding-dismiss');
 const onboardingStart = document.getElementById('onboarding-start');
+const recordingBadge = document.getElementById('recording-badge');
 
 let capturedEvents = [];
 let lastFocusedElement = null;
@@ -81,6 +82,7 @@ function renderEvents() {
 }
 
 function updateUIForRecordingState(isRecording) {
+  recordingBadge.classList.toggle('show', isRecording);
   if (isRecording) {
     startBtn.classList.add('recording-active');
     startBtn.setAttribute('aria-pressed', 'true');

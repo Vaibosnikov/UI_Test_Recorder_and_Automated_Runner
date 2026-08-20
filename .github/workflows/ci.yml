@@ -29,7 +29,7 @@ jobs:
 
       - name: Install Playwright dependency
         working-directory: runner/playwright
-        run: npm ci
+        run: npm install
 
       - name: Start API server
         working-directory: runner/api

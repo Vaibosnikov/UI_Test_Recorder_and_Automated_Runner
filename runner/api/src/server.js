@@ -1,11 +1,7 @@
-// Entry point for the backend API
+import app from './app.js';
 
-import { createApp } from "./app.js";
-import { config } from "./config/env.js";
-
-const app = createApp();
-const PORT = config.port;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`✅ API server running at http://localhost:${PORT}`);
+  console.log(`API server running on port ${PORT}`);
 });

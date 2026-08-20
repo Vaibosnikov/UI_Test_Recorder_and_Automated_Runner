@@ -1,53 +1,45 @@
-// Mock routes for tests
+import { Router } from 'express';
+import { generatePlaywrightScript } from '../../script-generator/src/index.js';
 
-const mockTests = [
-  {
-    id: 1,
-    project_id: 1,
-    name: "Login Page Smoke Test",
-    description: "Basic smoke test for login UI",
-    is_active: true,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 2,
-    project_id: 1,
-    name: "Signup Flow Test",
-    description: "Covers signup form and validation",
-    is_active: true,
-    created_at: new Date().toISOString()
-  }
-];
+const router = Router();
 
-export function registerTestsRoutes(app) {
-  // GET /v1/tests - list tests (mock)
-  app.get("/v1/tests", (req, res) => {
-    res.json({
-      data: mockTests
-    });
-  });
-
-  // POST /v1/tests - create a new test (in-memory for now)
-  app.post("/v1/tests", (req, res) => {
-    const { name, description, project_id } = req.body || {};
-    if (!name) {
-      return res.status(400).json({ error: "name is required" });
+/**
+ * POST /v1/generate-script
+ * Generates a Playwright TypeScript test script from recorded events
+ * 
+ * Request body:
+ * {
+ *   "events": [
+ *     { "type": "click", "selector": "#button" },
+ *     { "type": "input", "selector": "#name", "value": "John" }
+ *   ]
+ * }
+ * 
+ * Response: Plain text TypeScript code
+ */
+router.post('/generate-script', async (req, res) => {
+  try {
+    const { events } = req.body;
+    
+    if (!events || !Array.isArray(events)) {
+      return res.status(400).json({ 
+        error: 'Invalid request body. Expected "events" array.' 
+      });
     }
 
-    const newTest = {
-      id: mockTests.length + 1,
-      project_id: project_id || 1,
-      name,
-      description: description || "",
-      is_active: true,
-      created_at: new Date().toISOString()
-    };
-
-    mockTests.push(newTest);
-
-    res.status(201).json({
-      message: "Test created (mock only)",
-      data: newTest
+    // Generate the Playwright script
+    const script = generatePlaywrightScript(events);
+    
+    // Return as plain text (not JSON)
+    res.setHeader('Content-Type', 'text/plain');
+    res.status(200).send(script);
+  } catch (error) {
+    console.error('Error generating script:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate script',
+      message: error.message 
     });
-  });
-}
+  }
+});
+
+export default router;

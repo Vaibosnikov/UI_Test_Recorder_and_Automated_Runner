@@ -1,137 +1,112 @@
-# Setup Guide
+# TestCraft - Setup Guide
 
 ## Prerequisites
 
-- Node.js 18 or higher
-- PostgreSQL 14 or higher
-- Chrome/Chromium browser
-- Git
+- Node.js 20+ installed
+- Chrome browser (for extension testing)
+- Git for cloning the repository
 
-## Step 1: Clone the Repository
+## Quick Start
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Vaibosnikov/UI_Test_Recorder_and_Automated_Runner.git
 cd UI_Test_Recorder_and_Automated_Runner
 ```
 
-## Step 2: Database Setup
+### 2. Install and Start Backend Services
 
-```bash
-# Install PostgreSQL (if not already installed)
-# Ubuntu/Debian:
-sudo apt install postgresql postgresql-contrib
-
-# macOS (with Homebrew):
-brew install postgresql
-
-# Create database and user
-psql -U postgres
-CREATE DATABASE testcraft;
-CREATE USER testcraft_user WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE testcraft TO testcraft_user;
-\q
-```
-
-## Step 3: API Server Configuration
-
+#### API Server
 ```bash
 cd runner/api
-
-# Install dependencies
 npm install
-
-# Copy environment template
-cp .env.example .env
-
-# Edit .env with your database credentials
-# DATABASE_URL=postgresql://testcraft_user:your_password@localhost:5432/testcraft
+npm run dev
 ```
+The API runs on `http://localhost:5000`.
 
-## Step 4: Web Dashboard Setup
-
+#### Web Dashboard
 ```bash
 cd runner/web
-
-# Install dependencies
 npm install
-
-# (Optional) Configure API endpoint if different from default
-# Edit .env.local if needed
+npm run dev
 ```
+The dashboard runs on `http://localhost:5173`.
 
-## Step 5: Script Generator Setup
-
-```bash
-cd runner/script-generator
-
-# Install dependencies
-npm install
-```
-
-## Step 6: Recorder Setup
-
-```bash
-cd recorder
-
-# Install dependencies
-npm install
-
-# Build the extension (if build step exists)
-npm run build
-```
-
-## Step 7: Load Recorder in Chrome
+### 3. Install the Chrome Extension
 
 1. Open Chrome and navigate to `chrome://extensions/`
-2. Enable "Developer mode" (toggle in top-right)
-3. Click "Load unpacked"
-4. Select the `recorder/` folder
-5. The extension icon should appear in your toolbar
+2. Enable **Developer mode** (top right)
+3. Click **Load unpacked**
+4. Select the `recorder/` folder from the repository
+5. The TestCraft icon should appear in your extensions toolbar
 
-## Step 8: Verify Installation
+### 4. Verify Installation
 
-### Test API Server
+1. **API**: Visit `http://localhost:5000/v1/health` - should return `{"status":"ok"}`
+2. **Dashboard**: Visit `http://localhost:5173` - should show the TestCraft UI
+3. **Extension**: Click the TestCraft icon - should show "API connected ✓" in green
 
+## Using TestCraft
+
+### Recording a Test
+
+1. Navigate to the website you want to test
+2. Click the TestCraft extension icon
+3. Click **Start Recording** (you'll see a "Recording…" badge in the header)
+4. Perform your test actions (clicks, inputs, navigation)
+5. Click **Stop Recording**
+6. Click **Generate Script** to download a Playwright test file
+
+### Running Tests
+
+#### Option 1: Via Dashboard
+1. Open the dashboard at `http://localhost:5173`
+2. Your recorded runs should appear automatically
+3. Click **Run** to execute tests
+
+#### Option 2: Via CLI
 ```bash
-cd runner/api
-npm run dev
-# Should start on http://localhost:3000
-curl http://localhost:3000/api/health
+cd runner/playwright
+npm install
+npx playwright test
 ```
 
-### Test Dashboard
+## CI/CD Workflow
 
-```bash
-cd runner/web
-npm run dev
-# Should start on http://localhost:5173
-```
+The project uses GitHub Actions for continuous integration:
 
-### Run Platform Tests
+- **Workflow file**: `.github/workflows/ci.yml`
+- **Triggers**: Push to `main` or `dev`, pull requests
+- **Steps**:
+  1. Checkout code
+  2. Setup Node 20
+  3. Install dependencies (API, Web, Playwright)
+  4. Start API and Web servers
+  5. Run Playwright tests
+  6. Upload test results as artifacts
 
-```bash
-cd runner/qa
-npm test
-```
+**Note**: The workflow uses `npm install` (not `npm ci`) to avoid lockfile version issues.
 
 ## Troubleshooting
 
-### Database Connection Errors
+### Extension Not Loading
+- Ensure you selected the `recorder/` folder (not its contents)
+- Check `chrome://extensions/` for error messages
+- Reload the extension if needed
 
-- Verify PostgreSQL is running: `pg_isready`
-- Check credentials in `runner/api/.env`
-- Ensure database exists: `psql -U postgres -l`
+### API Connection Issues
+- Verify the API server is running on port 5000
+- Check browser console for CORS errors
+- The extension popup shows API status in real-time
 
-### Node Module Issues
+### Dashboard Not Showing Runs
+- Ensure API server is running first
+- Check browser console for API errors
+- The dashboard polls `/v1/runs` every 5 seconds
 
-```bash
-# Clear cache and reinstall
-rm -rf node_modules package-lock.json
-npm install
-```
+## Next Steps
 
-### Recorder Not Capturing
-
-- Ensure extension is enabled in `chrome://extensions/`
-- Check browser console for errors
-- Verify target website allows content scripts
+- Review the [Architecture](architecture.md) for system design
+- Check the [API Reference](api-reference.md) for endpoint details
+- Start recording your first test!

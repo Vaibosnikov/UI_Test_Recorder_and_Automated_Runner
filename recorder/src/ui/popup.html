@@ -6,45 +6,44 @@
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <header class="header">
-    <div class="logo">🔹</div>
-    <div>
+  <header class="topbar">
+    <div class="brand-mark">◇</div>
+    <div class="brand-copy">
       <h1>TestCraft</h1>
-      <p class="subtitle">Capture actions. Create tests.</p>
+      <p>Capture actions. Create tests.</p>
     </div>
+    <div class="top-actions"><button aria-label="Theme">◐</button><button aria-label="Help">?</button></div>
   </header>
 
   <div id="status" class="status">Checking API...</div>
 
-  <div class="button-grid">
-    <button id="start-recording" class="btn btn-start">
-      <span class="btn-title">Start recording</span>
-      <span class="btn-desc">Capture page actions</span>
-    </button>
-    <button id="stop-recording" class="btn btn-stop" disabled>
-      <span class="btn-title">Stop recording</span>
-      <span class="btn-desc">Finish this session</span>
-    </button>
-    <button id="generate-script" class="btn btn-generate" disabled>
-      <span class="btn-title">Generate script</span>
-      <span class="btn-desc">Download Playwright test</span>
-    </button>
-    <button id="run-tests" class="btn btn-run" disabled>
-      <span class="btn-title">Run tests</span>
-      <span class="btn-desc">Send run to API</span>
-    </button>
-  </div>
-
-  <button id="export-json" class="btn btn-export" disabled>⬇ Export recording as JSON</button>
-
-  <section class="events-section">
-    <div class="events-header">
-      <h2>CAPTURED EVENTS</h2>
-      <span id="event-count">0 events</span>
-      <button id="clear-events" class="btn-clear" disabled>Clear</button>
+  <main>
+    <div class="button-grid">
+      <button id="start-recording" class="card start-card">
+        <span class="card-icon">●</span><span class="card-title">Start recording</span><span class="card-desc">Capture page actions</span>
+      </button>
+      <button id="stop-recording" class="card stop-card" disabled>
+        <span class="card-icon">■</span><span class="card-title">Stop recording</span><span class="card-desc">Finish this session</span>
+      </button>
+      <button id="generate-script" class="card generate-card" disabled>
+        <span class="card-icon">ϟ</span><span class="card-title">Generate script</span><span class="card-desc">Download Playwright test</span>
+      </button>
+      <button id="run-tests" class="card run-card" disabled>
+        <span class="card-icon">▶</span><span class="card-title">Run tests</span><span class="card-desc">Send run to API</span>
+      </button>
     </div>
-    <ul id="events-list" class="events-list"></ul>
-  </section>
+
+    <button id="export-json" class="export-btn" disabled>⇩ Export recording as JSON</button>
+
+    <section class="events-section">
+      <div class="events-header">
+        <h2>CAPTURED EVENTS</h2>
+        <span id="event-count">0 events</span>
+        <button id="clear-events" class="clear-btn" disabled>Clear</button>
+      </div>
+      <ul id="events-list" class="events-list"></ul>
+    </section>
+  </main>
 
   <script src="popup.js" type="module"></script>
 </body>

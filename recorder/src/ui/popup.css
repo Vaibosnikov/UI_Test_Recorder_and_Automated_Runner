@@ -1,99 +1,11 @@
 * { box-sizing: border-box; }
-body {
-  width: 340px;
-  margin: 0;
-  padding: 16px;
-  font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: #0f172a;
-  color: #e2e8f0;
-}
-.header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.logo { font-size: 22px; }
-h1 { font-size: 16px; margin: 0; }
-.subtitle { font-size: 11px; margin: 0; color: #94a3b8; }
-.status {
-  padding: 8px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  margin-bottom: 12px;
-  background: #1e293b;
-}
-.status.ok { background: #14532d; color: #bbf7d0; }
-.status.error { background: #7f1d1d; color: #fecaca; }
-.button-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-.btn {
-  border: none;
-  border-radius: 8px;
-  padding: 10px;
-  text-align: left;
-  cursor: pointer;
-  color: white;
-}
-.btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.btn-title { display: block; font-weight: 600; font-size: 13px; }
-.btn-desc { display: block; font-size: 11px; opacity: 0.85; margin-top: 2px; }
-.btn-start { background: linear-gradient(135deg,#2563eb,#1d4ed8); }
-.btn-stop { background: #dc2626; }
-.btn-generate { background: #059669; }
-.btn-run { background: #334155; }
-.btn-export {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #334155;
-  background: transparent;
-  color: #cbd5e1;
-  margin-bottom: 12px;
-  cursor: pointer;
-}
-.btn-export:disabled { opacity: 0.45; cursor: not-allowed; }
-.events-section { border-top: 1px solid #1e293b; padding-top: 10px; }
-.events-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-.events-header h2 { font-size: 11px; letter-spacing: 0.06em; margin: 0; color: #94a3b8; }
-#event-count { font-size: 11px; color: #94a3b8; }
-.btn-clear {
-  background: transparent;
-  border: 1px solid #334155;
-  color: #cbd5e1;
-  border-radius: 6px;
-  padding: 3px 8px;
-  font-size: 11px;
-  cursor: pointer;
-}
-.btn-clear:disabled { opacity: 0.4; cursor: not-allowed; }
-.events-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  max-height: 160px;
-  overflow-y: auto;
-}
-.event-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 8px;
-  border-radius: 6px;
-  background: #1e293b;
-  margin-bottom: 6px;
-  font-size: 11px;
-}
-.event-item .event-meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 250px; }
-.event-item button {
-  border: none;
-  background: transparent;
-  color: #f87171;
-  cursor: pointer;
-  font-size: 12px;
-}
-.empty-state { text-align: center; font-size: 11px; color: #64748b; padding: 12px 0; }
+body { width: 370px; margin: 0; background: #f7f9fd; color: #17213a; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.topbar { min-height: 91px; display: flex; align-items: center; gap: 11px; padding: 18px 16px; color: #fff; background: linear-gradient(120deg,#3f40d9 0%,#1686d9 56%,#56c0e7 100%); border-radius: 0 0 10px 10px; }
+.brand-mark { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.55); border-radius: 12px; font-size: 25px; }
+.brand-copy { flex: 1; }.brand-copy h1 { margin: 0; font-size: 20px; line-height: 1; }.brand-copy p { margin: 7px 0 0; font-size: 11px; opacity: .95; }
+.top-actions { display: flex; gap: 8px; }.top-actions button { width: 35px; height: 35px; color: white; background: rgba(22,70,149,.36); border: 1px solid rgba(255,255,255,.3); border-radius: 9px; cursor: pointer; font-weight: 700; }
+.status { margin: 19px 15px 16px; padding: 11px 13px; border: 1px solid #f2d8d8; border-radius: 10px; background: #fff0f0; color: #b6342e; font-size: 13px; font-weight: 700; }.status::before { content: '●'; margin-right: 8px; font-size: 12px; }.status.ok { background:#eefaf2; border-color:#cbe9d4; color:#267341; }.status.error { background:#fff0f0; border-color:#f2d8d8; color:#b6342e; }
+main { padding: 0 15px 16px; }.button-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }.card { min-height: 106px; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; padding:14px; text-align:left; border-radius:11px; border:1px solid #d5dcea; cursor:pointer; }.card:disabled { cursor:not-allowed; opacity:.68; }.card-icon { margin-bottom:10px; font-size:16px; }.card-title { font-size:14px; font-weight:800; }.card-desc { margin-top:4px; font-size:11px; font-weight:500; }.start-card { color:#fff; border:0; background:linear-gradient(135deg,#3357d8,#1ab9df); }.stop-card { color:#ac2826; background:#fff3f2; border-color:#f0d7d8; }.generate-card { color:#fff; border:0; background:linear-gradient(135deg,#008c79,#1a9d66); }.run-card { color:#1d2b45; background:#fff; }.run-card .card-icon { color:#17213a; }
+.export-btn { width:100%; height:48px; margin:12px 0 17px; background:#f6f8fc; color:#17213a; border:1px solid #d8dfeb; border-radius:10px; font-weight:800; cursor:pointer; }.export-btn:disabled { opacity:.58; cursor:not-allowed; }
+.events-section { border-top:1px solid #e2e7f0; padding-top:4px; }.events-header { display:flex; align-items:center; gap:8px; margin:11px 0 9px; }.events-header h2 { margin:0; flex:1; font-size:12px; letter-spacing:.03em; }.events-header span { font-size:11px; color:#64718a; }.clear-btn { padding:3px 7px; border:1px solid #d8dfeb; border-radius:6px; background:#fff; color:#526079; font-size:11px; cursor:pointer; }.clear-btn:disabled { opacity:.45; cursor:not-allowed; }
+.events-list { margin:0; padding:0; list-style:none; max-height:150px; overflow:auto; }.event-item { display:flex; align-items:center; gap:8px; margin-bottom:6px; padding:8px 9px; border:1px solid #e1e6ef; border-radius:8px; background:#fff; font-size:11px; }.event-meta { flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; color:#3d4b63; }.event-item button { border:0; background:transparent; color:#d34848; font-size:14px; cursor:pointer; }.empty-state { padding:18px 8px; color:#74819a; font-size:12px; text-align:center; }

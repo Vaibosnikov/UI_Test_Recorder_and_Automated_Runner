@@ -16,19 +16,15 @@ app.get('/v1/runs', (req, res) => {
 
 app.post('/v1/runs', (req, res) => {
   const { events } = req.body || {};
-  if (!Array.isArray(events)) {
-    return res.status(400).json({ error: 'events must be an array' });
-  }
+  if (!Array.isArray(events)) return res.status(400).json({ error: 'events must be an array' });
   return res.status(201).json({ status: 'accepted', eventCount: events.length });
 });
 
 app.post('/v1/generate-script', (req, res) => {
   const { events } = req.body || {};
-
   if (!Array.isArray(events) || events.length === 0) {
     return res.status(400).json({ error: 'At least one recorded event is required' });
   }
-
   try {
     return res.json({ script: generatePlaywrightTest(events) });
   } catch (error) {
@@ -39,42 +35,28 @@ app.post('/v1/generate-script', (req, res) => {
 
 app.post('/generate', (req, res) => {
   const { actions } = req.body || {};
-
   if (!Array.isArray(actions) || actions.length === 0) {
     return res.status(400).json({ error: 'At least one recorded action is required' });
   }
-
-  try {
-    return res.json({ script: generatePlaywrightTest(actions) });
-  } catch (error) {
-    console.error('Script generation failed:', error);
-    return res.status(500).json({ error: 'Failed to generate script' });
-  }
+  return res.json({ script: generatePlaywrightTest(actions) });
 });
 
-app.use((req, res) => {
-  res.status(404).json({ error: 'Not found' });
-});
+app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 
 function escapeText(value = '') {
-  return String(value)
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'")
-    .replace(/\r?\n/g, '\\n');
+  return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, '\\n');
 }
 
 function selectorFor(event) {
-  return (
-    event.selector ||
-    event.target?.selector ||
-    event.cssSelector ||
-    event.element?.selector ||
-    ''
-  );
+  return event.selector || event.target?.selector || event.cssSelector || event.element?.selector || '';
 }
 
-function isMasked(event) {
-  return Boolean(event.masked);
+function locatorExpression(selector) {
+  const roleMatch = /^role=([^\[]+)\[name="([\s\S]*)"\]$/.exec(selector);
+  if (roleMatch) {
+    return `page.getByRole('${escapeText(roleMatch[1])}', { name: '${escapeText(roleMatch[2])}' })`;
+  }
+  return `page.locator('${escapeText(selector)}')`;
 }
 
 function generatePlaywrightTest(events) {
@@ -85,28 +67,27 @@ function generatePlaywrightTest(events) {
   ];
 
   const firstUrl = events.find((event) => event.type === 'navigate' && event.url)?.url;
-  if (firstUrl) {
-    lines.push(`  await page.goto('${escapeText(firstUrl)}');`);
-  }
+  if (firstUrl) lines.push(`  await page.goto('${escapeText(firstUrl)}');`);
 
   for (const event of events) {
     const type = event.type || event.action;
     const selector = selectorFor(event);
+    const locator = selector ? locatorExpression(selector) : '';
 
     if (type === 'navigate' && event.url && event.url !== firstUrl) {
       lines.push(`  await page.goto('${escapeText(event.url)}');`);
-    } else if ((type === 'click' || type === 'pointerdown') && selector) {
-      lines.push(`  await page.locator('${escapeText(selector)}').click();`);
-    } else if ((type === 'input' || type === 'fill' || type === 'change') && selector) {
-      if (isMasked(event)) {
+    } else if ((type === 'click' || type === 'pointerdown') && locator) {
+      lines.push(`  await ${locator}.click();`);
+    } else if ((type === 'input' || type === 'fill' || type === 'change') && locator) {
+      if (event.masked) {
         lines.push(`  // Sensitive value redacted for '${escapeText(selector)}'`);
-        lines.push(`  await page.locator('${escapeText(selector)}').fill(process.env.TEST_SECRET_VALUE || '');`);
+        lines.push(`  await ${locator}.fill(process.env.TEST_SECRET_VALUE || '');`);
       } else {
         const value = event.value ?? event.target?.value ?? '';
-        lines.push(`  await page.locator('${escapeText(selector)}').fill('${escapeText(value)}');`);
+        lines.push(`  await ${locator}.fill('${escapeText(value)}');`);
       }
-    } else if ((type === 'assert' || type === 'visible') && selector) {
-      lines.push(`  await expect(page.locator('${escapeText(selector)}')).toBeVisible();`);
+    } else if ((type === 'assert' || type === 'visible') && locator) {
+      lines.push(`  await expect(${locator}).toBeVisible();`);
     }
   }
 

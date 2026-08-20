@@ -26,6 +26,22 @@ function updateRecordingUI(isRecording) {
   indicatorLabelEl.textContent = isRecording ? 'Recording is active' : 'Not recording';
 }
 
+async function downloadText(content, filename, mimeType) {
+  const url = URL.createObjectURL(new Blob([content], { type: mimeType }));
+  try {
+    if (chrome.downloads?.download) {
+      await chrome.downloads.download({ url, filename, saveAs: false });
+      return;
+    }
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+}
+
 function describeEvent(event) {
   if (event.type === 'navigate') return `Go to ${event.url}`;
   if (event.type === 'click') return `Click ${event.selector || 'element'}`;
@@ -107,9 +123,12 @@ clearBtn.addEventListener('click', async () => {
   await refreshEvents();
 });
 
-exportBtn.addEventListener('click', () => {
-  const url = URL.createObjectURL(new Blob([JSON.stringify(capturedEvents, null, 2)], { type: 'application/json' }));
-  chrome.downloads.download({ url, filename: 'testcraft-recording.json', saveAs: false });
+exportBtn.addEventListener('click', async () => {
+  try {
+    await downloadText(JSON.stringify(capturedEvents, null, 2), 'testcraft-recording.json', 'application/json');
+  } catch (error) {
+    updateStatus(`Unable to export: ${error.message}`, 'error');
+  }
 });
 
 runTestsBtn.addEventListener('click', async () => {
@@ -129,8 +148,7 @@ generateScriptBtn.addEventListener('click', async () => {
     const response = await fetch(`${API_BASE_URL}/v1/generate-script`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ events: capturedEvents }) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.script) throw new Error(data.error || `HTTP ${response.status}`);
-    const url = URL.createObjectURL(new Blob([data.script], { type: 'text/plain' }));
-    chrome.downloads.download({ url, filename: 'generated-test.spec.ts', saveAs: false });
+    await downloadText(data.script, 'generated-test.spec.ts', 'text/plain');
     updateStatus('Playwright script downloaded', 'ok');
   } catch (error) {
     console.error('Generation error:', error);

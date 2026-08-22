@@ -6,6 +6,7 @@ app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/v1/health', (req, res) => res.json({ status: 'ok' }));
 app.get('/v1/runs', (req, res) => res.json({ status: 'ok', runs: [] }));
 app.post('/v1/runs', (req, res) => {
   const { events } = req.body || {};

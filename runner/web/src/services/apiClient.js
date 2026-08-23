@@ -1,43 +1,27 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const RAW_API_URL = import.meta.env.VITE_API_URL;
+export const API_BASE_URL = (RAW_API_URL && RAW_API_URL.trim().length > 0)
+  ? RAW_API_URL.trim().replace(/\/+$/, '')
+  : 'http://localhost:5000';
 
-async function fetchJSON(url, options = {}) {
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
+async function fetchJSON(path) {
+  const url = `${API_BASE_URL}${path}`;
+  const response = await fetch(url);
+  const text = await response.text();
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`API error: ${response.status} - ${error}`);
+    throw new Error(`API error ${response.status} for ${url}: ${text}`);
   }
-  return response.json();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`Invalid JSON from ${url}: ${text}`);
+  }
 }
 
 export const apiClient = {
-  async getRuns() {
-    return fetchJSON(`${API_BASE_URL}/v1/runs`);
+  getHealth() {
+    return fetchJSON('/v1/health');
   },
-  async createRun(runData) {
-    return fetchJSON(`${API_BASE_URL}/v1/runs`, {
-      method: 'POST',
-      body: JSON.stringify(runData),
-    });
-  },
-  async generateScript(events) {
-    const response = await fetch(`${API_BASE_URL}/v1/generate-script`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ events }),
-    });
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Script generation failed: ${response.status} - ${error}`);
-    }
-    return response.text();
-  },
-  async getHealth() {
-    return fetchJSON(`${API_BASE_URL}/v1/health`);
+  getRuns() {
+    return fetchJSON('/v1/runs');
   },
 };
